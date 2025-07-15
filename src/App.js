@@ -1,9 +1,9 @@
 import { Box, Input } from "@mui/joy";
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import Login from "./pages/Login";
+import Login  from "./pages/Login.jsx";
 
 import "./App.css";
-import Home from "./pages/Home";
+import Home from "./pages/Home.jsx";
 
 
 
