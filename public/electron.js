@@ -1,6 +1,7 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs').promises;
+
 
 function createWindow() {
   console.log("Creating window...");
@@ -18,6 +19,8 @@ function createWindow() {
     height: 600,
     webPreferences: {
       contextIsolation: true,
+      nodeIntegration: false,
+      preload: path.join(__dirname, 'preload.js'), // ← Wichtig!
     },
   });
 
@@ -36,4 +39,41 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   console.log("App quit");
   if (process.platform !== 'darwin') app.quit();
+});
+
+
+
+
+ipcMain.handle('read-file', async (_, filePath) => {
+  try {
+    const content = await fs.readFile(filePath, 'utf-8');
+    return content;
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      await fs.writeFile(filePath, "{}", 'utf-8');
+      return "{}";
+    }
+    console.error("Fehler beim Lesen:", err);
+    return null;
+  }
+});
+
+ipcMain.handle('write-file', async (_, filePath, content) => {
+  try {
+    await fs.writeFile(filePath, content, 'utf-8');
+    return 'success';
+  } catch (err) {
+    console.error("Fehler beim Schreiben:", err);
+    return 'error';
+  }
+});
+
+ipcMain.handle('dialog:openFile', async () => {
+  const result = await dialog.showOpenDialog({ properties: ['openFile'] });
+  return result.canceled ? null : result.filePaths[0];
+});
+
+ipcMain.handle('dialog:saveFile', async () => {
+  const result = await dialog.showSaveDialog({});
+  return result.canceled ? null : result.filePath;
 });
