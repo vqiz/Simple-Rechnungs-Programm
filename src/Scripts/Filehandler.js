@@ -1,12 +1,14 @@
-
+//Later Task add encryption
 export const handleLoadFile = async (filePath) => {
+  console.log("called handle load File")
   if (filePath) {
+    console.log("Entered the filepath block")
     try {
       const content = await window.api.readFile(filePath);
-      console.log("📖 Gelesener Inhalt:", content);
+      console.log("Gelesener Inhalt:", content);
       return content;
     } catch (err) {
-      console.error("❌ Fehler beim Lesen:", err);
+      console.error("Fehler beim Lesen:", err);
     }
   }
 };

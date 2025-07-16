@@ -42,7 +42,16 @@ app.on('window-all-closed', () => {
 });
 
 
+ipcMain.handle("list-files", async (_, filePath) => {
+  try {
+    const files = await fs.readdir(filePath);
+    return files;
+  } catch (err) {
+    return [];
+  }
 
+
+});
 
 ipcMain.handle('read-file', async (_, filePath) => {
   try {
@@ -50,10 +59,22 @@ ipcMain.handle('read-file', async (_, filePath) => {
     return content;
   } catch (err) {
     if (err.code === 'ENOENT') {
+      const dir = path.dirname(filePath);
+
+
+      try {
+        await fs.mkdir(dir, { recursive: true });
+      } catch (mkdirErr) {
+        console.error("Fehler beim Erstellen des Ordners:", mkdirErr);
+        return null;
+      }
+
+
       await fs.writeFile(filePath, "{}", 'utf-8');
       return "{}";
     }
-    console.error("Fehler beim Lesen:", err);
+
+    console.error("Fehler beim Lesen der Datei:", err);
     return null;
   }
 });

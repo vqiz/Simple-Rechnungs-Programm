@@ -1,41 +1,53 @@
-import { Accordion, AccordionDetails, accordionDetailsClasses, AccordionGroup, AccordionSummary, accordionSummaryClasses, Box, Button, Card, Typography } from '@mui/joy'
-import React, { useState } from 'react'
+import { Accordion, AccordionDetails, accordionDetailsClasses, AccordionGroup, AccordionSummary, accordionSummaryClasses, Box, Button, Card, Table, Typography } from '@mui/joy'
+import React, { useEffect, useState } from 'react'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CreateProduktKathegorie from '../Masks/CreateProduktKathegorie';
+import { handleLoadFile } from '../../Scripts/Filehandler';
+import KathAccordationDetail from '../Produktedit/KathAccordationDetail';
 
 
 const ProdukteVerwalten = () => {
 
 
-
+    const [kathpath, setkathpath] = useState("kathegories/kathegories.rechnix");
     const [create, setcreate] = useState(false);
+    const [data, setdata] = useState();
+    async function readdata() {
+        const jsonString = await handleLoadFile(kathpath);
+        const json = JSON.parse(jsonString);
+        setdata(json);
+    }
+    useEffect(() => {
+        readdata();
+    }, []);
+
     return (
-        <Box sx={{ height: "100vh", overflowY: "auto",width: "100%", display: "flex", flexDirection: "column", gap: 2, p: 0, position: "relative" }}>
+        <Box sx={{ height: "100vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 2, p: 0, position: "relative" }}>
             {
                 create && (
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      bgcolor: "rgba(0, 0, 0, 0.5)",
-                      zIndex: 10,
-                    }}
-                  >
                     <Box
-                      sx={{
-                        boxShadow: 3,
-                        zIndex: 11,
-                      }}
+                        sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 10,
+                        }}
                     >
-                      <CreateProduktKathegorie setcreate={setcreate} />
+                        <Box
+                            sx={{
+                                boxShadow: 3,
+                                zIndex: 11,
+                            }}
+                        >
+                            <CreateProduktKathegorie setcreate={setcreate} path={kathpath} update={readdata} />
+                        </Box>
                     </Box>
-                  </Box>
                 )
             }
             <Box sx={{ width: "100%", height: "55px", bgcolor: "#ffffff", display: "flex", alignItems: "center", borderBottom: "1px solid #ddd" }}>
@@ -79,14 +91,19 @@ const ProdukteVerwalten = () => {
                             },
                         },
                     })}>
-                    <Accordion>
-                        <AccordionSummary>Test</AccordionSummary>
-                        <AccordionDetails>Test</AccordionDetails>
-                    </Accordion>
-                    <Accordion>
-                        <AccordionSummary>Test</AccordionSummary>
-                        <AccordionDetails>Test</AccordionDetails>
-                    </Accordion>
+                    {
+                        data && data.list && data.list.map(item => {
+                            return (
+                                <Accordion>
+                                    <AccordionSummary>{item.name}</AccordionSummary>
+                                    <AccordionDetails>
+                                        <KathAccordationDetail item={item}/>
+                                    </AccordionDetails>
+                                </Accordion>
+                            )
+
+                        })
+                    }
                 </AccordionGroup>
 
 

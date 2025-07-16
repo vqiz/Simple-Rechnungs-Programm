@@ -14,7 +14,7 @@ function Login() {
     const [alert, setalert] = useState(false);
     //add a md5 hash later b179a8cb8ecdc798e5533f3bdeca3df7
     function submit() {
-        if (passwordinput == "Schinköthe") {
+        if (passwordinput == "login") {
             navigate("/home");
         } else {
             setalert(true);
@@ -23,7 +23,7 @@ function Login() {
     return (
         <>
             <header>
-                <title>Anmeldung</title>
+                <title>Rechnix</title>
             </header>
             <Box
                 sx={{
@@ -65,7 +65,7 @@ function Login() {
                         }}
                     >
                         <p style={{ fontSize: "1.5rem", fontWeight: "bold", margin: 0 }}>
-                            Rechnungsystem
+                            Rechnix
                         </p>
                         <p style={{ margin: 0, fontSize: "0.95rem", color: "#666" }}>
                             Bitte Passwort eingeben
