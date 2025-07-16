@@ -9,27 +9,110 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 
 function Home() {
   return (
-    <Tabs sx={{ width: "100%", height: "100vh" }} orientation="vertical">
-      <TabList>
-        <Tab sx={{ fontWeight: 'bold', padding: 2 }}>
+    <Tabs
+      sx={{ width: "100%", height: "100vh", bgcolor: "#f9f9f9", color: "#333", fontFamily: "Arial, sans-serif" }}
+      orientation="vertical"
+    >
+      <TabList sx={{ bgcolor: "#ffffff", borderRight: "1px solid #ddd" }}>
+        <Tab
+          sx={{
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            fontWeight: 500,
+            fontSize: '1rem',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            mx: 1,
+            my: 0.5,
+            textTransform: 'none',
+            color: '#333',
+            '&:hover': {
+              bgcolor: '#f0f0f0',
+            },
+            '&[aria-selected="true"]': {
+              bgcolor: '#e0e0e0',
+              color: '#000',
+            },
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <ReceiptIcon />
             Rechnung erstellen
           </Box>
         </Tab>
-        <Tab sx={{ fontWeight: 'bold', padding: 2 }}>
+        <Tab
+          sx={{
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            fontWeight: 500,
+            fontSize: '1rem',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            mx: 1,
+            my: 0.5,
+            textTransform: 'none',
+            color: '#333',
+            '&:hover': {
+              bgcolor: '#f0f0f0',
+            },
+            '&[aria-selected="true"]': {
+              bgcolor: '#e0e0e0',
+              color: '#000',
+            },
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <FindInPageIcon />
             Bestehende Rechnung abrufen
           </Box>
         </Tab>
-        <Tab sx={{ fontWeight: 'bold', padding: 2 }}>
+        <Tab
+          sx={{
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            fontWeight: 500,
+            fontSize: '1rem',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            mx: 1,
+            my: 0.5,
+            textTransform: 'none',
+            color: '#333',
+            '&:hover': {
+              bgcolor: '#f0f0f0',
+            },
+            '&[aria-selected="true"]': {
+              bgcolor: '#e0e0e0',
+              color: '#000',
+            },
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <InventoryIcon />
             Produkte verwalten
           </Box>
         </Tab>
-        <Tab sx={{ fontWeight: 'bold', padding: 2 }}>
+        <Tab
+          sx={{
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            fontWeight: 500,
+            fontSize: '1rem',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            mx: 1,
+            my: 0.5,
+            textTransform: 'none',
+            color: '#333',
+            '&:hover': {
+              bgcolor: '#f0f0f0',
+            },
+            '&[aria-selected="true"]': {
+              bgcolor: '#e0e0e0',
+              color: '#000',
+            },
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <SettingsOutlinedIcon />
             Einstellungen
@@ -42,7 +125,7 @@ function Home() {
       <TabPanel value={1}>
         {/* Inhalt für bestehende Rechnung abrufen */}
       </TabPanel>
-      <TabPanel value={2}>
+      <TabPanel sx={{ p: 0 }} value={2}>
         <ProdukteVerwalten />
       </TabPanel>
     </Tabs>
