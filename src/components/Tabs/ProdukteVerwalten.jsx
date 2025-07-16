@@ -11,7 +11,7 @@ const ProdukteVerwalten = () => {
                     Produkte Verwalten
                 </Typography>
             </Box>
-            <Box sx={{ width: "98%", display: "flex", flexDirection: "column" , justifyContent: "center"}}>
+            <Box sx={{  display: "flex", flexDirection: "column" , justifyContent: "center", p: 2}}>
                 <Card variant='outlined' sx={{ display: "flex", flexDirection: "row", alignItems: "center", padding: 2, bgcolor: "#f9f9f9" }}>
                     <Box sx={{ height: "100%", fontSize: "1.5rem", display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <InfoOutlinedIcon />
@@ -23,6 +23,7 @@ const ProdukteVerwalten = () => {
                         </Typography>
                     </Box>
                 </Card>
+
             </Box>
 
 
