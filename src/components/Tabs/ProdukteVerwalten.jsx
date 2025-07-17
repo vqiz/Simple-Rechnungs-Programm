@@ -2,8 +2,10 @@ import { Accordion, AccordionDetails, accordionDetailsClasses, AccordionGroup, A
 import React, { useEffect, useState } from 'react'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CreateProduktKathegorie from '../Masks/CreateProduktKathegorie';
-import { handleLoadFile } from '../../Scripts/Filehandler';
+import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 import KathAccordationDetail from '../Produktedit/KathAccordationDetail';
+import DeleteConfirmation from '../Masks/DeleteConfirmation';
+import CreateProdukt from '../Masks/CreateProdukt';
 
 
 const ProdukteVerwalten = () => {
@@ -12,17 +14,55 @@ const ProdukteVerwalten = () => {
     const [kathpath, setkathpath] = useState("kathegories/kathegories.rechnix");
     const [create, setcreate] = useState(false);
     const [data, setdata] = useState();
+    const [deleteconfirmation, setdeleteconfirmation] = useState(null);
+    const [createProdukt, setcreateprodukt] = useState(null);
     async function readdata() {
         const jsonString = await handleLoadFile(kathpath);
         const json = JSON.parse(jsonString);
         setdata(json);
     }
+    async function deleteKathegorie(name) {
+        const jsonString = await handleLoadFile(kathpath);
+        const json = JSON.parse(jsonString);
+        json.list = json.list.filter((i) => i.name != name);
+        await handleSaveFile(kathpath, JSON.stringify(json));
+        setdeleteconfirmation(null);
+        readdata();
+    }
+
     useEffect(() => {
         readdata();
     }, []);
 
     return (
         <Box sx={{ height: "100vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 2, p: 0, position: "relative" }}>
+            {
+                createProdukt != null && (
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 10,
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                boxShadow: 3,
+                                zIndex: 11,
+                            }}
+                        >
+                            <CreateProdukt kathpath={kathpath} update={readdata} kathname={createProdukt.name} disable={setcreateprodukt} />
+                        </Box>
+                    </Box>
+                )
+            }
             {
                 create && (
                     <Box
@@ -46,6 +86,40 @@ const ProdukteVerwalten = () => {
                             }}
                         >
                             <CreateProduktKathegorie setcreate={setcreate} path={kathpath} update={readdata} />
+                        </Box>
+                    </Box>
+                )
+            }
+            {
+                deleteconfirmation != null && (
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 10,
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                boxShadow: 3,
+                                zIndex: 11,
+                            }}
+                        >
+                            <DeleteConfirmation
+                                title={"Kathegorie Löschen"}
+                                confirmfunction={deleteKathegorie}
+                                disable={setdeleteconfirmation}
+                                buttontitle={"Löschen"}
+                                description={"Sind sie sicher das die die Kathegorie " + deleteconfirmation.name + " mit allen Produkten löschen wollen ?"}
+                                parameter={deleteconfirmation.name}
+                            />
                         </Box>
                     </Box>
                 )
@@ -97,7 +171,7 @@ const ProdukteVerwalten = () => {
                                 <Accordion>
                                     <AccordionSummary>{item.name}</AccordionSummary>
                                     <AccordionDetails>
-                                        <KathAccordationDetail item={item}/>
+                                        <KathAccordationDetail setcreatep={setcreateprodukt} item={item} path={kathpath} setconfirmation={setdeleteconfirmation} />
                                     </AccordionDetails>
                                 </Accordion>
                             )

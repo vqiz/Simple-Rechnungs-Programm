@@ -6,7 +6,8 @@ import FindInPageIcon from '@mui/icons-material/FindInPage'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import ProdukteVerwalten from '../components/Tabs/ProdukteVerwalten'
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-
+import ContactPageOutlinedIcon from '@mui/icons-material/ContactPageOutlined';
+import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
 function Home() {
   return (
     <Tabs
@@ -88,8 +89,60 @@ function Home() {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <ContactPageOutlinedIcon />
+            Kundenverwaltung
+          </Box>
+        </Tab>
+        <Tab
+          sx={{
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            fontWeight: 500,
+            fontSize: '1rem',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            mx: 1,
+            my: 0.5,
+            textTransform: 'none',
+            color: '#333',
+            '&:hover': {
+              bgcolor: '#f0f0f0',
+            },
+            '&[aria-selected="true"]': {
+              bgcolor: '#e0e0e0',
+              color: '#000',
+            },
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <InventoryIcon />
             Produkte verwalten
+          </Box>
+        </Tab>
+        <Tab
+          sx={{
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            fontWeight: 500,
+            fontSize: '1rem',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            mx: 1,
+            my: 0.5,
+            textTransform: 'none',
+            color: '#333',
+            '&:hover': {
+              bgcolor: '#f0f0f0',
+            },
+            '&[aria-selected="true"]': {
+              bgcolor: '#e0e0e0',
+              color: '#000',
+            },
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LeaderboardOutlinedIcon />
+            Bilanz 
           </Box>
         </Tab>
         <Tab
@@ -125,7 +178,7 @@ function Home() {
       <TabPanel value={1}>
         {/* Inhalt für bestehende Rechnung abrufen */}
       </TabPanel>
-      <TabPanel sx={{ p: 0 }} value={2}>
+      <TabPanel sx={{ p: 0 }} value={3}>
         <ProdukteVerwalten />
       </TabPanel>
     </Tabs>
