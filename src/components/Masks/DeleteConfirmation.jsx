@@ -19,7 +19,7 @@ function DeleteConfirmation({title,confirmfunction,disable, buttontitle, descrip
                     boxShadow: "sm",
                 }}
             >
-                <Typography level="h3" mt={1}>
+                <Typography level="h3" mt={1} mb={2}>
                     {title}
                 </Typography>
                 <Divider orientation="horizontal" />

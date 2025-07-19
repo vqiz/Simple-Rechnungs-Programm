@@ -16,6 +16,8 @@ const ProdukteVerwalten = () => {
     const [data, setdata] = useState();
     const [deleteconfirmation, setdeleteconfirmation] = useState(null);
     const [createProdukt, setcreateprodukt] = useState(null);
+    const [produktdeleteconfirm, setproduktdeleteconfirm] = useState();
+    const [produktdeletionitem,setproduktdeletion] = useState();
     async function readdata() {
         const jsonString = await handleLoadFile(kathpath);
         const json = JSON.parse(jsonString);
@@ -29,13 +31,58 @@ const ProdukteVerwalten = () => {
         setdeleteconfirmation(null);
         readdata();
     }
-
+    async function deleteProdukt() {
+        const jsonString = await handleLoadFile(kathpath);
+        const json = JSON.parse(jsonString);
+        const kath = json.list.find(i => i.name === produktdeleteconfirm.name);
+        kath.content = kath.content.filter(i => i.name !== produktdeletionitem.name);
+        await handleSaveFile(kathpath, JSON.stringify(json));
+        setproduktdeleteconfirm(null);
+        setproduktdeletion(null);
+        readdata();
+    }
     useEffect(() => {
         readdata();
     }, []);
 
     return (
         <Box sx={{ height: "100vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: 2, p: 0, position: "relative" }}>
+            {
+                produktdeleteconfirm != null && (
+                    <Box
+                        sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            bgcolor: "rgba(0, 0, 0, 0.5)",
+                            zIndex: 10,
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                boxShadow: 3,
+                                zIndex: 11,
+                            }}
+                        >
+                            <DeleteConfirmation
+                                title={"Produkt Löschen"}
+                                confirmfunction={deleteProdukt}
+                                disable={setproduktdeleteconfirm}
+                                buttontitle={"Löschen"}
+                                description={"Sind sie sicher das Produkt " + produktdeleteconfirm.name + " löschen wollen ?"}
+                                parameter={null}
+                            />
+                        </Box>
+                    </Box>
+                )
+            }
+
+
             {
                 createProdukt != null && (
                     <Box
@@ -171,7 +218,7 @@ const ProdukteVerwalten = () => {
                                 <Accordion>
                                     <AccordionSummary>{item.name}</AccordionSummary>
                                     <AccordionDetails>
-                                        <KathAccordationDetail setcreatep={setcreateprodukt} item={item} path={kathpath} setconfirmation={setdeleteconfirmation} />
+                                        <KathAccordationDetail setitem={setproduktdeletion} setproduktdeleteconfirm={setproduktdeleteconfirm} setcreatep={setcreateprodukt} item={item} path={kathpath} setconfirmation={setdeleteconfirmation} />
                                     </AccordionDetails>
                                 </Accordion>
                             )

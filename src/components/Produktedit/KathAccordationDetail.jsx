@@ -7,7 +7,7 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 import DeleteConfirmation from '../Masks/DeleteConfirmation';
-function KathAccordationDetail({ item, setconfirmation, setcreatep }) {
+function KathAccordationDetail({ item, setconfirmation, setcreatep, setproduktdeleteconfirm, setitem }) {
 
 
     return (
@@ -41,7 +41,10 @@ function KathAccordationDetail({ item, setconfirmation, setcreatep }) {
                                                             </ListItemDecorator>
                                                             Preiß Bearbeiten
                                                         </MenuItem>
-                                                        <MenuItem sx={{ color: "red" }}>
+                                                        <MenuItem onClick={() => {
+                                                            setproduktdeleteconfirm(item);
+                                                            setitem(i);
+                                                        }} sx={{ color: "red" }}>
                                                             <ListItemDecorator>
                                                                 <DeleteOutlineOutlinedIcon />
                                                             </ListItemDecorator>
