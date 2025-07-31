@@ -171,13 +171,13 @@ const ProdukteVerwalten = () => {
                     </Box>
                 )
             }
-            <Box sx={{ width: "100%", height: "55px", bgcolor: "#ffffff", display: "flex", alignItems: "center", borderBottom: "1px solid #ddd" }}>
+            <Box sx={{ width: "100%", minHeight: "55px", bgcolor: "#ffffff", display: "flex", alignItems: "center", borderBottom: "1px solid #ddd" }}>
                 <Typography sx={{ ml: "15px", fontSize: "1.25rem", fontWeight: 600, color: "#333" }}>
                     Produkte Verwalten
                 </Typography>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", p: 2 }}>
-                <Card variant='outlined' sx={{ display: "flex", flexDirection: "row", alignItems: "center", padding: 2, bgcolor: "#f9f9f9" }}>
+                <Card variant='outlined' sx={{ display: "flex" ,flexDirection: "row", alignItems: "center", padding: 2, bgcolor: "#f9f9f9" }}>
                     <Box sx={{ height: "100%", fontSize: "1.5rem", display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <InfoOutlinedIcon />
                     </Box>
@@ -211,6 +211,7 @@ const ProdukteVerwalten = () => {
                                 paddingBlock: '0.75rem',
                             },
                         },
+                        overflowY: "auto"
                     })}>
                     {
                         data && data.list && data.list.map(item => {

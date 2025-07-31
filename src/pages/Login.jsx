@@ -1,103 +1,115 @@
-import { Box, Input } from '@mui/joy';
-import React, { useState } from 'react'
+import {
+  Box,
+  Input,
+  Modal,
+  ModalClose,
+  ModalDialog,
+  Typography,
+  Card,
+  Button
+} from '@mui/joy';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 function Login() {
+  const [passwordinput, setpasswordinput] = useState("");
+  const navigate = useNavigate();
+  const [alert, setalert] = useState(false);
 
-
-    //password input state
-    const [passwordinput, setpasswordinput] = useState("");
-    //navigator object
-    const navigate = useNavigate();
-    //alert for wrong password
-    const [alert, setalert] = useState(false);
-    //add a md5 hash later b179a8cb8ecdc798e5533f3bdeca3df7
-    function submit() {
-        if (passwordinput == "login") {
-            navigate("/home");
-        } else {
-            setalert(true);
-        }
+  function submit() {
+    if (passwordinput === "login") {
+      navigate("/home");
+    } else {
+      console.log("falsches passwort");
+      setalert(true);
     }
-    return (
-        <>
-            <header>
-                <title>Rechnix</title>
-            </header>
-            <Box
-                sx={{
-                    width: "100%",
-                    height: "100vh",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    p: 2,
-                }}
+  }
+
+  return (
+    <>
+      <header>
+        <title>Rechnix</title>
+      </header>
+
+      <Box
+        sx={{
+          width: "100%",
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "neutral.100",
+          p: 2,
+        }}
+      >
+        {alert && (
+          <Modal open onClose={() => setalert(false)}>
+            <ModalDialog variant="soft">
+              <ModalClose />
+              <Typography startDecorator={<WarningAmberIcon/>} level="h5" fontWeight="lg">
+                Falsches Passwort
+              </Typography>
+              <Typography level="body-md">
+                Bitte versuchen Sie es erneut.
+              </Typography>
+            </ModalDialog>
+          </Modal>
+        )}
+
+        <Card
+          variant="outlined"
+          sx={{
+            p: 3,
+            width: "100%",
+            maxWidth: 400,
+            boxShadow: "lg",
+            borderRadius: "lg",
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          <Box sx={{ textAlign: "center", mb: 1 }}>
+            <Typography level="h4" fontWeight="lg">
+              Rechnix
+            </Typography>
+            <Typography level="body-sm" color="neutral">
+              Bitte Passwort eingeben
+            </Typography>
+          </Box>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              submit();
+            }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.25rem",
+            }}
+          >
+            <Input
+              type="password"
+              placeholder="Passwort"
+              variant="soft"
+              value={passwordinput}
+              onChange={(e) => setpasswordinput(e.target.value)}
+              sx={{ width: "100%" }}
+            />
+            <Button
+              type="submit"
+              color="primary"
+              variant="solid"
+              sx={{ py: 1.5 }}
             >
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        //Login Function
-                        submit();
-                    }}
-                    style={{
-                        height: "auto",
-                        width: "90%",
-                        maxWidth: "400px",
-                        minWidth: "300px",
-                        padding: "2rem",
-                        borderRadius: "20px",
-                        backgroundColor: "white",
-                        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.12)",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "1.5rem",
-                    }}
-                >
-                    <Box
-                        sx={{
-                            textAlign: "center",
-                            width: "100%",
-                            borderBottom: "1px solid #ccc",
-                            paddingBottom: "1rem",
-                        }}
-                    >
-                        <p style={{ fontSize: "1.5rem", fontWeight: "bold", margin: 0 }}>
-                            Rechnix
-                        </p>
-                        <p style={{ margin: 0, fontSize: "0.95rem", color: "#666" }}>
-                            Bitte Passwort eingeben
-                        </p>
-                    </Box>
-                    <Input
-                        type="password"
-                        placeholder="Passwort"
-                        variant="outlined"
-                        value={passwordinput}
-                        onChange={(e) => { setpasswordinput(e.target.value) }}
-                        sx={{ width: "100%" }}
-                    />
-                    <button
-                        type="submit"
-                        style={{
-                            backgroundColor: "#1976d2",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "8px",
-                            padding: "0.75rem 1.5rem",
-                            fontSize: "1rem",
-                            cursor: "pointer",
-                            width: "100%",
-                        }}
-                    >
-                        Einloggen
-                    </button>
-                </form>
-            </Box>
-        </>
-    )
+              Einloggen
+            </Button>
+          </form>
+        </Card>
+      </Box>
+    </>
+  );
 }
 
-export default Login
+export default Login;
