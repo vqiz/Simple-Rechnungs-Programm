@@ -24,8 +24,12 @@ function KathAccordationDetail({ item, setconfirmation, setcreatep, setproduktde
                                             <Typography>{index + 1}. {i.name}</Typography>
                                         </Box>
                                         <Box sx={{ display: "flex", gap: 2, width: "50%", justifyContent: "flex-end" }}>
-                                            <Chip sx={{ ml: 5 }} color="success">{i.price}€</Chip>
-                                            <Box sx={{mr: 4}}>
+                                            <Box sx={{display: "flex", height: "100%", alignItems: "center"}}>
+                                                <Typography>{i.price}€</Typography>
+                                            </Box>
+                                                
+                                           
+                                            <Box sx={{ mr: 4 }}>
                                                 <Dropdown>
                                                     <MenuButton><SettingsOutlinedIcon /></MenuButton>
                                                     <Menu>
