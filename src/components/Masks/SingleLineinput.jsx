@@ -10,7 +10,7 @@ import {
     Typography,
 } from "@mui/joy";
 
-function SingleLineinput({ title, onClose, onSave, val }) {
+function SingleLineinput({ title, onClose, onSave, val, inputtype }) {
     const [value, setValue] = useState(val);
 
     const handleSubmit = (e) => {
@@ -50,6 +50,7 @@ function SingleLineinput({ title, onClose, onSave, val }) {
                             value={value}
                             onChange={(e) => setValue(e.target.value)}
                             placeholder=""
+                            type={inputtype}
                             sx={{
                                 "--Input-radius": "8px",
                                 fontSize: "1rem",

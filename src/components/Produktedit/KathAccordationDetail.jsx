@@ -8,9 +8,17 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 import DeleteConfirmation from '../Masks/DeleteConfirmation';
 import SingleLineinput from '../Masks/SingleLineinput';
-function KathAccordationDetail({ item, setconfirmation, setcreatep, setproduktdeleteconfirm, setitem, settitleedititem
-    ,settitleitemkath
- }) {
+function KathAccordationDetail({
+    item,
+    setconfirmation,
+    setcreatep,
+    setproduktdeleteconfirm,
+    setitem,
+    settitleedititem,
+    settitleitemkath,
+    setpriceedit,
+    setpriceeditkath,
+}) {
 
 
     return (
@@ -22,15 +30,15 @@ function KathAccordationDetail({ item, setconfirmation, setcreatep, setproduktde
                             <>
                                 <ListItem>
                                     <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                                        <Box sx={{ width: "50%", mt: 1 }}>
-                                            <Typography>{index + 1}. {i.name}</Typography>
+                                        <Box sx={{ width: "50%", mt: 1, ml: 2 }}>
+                                            <Typography> {i.name}</Typography>
                                         </Box>
                                         <Box sx={{ display: "flex", gap: 2, width: "50%", justifyContent: "flex-end" }}>
-                                            <Box sx={{display: "flex", height: "100%", alignItems: "center"}}>
+                                            <Box sx={{ display: "flex", height: "100%", alignItems: "center" }}>
                                                 <Typography>{i.price}€</Typography>
                                             </Box>
-                                                
-                                           
+
+
                                             <Box sx={{ mr: 4 }}>
                                                 <Dropdown>
                                                     <MenuButton><SettingsOutlinedIcon /></MenuButton>
@@ -44,7 +52,12 @@ function KathAccordationDetail({ item, setconfirmation, setcreatep, setproduktde
                                                             </ListItemDecorator>
                                                             Titel bearbeiten
                                                         </MenuItem>
-                                                        <MenuItem sx={{ color: "green" }}>
+                                                        <MenuItem sx={{ color: "green" }}
+                                                            onClick={() => {
+                                                                setpriceedit(i);
+                                                                setpriceeditkath(item);
+                                                            }}
+                                                            >
                                                             <ListItemDecorator>
                                                                 <EuroSymbolOutlinedIcon />
                                                             </ListItemDecorator>

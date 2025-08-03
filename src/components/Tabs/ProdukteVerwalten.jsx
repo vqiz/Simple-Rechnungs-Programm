@@ -122,6 +122,22 @@ const ProdukteVerwalten = () => {
         position: 'relative'
       }}
     >
+      {
+        produktEditPrice != null && (
+            <MaskProvider>
+                <SingleLineinput 
+                title={"Preiß bearbeiten"}
+                onClose={() => {
+                    setProduktEditPrice(null);
+                    setProduktEditPriceKath(null);
+                }}
+                val={produktEditPrice.price}
+                inputtype={"number"}
+                />
+            </MaskProvider>
+        )
+
+      }
       {produktEditTitle && (
         <MaskProvider>
           <SingleLineinput
@@ -275,6 +291,8 @@ const ProdukteVerwalten = () => {
                   setconfirmation={setDeleteCategoryConfirmation}
                   settitleedititem={setProduktEditTitle}
                   settitleitemkath={setProduktEditTitleKath}
+                  setpriceedit={setProduktEditPrice}
+                  setpriceeditkath={setProduktEditPriceKath}
                 />
               </AccordionDetails>
             </Accordion>

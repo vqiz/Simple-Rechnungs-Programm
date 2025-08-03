@@ -10,7 +10,7 @@ Gebaut mit **React** (Frontend) und **Electron** (Desktop-Integration).
 - Produktverwaltung
 - Lokale Nutzung ohne Internetverbindung
 - Einfaches, benutzerfreundliches Interface
-- E - Rechnung nach Gesetzlichem Standart
+- E - Rechnung nach Gesetzlichem Standart basiert auf EN 16931
 ## 🛠️ Tech-Stack
 
 - **React** – UI mit Komponentenlogik
