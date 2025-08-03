@@ -12,16 +12,24 @@ import {
 
 function SingleLineinput({ title, onClose, onSave, val, inputtype }) {
     const [value, setValue] = useState(val);
-
+    const [error, seterror] = useState(false);
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
-        if (value && value != "") {
-            if (onSave) onSave(value);
+        if (value && value !== "") {
+            if (inputtype === "number") {
+                const num = Number(value.replace(",", "."));
+                if (isNaN(num)) {
+                    seterror(true);
+                    return;
+                }
+                const formatted = parseFloat(num.toFixed(2)); 
+                if (onSave) onSave(formatted);
+            } else {
+                if (onSave) onSave(value);
+            }
             setValue("");
             if (onClose) onClose();
         }
-
-
     };
 
     return (
@@ -50,15 +58,20 @@ function SingleLineinput({ title, onClose, onSave, val, inputtype }) {
                             value={value}
                             onChange={(e) => setValue(e.target.value)}
                             placeholder=""
-                            type={inputtype}
                             sx={{
                                 "--Input-radius": "8px",
                                 fontSize: "1rem",
                                 bgcolor: "background.body",
+                                borderColor: error ? "red" : "black",
+
                             }}
                             autoFocus
                         />
-
+                        {
+                            error && (
+                                <Typography level="body-xs" color="danger">Bitte gültige Zahl eingeben</Typography>
+                            )
+                        }
                         <Box
                             sx={{
                                 width: "100%",

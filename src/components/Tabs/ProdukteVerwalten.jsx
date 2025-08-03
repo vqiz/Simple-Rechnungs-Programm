@@ -79,6 +79,17 @@ const ProdukteVerwalten = () => {
     setProduktEditTitleKath(null);
     readdata();
   };
+  const editProduktPrice = async (value) => {
+    const jsonString = await handleLoadFile(kathpath);
+    const json = JSON.parse(jsonString);
+    const kath = json.list.find((i) => i.name === produktEditPriceKath.name);
+    const item = kath.content.find((i) => i.name === produktEditPrice.name);
+    item.price = value;
+    await handleSaveFile(kathpath, JSON.stringify(json));
+    setProduktEditPrice(null);
+    setProduktEditPriceKath(null);
+    readdata();
+  }
 
   useEffect(() => {
     readdata();
@@ -133,6 +144,7 @@ const ProdukteVerwalten = () => {
                 }}
                 val={produktEditPrice.price}
                 inputtype={"number"}
+                onSave={editProduktPrice}
                 />
             </MaskProvider>
         )
