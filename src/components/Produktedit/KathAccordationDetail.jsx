@@ -7,12 +7,14 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 import DeleteConfirmation from '../Masks/DeleteConfirmation';
-function KathAccordationDetail({ item, setconfirmation, setcreatep, setproduktdeleteconfirm, setitem }) {
+import SingleLineinput from '../Masks/SingleLineinput';
+function KathAccordationDetail({ item, setconfirmation, setcreatep, setproduktdeleteconfirm, setitem, settitleedititem
+    ,settitleitemkath
+ }) {
 
 
     return (
         <>
-
             <List component="ol" marker="decimal">
                 {
                     item && item.content.map((i, index) => {
@@ -33,7 +35,10 @@ function KathAccordationDetail({ item, setconfirmation, setcreatep, setproduktde
                                                 <Dropdown>
                                                     <MenuButton><SettingsOutlinedIcon /></MenuButton>
                                                     <Menu>
-                                                        <MenuItem>
+                                                        <MenuItem onClick={() => {
+                                                            settitleedititem(i);
+                                                            settitleitemkath(item);
+                                                        }}>
                                                             <ListItemDecorator>
                                                                 <EditOutlinedIcon />
                                                             </ListItemDecorator>

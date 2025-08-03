@@ -1,29 +1,91 @@
-import { Button, Divider, Input, Typography } from '@mui/joy'
-import React from 'react'
+import React, { useState } from "react";
+import {
+    Box,
+    Button,
+    Divider,
+    Input,
+    Modal,
+    ModalDialog,
+    Sheet,
+    Typography,
+} from "@mui/joy";
 
-function SingleLineinput({title}) {
+function SingleLineinput({ title, onClose, onSave, val }) {
+    const [value, setValue] = useState(val);
+
+    const handleSubmit = (e) => {
+        if (e) e.preventDefault();
+        if (value && value != "") {
+            if (onSave) onSave(value);
+            setValue("");
+            if (onClose) onClose();
+        }
+
+
+    };
+
     return (
-        <form>
-            <Sheet
-                sx={{
-                    borderRadius: "15px",
-                    height: "auto",
-                    width: "55vh",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    padding: "24px",
-                    boxShadow: "sm",
-                }}
-            >
-                <Typography mt={2} mb={2} level="h3">{title}</Typography>
-                <Divider orientation="horizontal"/>
-                <Input />
-                <Button>Speichern</Button>
+        <Modal open={true} onClose={onClose}>
+            <ModalDialog>
+                <form onSubmit={handleSubmit}>
+                    <Sheet
+                        sx={{
+                            borderRadius: "16px",
+                            width: "400px",
+                            p: 2,
+                            boxShadow: "lg",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            bgcolor: "background.surface",
+                        }}
+                    >
+                        <Typography level="h4" textAlign="center">
+                            {title}
+                        </Typography>
 
-            </Sheet>
-        </form>
-    )
+                        <Divider />
+
+                        <Input
+                            value={value}
+                            onChange={(e) => setValue(e.target.value)}
+                            placeholder=""
+                            sx={{
+                                "--Input-radius": "8px",
+                                fontSize: "1rem",
+                                bgcolor: "background.body",
+                            }}
+                            autoFocus
+                        />
+
+                        <Box
+                            sx={{
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "space-between",
+                            }}
+                        >
+                            <Button
+                                onClick={() => onClose(null)}
+                                variant='outlined'
+                                color="neutral"
+                            >
+                                Abbrechen
+                            </Button>
+
+                            <Button
+                                onClick={() => handleSubmit()}
+                                color="success"
+                                variant='solid'
+                            >
+                                Speichern
+                            </Button>
+                        </Box>
+                    </Sheet>
+                </form>
+            </ModalDialog>
+        </Modal>
+    );
 }
 
-export default SingleLineinput
+export default SingleLineinput;
