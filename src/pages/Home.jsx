@@ -8,6 +8,7 @@ import ProdukteVerwalten from '../components/Tabs/ProdukteVerwalten'
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import ContactPageOutlinedIcon from '@mui/icons-material/ContactPageOutlined';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
+import Unternehmen from '../components/Tabs/Unternehmen'
 function Home() {
   return (
     <Tabs
@@ -142,7 +143,7 @@ function Home() {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LeaderboardOutlinedIcon />
-            Bilanz 
+            Unternehmensdaten 
           </Box>
         </Tab>
         <Tab
@@ -180,6 +181,9 @@ function Home() {
       </TabPanel>
       <TabPanel sx={{ p: 0 }} value={3}>
         <ProdukteVerwalten />
+      </TabPanel>
+      <TabPanel sx={{p: 0}} value={4}>
+          <Unternehmen/>
       </TabPanel>
     </Tabs>
   )
