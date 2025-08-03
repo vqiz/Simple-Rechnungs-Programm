@@ -4,7 +4,8 @@ import Headline from '../Headline'
 import InfoCard from '../InfoCard'
 import FactoryIcon from '@mui/icons-material/Factory';
 
-
+const labelstyle = { color: "gray" }
+const boxlinestyle = { display: "flex", width: "auto", flexDirection: "row", gap: 2 }
 function Unternehmen() {
   return (
     <Box
@@ -23,8 +24,34 @@ function Unternehmen() {
         <InfoCard headline={"Information"}>Hier werden die Unternehmensdaten ihres <Typography sx={{ fontWeight: "bold" }}>eigenen</Typography> Unternehmens bearbeitet. Diese werden später auf Rechnungen bei <Typography sx={{ fontWeight: "bold" }}>Verkäufer</Typography> angezeigt. <br />
           Alle Pflichtfelder sind für eine E-Rechnung bzw. XRechnung nach geltendem Gesetzlichen Standart <Typography sx={{ fontWeight: "bold" }}>Unverzichtbar</Typography>! </InfoCard>
       </Box>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
+        <Box sx={boxlinestyle}>
+          <FormControl sx={{ width: "75%" }}>
+            <FormLabel sx={labelstyle}>Unternehmensname {"(Pflichtfeld)"}</FormLabel>
+            <Input placeholder='z.B. Mustermann & Landes GMBH' />
+          </FormControl>
+          <FormControl sx={{ width: "auto" }}>
+            <FormLabel sx={labelstyle}>Postleitzahl {"(Pflichtfeld)"}</FormLabel>
+            <Input type='number' placeholder='z.B. 94315' />
+          </FormControl>
+        </Box>
+        <Box sx={boxlinestyle}>
+          <FormControl sx={{ width: "50%" }}>
+            <FormLabel sx={labelstyle}>Straße {"(Pflichtfeld)"}</FormLabel>
+            <Input placeholder='z.B. Musterstraße' />
+          </FormControl>
+          <FormControl sx={{width: "23.5%"}}>
+            <FormLabel sx={labelstyle}>Hausnummer {"(Pflichtfeld)"}</FormLabel>
+            <Input type='number' placeholder='z.B. 92' />
+          </FormControl>
+          <FormControl>
+            <FormLabel sx={labelstyle}>Stadt | Ort {"(Pflichtfeld)"}</FormLabel>
+            <Input placeholder='z.B. Musterstraße'/>
+          </FormControl>
+        </Box>
+      </Box>
     </Box>
- 
+
   )
 }
 
