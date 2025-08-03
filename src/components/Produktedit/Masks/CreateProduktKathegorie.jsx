@@ -7,7 +7,7 @@ import {
   ModalDialog
 } from '@mui/joy'
 import React, { useState } from 'react'
-import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
+import { handleLoadFile, handleSaveFile } from '../../../Scripts/Filehandler';
 
 function CreateProduktKathegorie({ setcreate, path, update }) {
   const [name, setname] = useState("");

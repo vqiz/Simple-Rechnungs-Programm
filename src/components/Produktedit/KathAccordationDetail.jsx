@@ -6,8 +6,8 @@ import EuroSymbolOutlinedIcon from '@mui/icons-material/EuroSymbolOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
-import DeleteConfirmation from '../Masks/DeleteConfirmation';
-import SingleLineinput from '../Masks/SingleLineinput';
+import DeleteConfirmation from './Masks/DeleteConfirmation';
+import SingleLineinput from './Masks/SingleLineinput';
 function KathAccordationDetail({
     item,
     setconfirmation,

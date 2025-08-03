@@ -10,7 +10,7 @@ import {
   ModalDialog
 } from '@mui/joy';
 import React, { useState } from 'react';
-import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
+import { handleLoadFile, handleSaveFile } from '../../../Scripts/Filehandler';
 
 function CreateProdukt({ kathname, disable, update, kathpath }) {
   const [price, setprice] = useState(0);

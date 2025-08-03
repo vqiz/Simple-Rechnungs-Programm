@@ -13,12 +13,12 @@ import {
 import React, { useEffect, useState } from 'react';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-import CreateProduktKathegorie from '../Masks/CreateProduktKathegorie';
+import CreateProduktKathegorie from '../Produktedit/Masks/CreateProduktKathegorie';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 import KathAccordationDetail from '../Produktedit/KathAccordationDetail';
-import DeleteConfirmation from '../Masks/DeleteConfirmation';
-import CreateProdukt from '../Masks/CreateProdukt';
-import SingleLineinput from '../Masks/SingleLineinput';
+import DeleteConfirmation from '../Produktedit/Masks/DeleteConfirmation';
+import CreateProdukt from '../Produktedit/Masks/CreateProdukt';
+import SingleLineinput from '../Produktedit/Masks/SingleLineinput';
 
 const ProdukteVerwalten = () => {
   const [kathpath] = useState('kathegories/kathegories.rechnix');
