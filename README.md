@@ -1,4 +1,4 @@
-# 🧾 Rechnungs-Tool für Gaststätten
+# 🧾 Rechnungs-Tool für Gaststätten etc.
 
 Ein einfaches Desktop-Tool zur Erstellung von Rechnungen – speziell entwickelt für kleine Gaststätten.  
 Gebaut mit **React** (Frontend) und **Electron** (Desktop-Integration).
@@ -10,7 +10,7 @@ Gebaut mit **React** (Frontend) und **Electron** (Desktop-Integration).
 - Produktverwaltung
 - Lokale Nutzung ohne Internetverbindung
 - Einfaches, benutzerfreundliches Interface
-
+- E - Rechnung nach Gesetzlichem Standart
 ## 🛠️ Tech-Stack
 
 - **React** – UI mit Komponentenlogik

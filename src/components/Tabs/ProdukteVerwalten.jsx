@@ -35,6 +35,9 @@ const ProdukteVerwalten = () => {
   const [produktEditTitle, setProduktEditTitle] = useState(null);
   const [produktEditTitleKath, setProduktEditTitleKath] = useState(null);
 
+  const [produktEditPrice, setProduktEditPrice] = useState(null);
+  const [produktEditPriceKath,setProduktEditPriceKath] = useState(null);
+
   const readdata = async () => {
     const jsonString = await handleLoadFile(kathpath);
     const json = JSON.parse(jsonString);
@@ -65,11 +68,16 @@ const ProdukteVerwalten = () => {
     readdata();
   };
 
-  const editProdukttitle = async () => {
+  const editProdukttitle = async (value) => {
     const jsonString = await handleLoadFile(kathpath);
     const json = JSON.parse(jsonString);
     const kath = json.list.find((i) => i.name === produktEditTitleKath.name);
-    const item = kath.content.filter((i) => i.name === produktEditTitle.name);
+    const item = kath.content.find((i) => i.name === produktEditTitle.name);
+    item.name = value;
+    await handleSaveFile(kathpath, JSON.stringify(json));
+    setProduktEditTitle(null);
+    setProduktEditTitleKath(null);
+    readdata();
   };
 
   useEffect(() => {
@@ -123,6 +131,7 @@ const ProdukteVerwalten = () => {
               setProduktEditTitleKath(null);
             }}
             val={produktEditTitle.name}
+            onSave={editProdukttitle}
           />
         </MaskProvider>
       )}
