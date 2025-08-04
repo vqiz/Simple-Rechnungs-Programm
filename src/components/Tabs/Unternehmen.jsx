@@ -26,7 +26,7 @@ function Unternehmen() {
       </Box>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
         <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "75%" }}>
+          <FormControl sx={{ width: "74.6%" }}>
             <FormLabel sx={labelstyle}>Unternehmensname {"(Pflichtfeld)"}</FormLabel>
             <Input placeholder='z.B. Mustermann & Landes GMBH' />
           </FormControl>
@@ -47,6 +47,26 @@ function Unternehmen() {
           <FormControl>
             <FormLabel sx={labelstyle}>Stadt | Ort {"(Pflichtfeld)"}</FormLabel>
             <Input placeholder='z.B. Musterstraße'/>
+          </FormControl>
+        </Box>
+        <Box sx={boxlinestyle}>
+          <FormControl>
+            <FormLabel sx={labelstyle}>Länder Code | ISO-Code {"(Pflichtfeld)"} </FormLabel>
+            <Input placeholder='z.B. DE'/>
+          </FormControl>
+          <FormControl sx={{width: "31%"}}>
+            <FormLabel sx={labelstyle}>Umsatzsteuer-ID {"(Pflichtfeld)"}</FormLabel>
+            <Input placeholder='z.B. DE123456789'/>
+          </FormControl>
+          <FormControl sx={{width: "39.5%"}}>
+            <FormLabel sx={labelstyle}>Bankverbindung | für Sepa Lastschriften etc. {"(Pflichtfeld)"}</FormLabel>
+            <Input placeholder='z.B. DE21 3704 0044 0532 0130 00' />
+          </FormControl>
+        </Box>
+        <Box sx={boxlinestyle}>
+          <FormControl sx={{width: "50%"}}>
+            <FormLabel sx={labelstyle}>Handelsregisternummer</FormLabel>
+            <Input/>
           </FormControl>
         </Box>
       </Box>
