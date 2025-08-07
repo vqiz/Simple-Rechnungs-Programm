@@ -72,7 +72,7 @@ function Unternehmen() {
             <Input />
           </FormControl>
           <FormControl sx={{ width: "39.5%" }}>
-            <FormLabel>Telefonnummer</FormLabel>
+            <FormLabel sx={labelstyle}>Telefonnummer</FormLabel>
             <Input placeholder='+49 1515 1145345' />
           </FormControl>
         </Box>
