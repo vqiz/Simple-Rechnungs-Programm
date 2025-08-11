@@ -1,8 +1,9 @@
-import { Avatar, Box, Button, Divider, FormControl, FormLabel, Input, Typography } from '@mui/joy'
-import React, { useEffect } from 'react'
+import { Alert, Avatar, Box, Button, Divider, FormControl, FormLabel, Input, Typography } from '@mui/joy'
+import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
 import InfoCard from '../InfoCard'
 import FactoryIcon from '@mui/icons-material/Factory';
+import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 
 const labelstyle = { color: "gray" }
 const boxlinestyle = { display: "flex", width: "auto", flexDirection: "row", gap: 2 }
@@ -26,19 +27,32 @@ function Unternehmen() {
     sonstigeTelefonnummer: "",
     sonstigeEmail: ""
   });
+  const [oldjson, setoldjson] = useState();
+  const [changes, setchanges] = useState(false);
   useEffect(() => {
-
-
-
-
-
-
-
-
-
+    const fetch = async () => {
+      const jsonstring = await handleLoadFile("settings/unternehmen.rechnix");
+      const phrased = JSON.parse(jsonstring);
+      if (jsonstring === "{}"){
+          return;
+      }
+      setFormData(phrased);
+      setoldjson(phrased);
+    }
+    fetch();
   }, []);
-
-
+  useEffect(() => {
+    if (JSON.stringify(formData) !== JSON.stringify(oldjson)) {
+      setchanges(true);
+    } else {
+      setchanges(false);
+    }
+  }, [formData])
+  const save = async () => {
+    handleSaveFile("settings/unternehmen.rechnix", JSON.stringify(formData));
+    setchanges(false);
+    setoldjson(formData);
+  }
   return (
     <Box
       sx={{
@@ -55,7 +69,16 @@ function Unternehmen() {
         <InfoCard headline={"Information"}>Hier werden die Unternehmensdaten ihres <Typography sx={{ fontWeight: "bold" }}>eigenen</Typography> Unternehmens bearbeitet. Diese werden später auf Rechnungen bei <Typography sx={{ fontWeight: "bold" }}>Verkäufer</Typography> angezeigt. <br />
           Alle Pflichtfelder sind für eine E-Rechnung bzw. XRechnung nach geltendem Gesetzlichen Standart <Typography sx={{ fontWeight: "bold" }}>Unverzichtbar</Typography>! </InfoCard>
       </Box>
+      {
+        changes && (
+          <Box sx={{p: 2}}>
+            <Alert sx={{ mb: 2 }} variant='soft' color="primary" endDecorator={<Button onClick={() => save()}>Speichern</Button>}>
+              Es wurden änderungen vorgenommen die noch nicht Gespeichert sind.
+            </Alert>
+          </Box>
 
+        )
+      }
       <Typography sx={{ color: "gray", ml: 2 }} level="title-md">Unternehmensdaten {"(Pflichtdaten)"}</Typography>
       <Divider orientation="horizontal"></Divider>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
@@ -119,14 +142,6 @@ function Unternehmen() {
               placeholder='z.B. DE123456789'
               value={formData.umsatzsteuerId}
               onChange={e => setFormData({ ...formData, umsatzsteuerId: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "39.5%" }}>
-            <FormLabel sx={labelstyle}>Bankverbindung | für Sepa Lastschriften etc. {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. DE21 3704 0044 0532 0130 00'
-              value={formData.bankverbindung}
-              onChange={e => setFormData({ ...formData, bankverbindung: e.target.value })}
             />
           </FormControl>
         </Box>
@@ -218,7 +233,7 @@ function Unternehmen() {
             />
           </FormControl>
           <FormControl sx={{ width: "39.5%" }}>
-            <FormLabel sx={labelstyle}>Telefonnummer</FormLabel>
+            <FormLabel sx={labelstyle}>Telefonnummer {"(Firma)"}</FormLabel>
             <Input
               placeholder='+49 1515 1145345'
               value={formData.sonstigeTelefonnummer}
@@ -230,7 +245,7 @@ function Unternehmen() {
           <FormControl sx={{ width: "50%" }}>
             <FormLabel sx={labelstyle}>Emailadresse</FormLabel>
             <Input
-              placeholder='z.B. org.example@gmail.com'
+              placeholder='z.B. org.example@firma.com'
               value={formData.sonstigeEmail}
               onChange={e => setFormData({ ...formData, sonstigeEmail: e.target.value })}
             />
