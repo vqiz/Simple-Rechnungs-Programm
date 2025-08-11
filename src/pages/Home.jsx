@@ -182,7 +182,7 @@ function Home() {
       <TabPanel sx={{ p: 0 }} value={3}>
         <ProdukteVerwalten />
       </TabPanel>
-      <TabPanel sx={{p: 0}} value={4}>
+      <TabPanel sx={{p: 0, overflowY: "auto"}} value={4}>
           <Unternehmen/>
       </TabPanel>
     </Tabs>

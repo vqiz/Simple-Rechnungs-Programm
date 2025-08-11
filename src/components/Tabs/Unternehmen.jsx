@@ -1,5 +1,5 @@
 import { Avatar, Box, Button, Divider, FormControl, FormLabel, Input, Typography } from '@mui/joy'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Headline from '../Headline'
 import InfoCard from '../InfoCard'
 import FactoryIcon from '@mui/icons-material/Factory';
@@ -7,11 +7,42 @@ import FactoryIcon from '@mui/icons-material/Factory';
 const labelstyle = { color: "gray" }
 const boxlinestyle = { display: "flex", width: "auto", flexDirection: "row", gap: 2 }
 function Unternehmen() {
+  const [formData, setFormData] = React.useState({
+    unternehmensname: "",
+    postleitzahl: "",
+    strasse: "",
+    hausnummer: "",
+    stadt: "",
+    laenderCode: "",
+    umsatzsteuerId: "",
+    bankverbindung: "",
+    bic: "",
+    bankname: "",
+    kontoinhaber: "",
+    kontaktName: "",
+    kontaktEmail: "",
+    kontaktTelefon: "",
+    handelsregisternummer: "",
+    sonstigeTelefonnummer: "",
+    sonstigeEmail: ""
+  });
+  useEffect(() => {
+
+
+
+
+
+
+
+
+
+  }, []);
+
+
   return (
     <Box
       sx={{
-        height: '100vh',
-        overflowY: 'auto',
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
@@ -25,92 +56,188 @@ function Unternehmen() {
           Alle Pflichtfelder sind für eine E-Rechnung bzw. XRechnung nach geltendem Gesetzlichen Standart <Typography sx={{ fontWeight: "bold" }}>Unverzichtbar</Typography>! </InfoCard>
       </Box>
 
-      <Typography sx={{ color: "gray", ml: 2 }} level="title-md">Unternehmensdaten</Typography>
+      <Typography sx={{ color: "gray", ml: 2 }} level="title-md">Unternehmensdaten {"(Pflichtdaten)"}</Typography>
       <Divider orientation="horizontal"></Divider>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
         <Box sx={boxlinestyle}>
           <FormControl sx={{ width: "74.6%" }}>
             <FormLabel sx={labelstyle}>Unternehmensname {"(Pflichtfeld)"}</FormLabel>
-            <Input placeholder='z.B. Mustermann & Landes GMBH' />
+            <Input
+              placeholder='z.B. Mustermann & Landes GMBH'
+              value={formData.unternehmensname}
+              onChange={e => setFormData({ ...formData, unternehmensname: e.target.value })}
+            />
           </FormControl>
           <FormControl sx={{ width: "auto" }}>
             <FormLabel sx={labelstyle}>Postleitzahl {"(Pflichtfeld)"}</FormLabel>
-            <Input type='number' placeholder='z.B. 94315' />
+            <Input
+              type='number'
+              placeholder='z.B. 94315'
+              value={formData.postleitzahl}
+              onChange={e => setFormData({ ...formData, postleitzahl: e.target.value })}
+            />
           </FormControl>
         </Box>
         <Box sx={boxlinestyle}>
           <FormControl sx={{ width: "50%" }}>
             <FormLabel sx={labelstyle}>Straße {"(Pflichtfeld)"}</FormLabel>
-            <Input placeholder='z.B. Musterstraße' />
+            <Input
+              placeholder='z.B. Musterstraße'
+              value={formData.strasse}
+              onChange={e => setFormData({ ...formData, strasse: e.target.value })}
+            />
           </FormControl>
           <FormControl sx={{ width: "23.5%" }}>
             <FormLabel sx={labelstyle}>Hausnummer {"(Pflichtfeld)"}</FormLabel>
-            <Input placeholder='z.B. 92' />
+            <Input
+              placeholder='z.B. 92'
+              value={formData.hausnummer}
+              onChange={e => setFormData({ ...formData, hausnummer: e.target.value })}
+            />
           </FormControl>
           <FormControl>
             <FormLabel sx={labelstyle}>Stadt | Ort {"(Pflichtfeld)"}</FormLabel>
-            <Input placeholder='z.B. Straubing' />
+            <Input
+              placeholder='z.B. Straubing'
+              value={formData.stadt}
+              onChange={e => setFormData({ ...formData, stadt: e.target.value })}
+            />
           </FormControl>
         </Box>
         <Box sx={boxlinestyle}>
           <FormControl>
             <FormLabel sx={labelstyle}>Länder Code | ISO-Code {"(Pflichtfeld)"} </FormLabel>
-            <Input placeholder='z.B. DE' />
+            <Input
+              placeholder='z.B. DE'
+              value={formData.laenderCode}
+              onChange={e => setFormData({ ...formData, laenderCode: e.target.value })}
+            />
           </FormControl>
           <FormControl sx={{ width: "31%" }}>
             <FormLabel sx={labelstyle}>Umsatzsteuer-ID {"(Pflichtfeld)"}</FormLabel>
-            <Input placeholder='z.B. DE123456789' />
+            <Input
+              placeholder='z.B. DE123456789'
+              value={formData.umsatzsteuerId}
+              onChange={e => setFormData({ ...formData, umsatzsteuerId: e.target.value })}
+            />
           </FormControl>
           <FormControl sx={{ width: "39.5%" }}>
             <FormLabel sx={labelstyle}>Bankverbindung | für Sepa Lastschriften etc. {"(Pflichtfeld)"}</FormLabel>
-            <Input placeholder='z.B. DE21 3704 0044 0532 0130 00' />
+            <Input
+              placeholder='z.B. DE21 3704 0044 0532 0130 00'
+              value={formData.bankverbindung}
+              onChange={e => setFormData({ ...formData, bankverbindung: e.target.value })}
+            />
           </FormControl>
-        </Box>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "50%" }}>
-            <FormLabel sx={labelstyle}>Handelsregisternummer</FormLabel>
-            <Input />
-          </FormControl>
-          <FormControl sx={{ width: "39.5%" }}>
-            <FormLabel sx={labelstyle}>Telefonnummer</FormLabel>
-            <Input placeholder='+49 1515 1145345' />
-          </FormControl>
-        </Box>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "50%" }}>
-            <FormLabel sx={labelstyle}>Emailadresse</FormLabel>
-            <Input placeholder='z.B. org.example@gmail.com' />
-          </FormControl>
-
         </Box>
       </Box>
+      <Typography sx={{ color: "gray", ml: 2 }} level="title-md">BankVerbindung {"(Pflichtdaten)"}</Typography>
+      <Divider orientation="horizontal"></Divider>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
+        <Box sx={boxlinestyle}>
+          <FormControl sx={{ width: "17.5%" }}>
+            <FormLabel sx={labelstyle}>BIC {"(Pflichtfeld)"} </FormLabel>
+            <Input
+              placeholder='z.B. COBADEHDXXX'
+              value={formData.bic}
+              onChange={e => setFormData({ ...formData, bic: e.target.value })}
+            />
+          </FormControl>
+          <FormControl sx={{ width: "39.5%" }}>
+            <FormLabel sx={labelstyle}>Bankverbindung | für Sepa Lastschriften etc. {"(Pflichtfeld)"}</FormLabel>
+            <Input
+              placeholder='z.B. DE21 3704 0044 0532 0130 00'
+              value={formData.bankverbindung}
+              onChange={e => setFormData({ ...formData, bankverbindung: e.target.value })}
+            />
+          </FormControl>
+        </Box>
+        <Box sx={boxlinestyle}>
+          <FormControl sx={{ width: "50%" }}>
+            <FormLabel sx={labelstyle}>Bankname {"(Pflichtfeld)"}</FormLabel>
+            <Input
+              placeholder='z.B. Sparkasse Niederbayern-Mitte'
+              value={formData.bankname}
+              onChange={e => setFormData({ ...formData, bankname: e.target.value })}
+            />
+          </FormControl>
+          <FormControl sx={{ width: "39.5%" }}>
+            <FormLabel sx={labelstyle}>Kontoinhaber {"(Pflichtfeld)"}</FormLabel>
+            <Input
+              placeholder='z.B. Max Mustermann'
+              value={formData.kontoinhaber}
+              onChange={e => setFormData({ ...formData, kontoinhaber: e.target.value })}
+            />
+          </FormControl>
+        </Box>
+      </Box>
+
+
       <Typography sx={{ color: "gray", ml: 2 }}>Kontaktperson</Typography>
       <Divider orientation="horizontal" />
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
         <Box sx={boxlinestyle}>
           <FormControl sx={{ width: "50%" }}>
             <FormLabel sx={labelstyle}>Name</FormLabel>
-            <Input placeholder='z.B Max Mustermann' />
+            <Input
+              placeholder='z.B Max Mustermann'
+              value={formData.kontaktName}
+              onChange={e => setFormData({ ...formData, kontaktName: e.target.value })}
+            />
           </FormControl>
           <FormControl sx={{ width: "39.5%" }}>
-            <FormControl sx={labelstyle}>Emailadresse</FormControl>
-            <Input placeholder='z.B max.musterman@t-online.de' />
+            <FormLabel sx={labelstyle}>Emailadresse</FormLabel>
+            <Input
+              placeholder='z.B max.musterman@t-online.de'
+              value={formData.kontaktEmail}
+              onChange={e => setFormData({ ...formData, kontaktEmail: e.target.value })}
+            />
           </FormControl>
         </Box>
         <Box sx={boxlinestyle}>
           <FormControl sx={{ width: "50%" }}>
-            <FormControl sx={labelstyle}>Telefonnummer</FormControl>
-            <Input placeholder='+49 1515 1145345' />
+            <FormLabel sx={labelstyle}>Telefonnummer</FormLabel>
+            <Input
+              placeholder='+49 1515 1145345'
+              value={formData.kontaktTelefon}
+              onChange={e => setFormData({ ...formData, kontaktTelefon: e.target.value })}
+            />
           </FormControl>
-
         </Box>
       </Box>
 
       <Typography sx={{ color: "gray", ml: 2 }}>Sonstiges</Typography>
       <Divider orientation="horizontal" />
-      <Button sx={{ width: "10%", ml: 2 }}>
-        Speichern
-      </Button>
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
+        <Box sx={boxlinestyle}>
+          <FormControl sx={{ width: "50%" }}>
+            <FormLabel sx={labelstyle}>Handelsregisternummer</FormLabel>
+            <Input
+              value={formData.handelsregisternummer}
+              onChange={e => setFormData({ ...formData, handelsregisternummer: e.target.value })}
+            />
+          </FormControl>
+          <FormControl sx={{ width: "39.5%" }}>
+            <FormLabel sx={labelstyle}>Telefonnummer</FormLabel>
+            <Input
+              placeholder='+49 1515 1145345'
+              value={formData.sonstigeTelefonnummer}
+              onChange={e => setFormData({ ...formData, sonstigeTelefonnummer: e.target.value })}
+            />
+          </FormControl>
+        </Box>
+        <Box sx={boxlinestyle}>
+          <FormControl sx={{ width: "50%" }}>
+            <FormLabel sx={labelstyle}>Emailadresse</FormLabel>
+            <Input
+              placeholder='z.B. org.example@gmail.com'
+              value={formData.sonstigeEmail}
+              onChange={e => setFormData({ ...formData, sonstigeEmail: e.target.value })}
+            />
+          </FormControl>
+        </Box>
+      </Box>
+
     </Box>
 
   )
