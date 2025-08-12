@@ -9,6 +9,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import ContactPageOutlinedIcon from '@mui/icons-material/ContactPageOutlined';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
 import Unternehmen from '../components/Tabs/Unternehmen'
+import RechnungErstellen from '../components/Tabs/RechnungErstellen'
 function Home() {
   return (
     <Tabs
@@ -173,8 +174,8 @@ function Home() {
           </Box>
         </Tab>
       </TabList>
-      <TabPanel value={0}>
-        {/* Inhalt für Rechnung erstellen */}
+      <TabPanel sx={{p: 0, overflowY: "auto"}} value={0}>      
+        <RechnungErstellen/>
       </TabPanel>
       <TabPanel value={1}>
         {/* Inhalt für bestehende Rechnung abrufen */}
