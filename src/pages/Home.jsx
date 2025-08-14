@@ -10,6 +10,7 @@ import ContactPageOutlinedIcon from '@mui/icons-material/ContactPageOutlined';
 import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
 import Unternehmen from '../components/Tabs/Unternehmen'
 import RechnungErstellen from '../components/Tabs/RechnungErstellen'
+import KundenVerwaltung from '../components/Tabs/KundenVerwaltung'
 function Home() {
   return (
     <Tabs
@@ -177,8 +178,8 @@ function Home() {
       <TabPanel sx={{p: 0, overflowY: "auto"}} value={0}>      
         <RechnungErstellen/>
       </TabPanel>
-      <TabPanel value={1}>
-        {/* Inhalt für bestehende Rechnung abrufen */}
+      <TabPanel sx={{p: 0}} value={2}>
+        <KundenVerwaltung/>
       </TabPanel>
       <TabPanel sx={{ p: 0 }} value={3}>
         <ProdukteVerwalten />
