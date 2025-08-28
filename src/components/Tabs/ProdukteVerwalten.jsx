@@ -21,6 +21,7 @@ import CreateProdukt from '../Produktedit/Masks/CreateProdukt';
 import SingleLineinput from '../Produktedit/Masks/SingleLineinput';
 import Headline from '../Headline';
 import InfoCard from '../InfoCard';
+import MaskProvider from '../MaskProvider';
 
 const ProdukteVerwalten = () => {
     const [kathpath] = useState('kathegories/kathegories.rechnix');
@@ -97,31 +98,7 @@ const ProdukteVerwalten = () => {
         readdata();
     }, []);
 
-    const MaskProvider = ({ children }) => (
-        <Box
-            sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                bgcolor: 'rgba(0, 0, 0, 0.5)',
-                zIndex: 10
-            }}
-        >
-            <Box
-                sx={{
-                    boxShadow: 3,
-                    zIndex: 11
-                }}
-            >
-                {children}
-            </Box>
-        </Box>
-    );
+
 
     return (
         <Box
