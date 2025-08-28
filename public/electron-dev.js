@@ -26,13 +26,15 @@ app.on('window-all-closed', () => {
 });
 ipcMain.handle("list-files", async (_, filePath) => {
   try {
-    const files = await fs.readdir(filePath);
-    return files;
+    const files = await fs.readdir(filePath, { withFileTypes: true });
+    return files.map(entry => ({
+      name: entry.name,
+      isDirectory: entry.isDirectory(),
+    }));
   } catch (err) {
+    console.error(`Error reading directory "${filePath}":`, err);
     return [];
   }
-
-
 });
 
 
@@ -52,7 +54,7 @@ ipcMain.handle('read-file', async (_, filePath) => {
         return null;
       }
 
-    
+
       await fs.writeFile(filePath, "{}", 'utf-8');
       return "{}";
     }
