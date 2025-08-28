@@ -1,10 +1,13 @@
 import { Box, Button, Input, Table } from '@mui/joy'
-import React from 'react'
+import React, { useState } from 'react'
 import Headline from '../Headline'
 import InfoCard from '../InfoCard'
 import SearchIcon from '@mui/icons-material/Search';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import MaskProvider from '../MaskProvider';
+import KundeErstellung from '../KundenVerwaltung/Masks/KundeErstellung';
 function KundenVerwaltung() {
+    const [createkunde,setcreatekunde] = useState(false);
     return (
         <Box
             sx={{
@@ -20,6 +23,18 @@ function KundenVerwaltung() {
             <Box sx={{ p: 2 }}>
                 <InfoCard headline={"Information"}>In der Kundenverwaltung können sie nach Kunden und Rechnungsnummern suchen um vorgänge nachvollziehen zu können und alte rechnungen wieder zu finden.</InfoCard>
             </Box>
+
+            {
+                createkunde && (
+                    <MaskProvider>
+                        <KundeErstellung/>
+                    </MaskProvider>
+                )
+            }
+
+
+
+
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: "50%" }}>
                     <Input
@@ -29,7 +44,7 @@ function KundenVerwaltung() {
                         startDecorator={<SearchIcon />}
                     />
                 </Box>
-                <Button startDecorator={<AddCircleOutlineOutlinedIcon/>} sx={{mt: -1.8}}>Kunde erstellen</Button>
+                <Button onClick={() => setcreatekunde(true)} startDecorator={<AddCircleOutlineOutlinedIcon/>} sx={{mt: -1.8}}>Kunde erstellen</Button>
             </Box>
             <Box sx={{ px: 2, maxWidth: "126vh" }}>
                 <Table sx={{borderRadius: "15px"}}>
