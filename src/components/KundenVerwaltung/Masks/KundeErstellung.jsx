@@ -1,11 +1,24 @@
-import { Box, Divider, FormControl, FormLabel, Input, Modal, ModalDialog, Switch, Typography } from '@mui/joy'
+import { Box, Button, Divider, FormControl, FormLabel, Input, Modal, ModalDialog, Switch, Typography } from '@mui/joy'
 import React, { useState } from 'react'
-
+import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
 function KundeErstellung() {
+    const [formData, setFormData] = React.useState({
+        name: "",
+        istfirma: false,
+        strasse: "",
+        hausnummer: "",
+        plz: "",
+        stadt: "",
+        laenderCode: "",
+        email: "",
+        tel: "",
+        ansprechüartner: "",
+        leitwegid: "",
+    });
     function create() {
 
     }
-    const [istfirma, setistfirma] = useState(false);
+
     return (
         <Modal open={true}>
             <ModalDialog
@@ -15,10 +28,7 @@ function KundeErstellung() {
                     width: "55vh",
                     maxWidth: "90vw",
                 }}>
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    create();
-                }}>
+                <form>
                     <Typography level='h3' mb={1}>
                         Kunde erstellen
                     </Typography>
@@ -44,47 +54,117 @@ function KundeErstellung() {
                             <Typography variant="body1" color="text.secondary">
                                 Privatperson
                             </Typography>
-                            <Switch checked={istfirma} onChange={(e) => setistfirma(e.target.checked)} color="primary" />
+                            <Switch
+                                checked={formData.istfirma}
+                                onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        istfirma: e.target.checked,
+                                    });
+                                }}
+                                color="primary"
+                            />
                             <Typography variant="body1" color="text.secondary">
                                 Firma
                             </Typography>
                         </Box>
                         <FormControl>
-                            <FormLabel sx={{ color: "gray" }}>{istfirma ? "Firmenname" : "Vor und Nachname"}</FormLabel>
-                            <Input placeholder='z.B. Max Mustermann' />
+                            <FormLabel sx={{ color: "gray" }}>{formData.istfirma ? "Firmenname" : "Vor und Nachname"}</FormLabel>
+                            <Input value={formData.name} onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    name: e.target.value,
+                                });
+                            }} placeholder='z.B. Max Mustermann' />
                         </FormControl>
                         <Box sx={{ display: "flex", flexDirection: "row", gap: 2, width: "100%" }}>
                             <FormControl sx={{ width: "70%" }}>
                                 <FormLabel sx={{ color: "gray" }}>Straße</FormLabel>
-                                <Input placeholder='z.B. Musterstraße' />
+                                <Input value={formData.strasse} onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        strasse: e.target.value,
+                                    });
+                                }} placeholder='z.B. Musterstraße' />
                             </FormControl>
                             <FormControl sx={{ width: "30%" }}>
                                 <FormLabel sx={{ color: "gray" }}>Hausnummer</FormLabel>
-                                <Input placeholder='z.B. 92' />
+                                <Input value={formData.hausnummer} onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        hausnummer: e.target.value,
+                                    });
+                                }} placeholder='z.B. 92' />
                             </FormControl>
                         </Box>
                         <Box sx={{ display: "flex", flexDirection: "row", gap: 2, width: "100%" }}>
                             <FormControl>
                                 <FormLabel sx={{ color: "gray" }}>PLZ</FormLabel>
-                                <Input placeholder='z.B. 94315' type='Number'/>
+                                <Input value={formData.plz} onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        plz: e.target.value,
+                                    });
+                                }} placeholder='z.B. 94315' type='Number' />
                             </FormControl>
-                            <FormControl sx={{width: "60%"}}>
+                            <FormControl sx={{ width: "60%" }}>
                                 <FormLabel sx={{ color: "gray" }}>Stadt | Ort</FormLabel>
-                                <Input placeholder='z.B. Straubing' />
+                                <Input value={formData.stadt} onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        stadt: e.target.value,
+                                    });
+                                }} placeholder='z.B. Straubing' />
                             </FormControl>
                         </Box>
                         <FormControl>
-                            <FormLabel sx={{color: "gray"}}>Ländercode | ISO-Code</FormLabel>
-                            <Input placeholder='z.B. DE' />
+                            <FormLabel sx={{ color: "gray" }}>Ländercode | ISO-Code</FormLabel>
+                            <Input value={formData.laenderCode} onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    laenderCode: e.target.value,
+                                });
+                            }} placeholder='z.B. DE' />
                         </FormControl>
                         <FormControl>
-                            <FormLabel sx={{color: "gray"}}>{istfirma ? "Email des Unternehmens" : "Email Adresse"}</FormLabel>
-                            <Input placeholder={istfirma ? "z.B. info@testgmbh.de": "z.B. max.mustermann@gmail.com"}/>
+                            <FormLabel sx={{ color: "gray" }}>{formData.istfirma ? "Email des Unternehmens" : "Email Adresse"}</FormLabel>
+                            <Input value={formData.email} onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    email: e.target.value,
+                                });
+                            }} placeholder={formData.istfirma ? "z.B. info@testgmbh.de" : "z.B. max.mustermann@gmail.com"} />
                         </FormControl>
                         <FormControl>
-                            <FormLabel sx={{color: "gray"}}>Telefonnummer</FormLabel>
-                            <Input placeholder='z.B. +4915151136187'/>
+                            <FormLabel sx={{ color: "gray" }}>Telefonnummer</FormLabel>
+                            <Input value={formData.tel} onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    tel: e.target.value,
+                                });
+                            }} placeholder='z.B. +4915151136187' />
                         </FormControl>
+                        {formData.istfirma && (
+                            <FormControl>
+                                <FormLabel sx={{ color: "gray" }}>Ansprechpartner | {"(freilassen falls nicht vorhanden)"}</FormLabel>
+                                <Input value={formData.ansprechüartner} onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        ansprechüartner: e.target.value,
+                                    });
+                                }} placeholder='z.B. Mia Leitner' />
+                            </FormControl>
+                        )}
+                        <FormControl>
+                            <FormLabel sx={{ color: "gray" }}>Leitwegid | {"(für öffentliche Aufträge)"}</FormLabel>
+                            <Input value={formData.leitwegid} onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    leitwegid: e.target.value,
+                                });
+                            }} />
+                        </FormControl>
+                        <Button onClick={() => create()} startDecorator={<AddTaskOutlinedIcon />}>Erstellen</Button>
                     </Box>
                 </form>
             </ModalDialog>
