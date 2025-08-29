@@ -1,6 +1,7 @@
-import { handleSaveFile } from "./Filehandler";
+import { encrypt, Key } from "./Cryptor";
+import { handleLoadFile, handleSaveFile } from "./Filehandler";
 
-export const kundeErstellen = async (name,istfirma,street,number,plz,ort,landcode, email,telefon,ansprechpartner, leitwegid) => {
+export const kundeErstellen = async (name, istfirma, street, number, plz, ort, landcode, email, telefon, ansprechpartner, leitwegid) => {
     const json = {
         "name": name,
         "istfirma": istfirma,
@@ -17,14 +18,26 @@ export const kundeErstellen = async (name,istfirma,street,number,plz,ort,landcod
     }
     const folderdata = await window.api.listfiles("kunden/");
     let id = generateCode();
-    while (folderdata.includes(id + ".person")){
+    while (folderdata.includes(id + ".person")) {
         id = generateCode();
     }
     await handleSaveFile("kunden/" + id + ".person", JSON.stringify(json));
+    const readedjson = await handleLoadFile("fast_accsess/kunden.db");
+    let data;
+    if (readedjson === "{}") {
+        data = JSON.parse('{"list": []}');
+    } else {
+        data = JSON.parse(readedjson);
+    }
+    let element = { name, id };
+    data.list.push(element);
+    await handleSaveFile("fast_accsess/kunden.db", JSON.stringify(data));
+
+
 }
 export function generateCode() {
-  return Math.floor(Math.random() * 1e12) 
-    .toString()
-    .padStart(12, "0"); 
+    return Math.floor(Math.random() * 1e12)
+        .toString()
+        .padStart(12, "0");
 
 }

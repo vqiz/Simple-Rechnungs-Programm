@@ -11,6 +11,7 @@ import {
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { Key } from '../Scripts/Cryptor';
 function Login() {
   const [passwordinput, setpasswordinput] = useState("");
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ function Login() {
 
   function submit() {
     if (passwordinput === "login") {
+      Key.set("login");
       navigate("/home");
     } else {
       console.log("falsches passwort");

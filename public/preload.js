@@ -5,5 +5,5 @@ contextBridge.exposeInMainWorld('api', {
   writeFile: (path, content) => ipcRenderer.invoke('write-file', path, content),
   openFileDialog: () => ipcRenderer.invoke('dialog:openFile'),
   saveFileDialog: () => ipcRenderer.invoke('dialog:saveFile'),
-  listfiles: (path) => ipcRenderer.invoke("list-file",path),
+  listfiles: (path) => ipcRenderer.invoke("list-files",path),
 });

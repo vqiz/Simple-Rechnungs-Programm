@@ -1,7 +1,8 @@
 import { Box, Button, Divider, FormControl, FormLabel, Input, Modal, ModalDialog, Switch, Typography } from '@mui/joy'
 import React, { useState } from 'react'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
-function KundeErstellung() {
+import { kundeErstellen } from '../../../Scripts/KundenDatenBank';
+function KundeErstellung({ submit }) {
     const [formData, setFormData] = React.useState({
         name: "",
         istfirma: false,
@@ -16,7 +17,23 @@ function KundeErstellung() {
         leitwegid: "",
     });
     function create() {
-
+        if (formData.name === ""){
+            return;
+        }
+        kundeErstellen(
+            formData.name,
+            formData.istfirma,
+            formData.strasse,
+            formData.hausnummer,
+            formData.plz,
+            formData.stadt,
+            formData.laenderCode,
+            formData.email,
+            formData.tel,
+            formData.ansprechüartner,
+            formData.leitwegid,
+        );
+        submit();
     }
 
     return (
@@ -75,7 +92,7 @@ function KundeErstellung() {
                                     ...formData,
                                     name: e.target.value,
                                 });
-                            }} placeholder='z.B. Max Mustermann' />
+                            }} placeholder='z.B. Max Mustermann' required/>
                         </FormControl>
                         <Box sx={{ display: "flex", flexDirection: "row", gap: 2, width: "100%" }}>
                             <FormControl sx={{ width: "70%" }}>

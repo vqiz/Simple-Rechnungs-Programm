@@ -8,6 +8,9 @@ import MaskProvider from '../MaskProvider';
 import KundeErstellung from '../KundenVerwaltung/Masks/KundeErstellung';
 function KundenVerwaltung() {
     const [createkunde,setcreatekunde] = useState(false);
+    function close() {
+        setcreatekunde(false);
+    }
     return (
         <Box
             sx={{
@@ -27,7 +30,7 @@ function KundenVerwaltung() {
             {
                 createkunde && (
                     <MaskProvider>
-                        <KundeErstellung/>
+                        <KundeErstellung submit={close}/>
                     </MaskProvider>
                 )
             }
