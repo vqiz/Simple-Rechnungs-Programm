@@ -55,19 +55,16 @@ function KundenVerwaltung() {
                         <tr>
                             <th>Kunden und Rechnungen</th>
                             <th></th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>Max Mustermann</td>
                             <td>INV-001</td>
-                            <td>14.08.2025</td>
                         </tr>
                         <tr>
                             <td>Erika Musterfrau</td>
                             <td>INV-002</td>
-                            <td>15.08.2025</td>
                         </tr>
                     </tbody>
                 </Table>

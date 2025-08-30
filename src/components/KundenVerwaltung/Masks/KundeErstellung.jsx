@@ -1,7 +1,8 @@
-import { Box, Button, Divider, FormControl, FormLabel, Input, Modal, ModalDialog, Switch, Typography } from '@mui/joy'
+import { Box, Button, Divider, FormControl, FormLabel, IconButton, Input, Modal, ModalDialog, Switch, Typography } from '@mui/joy'
 import React, { useState } from 'react'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
 import { kundeErstellen } from '../../../Scripts/KundenDatenBank';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 function KundeErstellung({ submit }) {
     const [formData, setFormData] = React.useState({
         name: "",
@@ -17,7 +18,7 @@ function KundeErstellung({ submit }) {
         leitwegid: "",
     });
     function create() {
-        if (formData.name === ""){
+        if (formData.name === "") {
             return;
         }
         kundeErstellen(
@@ -46,9 +47,14 @@ function KundeErstellung({ submit }) {
                     maxWidth: "90vw",
                 }}>
                 <form>
-                    <Typography level='h3' mb={1}>
-                        Kunde erstellen
-                    </Typography>
+                    <Box sx={{ display: "flex", width: "100%", flexDirection: "row", justifyContent: "space-between" }}>
+                        <Typography level='h3' mb={1}>
+                            Kunde erstellen
+                        </Typography>
+                        <IconButton onClick={() => submit()} sx={{mt: -1}}>
+                            <CloseOutlinedIcon/>
+                        </IconButton>
+                    </Box>
                     <Divider orientation="horizontal" />
                     <Box
                         sx={{
@@ -92,7 +98,7 @@ function KundeErstellung({ submit }) {
                                     ...formData,
                                     name: e.target.value,
                                 });
-                            }} placeholder='z.B. Max Mustermann' required/>
+                            }} placeholder='z.B. Max Mustermann' required />
                         </FormControl>
                         <Box sx={{ display: "flex", flexDirection: "row", gap: 2, width: "100%" }}>
                             <FormControl sx={{ width: "70%" }}>

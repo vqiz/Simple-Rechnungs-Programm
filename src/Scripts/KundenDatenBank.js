@@ -29,7 +29,7 @@ export const kundeErstellen = async (name, istfirma, street, number, plz, ort, l
     } else {
         data = JSON.parse(readedjson);
     }
-    let element = { name, id };
+    let element = { name, id, istfirma };
     data.list.push(element);
     await handleSaveFile("fast_accsess/kunden.db", JSON.stringify(data));
 
@@ -39,5 +39,4 @@ export function generateCode() {
     return Math.floor(Math.random() * 1e12)
         .toString()
         .padStart(12, "0");
-
 }
