@@ -1,16 +1,31 @@
 import { Box, Button, Input, Table } from '@mui/joy'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
 import InfoCard from '../InfoCard'
 import SearchIcon from '@mui/icons-material/Search';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import MaskProvider from '../MaskProvider';
 import KundeErstellung from '../KundenVerwaltung/Masks/KundeErstellung';
+import { handleLoadFile } from '../../Scripts/Filehandler';
 function KundenVerwaltung() {
     const [createkunde,setcreatekunde] = useState(false);
     function close() {
         setcreatekunde(false);
     }
+    const [data,setdata] = useState(null);
+    useEffect(() => {
+        const readdata = async () => {
+            const readjson = await handleLoadFile("fast_accsess/kunden.db");
+            if (readjson === "{}"){
+                setdata(JSON.parse('{"list": []}'));
+                return;
+            } 
+            setdata(JSON.parse(readjson));
+        }
+        readdata();
+
+
+    }, []);
     return (
         <Box
             sx={{
@@ -58,14 +73,26 @@ function KundenVerwaltung() {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Max Mustermann</td>
-                            <td>INV-001</td>
-                        </tr>
-                        <tr>
-                            <td>Erika Musterfrau</td>
-                            <td>INV-002</td>
-                        </tr>
+                        {
+                            data && data.list && data.list.map((item) => {
+                                const name = item.name;
+                                const id = item.id;
+                                const istfirma = item.istfirma;
+                                return (
+                                    <tr>
+                                        <td>
+                                            
+                                        </td>
+                                        <td>
+
+                                        </td>
+                                    </tr>
+
+
+                                );
+
+                            });
+                        }
                     </tbody>
                 </Table>
             </Box>
