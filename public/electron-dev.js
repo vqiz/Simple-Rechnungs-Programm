@@ -8,14 +8,17 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1920,
     height: 1080,
+    icon: path.join(__dirname, "icon.png"),
+    title: "Rechnix",
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'), // Wichtig für sicheren Zugriff
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
-
+  app.dock.setIcon(path.join(__dirname, "icon.png"));
   win.loadURL('http://localhost:3000');
+  win.setTitle("Rechnix");
   win.webContents.openDevTools();
 }
 

@@ -17,13 +17,15 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    icon: path.join(__dirname, "icon.png"),
+    title: "Rechnix",
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
       preload: path.join(__dirname, 'preload.js'), // ← Wichtig!
     },
   });
-
+  app.dock.setIcon(path.join(__dirname, "icon.png"));
   win.loadFile(indexPath)
     .then(() => console.log("Window loaded"))
     .catch(err => {

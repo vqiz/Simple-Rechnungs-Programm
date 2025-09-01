@@ -1,4 +1,4 @@
-import { Box, Button, Input, Table } from '@mui/joy'
+import { Avatar, Box, Button, Chip, Input, Table, Typography } from '@mui/joy'
 import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
 import InfoCard from '../InfoCard'
@@ -7,19 +7,21 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import MaskProvider from '../MaskProvider';
 import KundeErstellung from '../KundenVerwaltung/Masks/KundeErstellung';
 import { handleLoadFile } from '../../Scripts/Filehandler';
+import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 function KundenVerwaltung() {
-    const [createkunde,setcreatekunde] = useState(false);
+    const [createkunde, setcreatekunde] = useState(false);
     function close() {
         setcreatekunde(false);
     }
-    const [data,setdata] = useState(null);
+    const [data, setdata] = useState(null);
     useEffect(() => {
         const readdata = async () => {
             const readjson = await handleLoadFile("fast_accsess/kunden.db");
-            if (readjson === "{}"){
+            if (readjson === "{}") {
                 setdata(JSON.parse('{"list": []}'));
                 return;
-            } 
+            }
             setdata(JSON.parse(readjson));
         }
         readdata();
@@ -45,7 +47,7 @@ function KundenVerwaltung() {
             {
                 createkunde && (
                     <MaskProvider>
-                        <KundeErstellung submit={close}/>
+                        <KundeErstellung submit={close} />
                     </MaskProvider>
                 )
             }
@@ -62,10 +64,10 @@ function KundenVerwaltung() {
                         startDecorator={<SearchIcon />}
                     />
                 </Box>
-                <Button onClick={() => setcreatekunde(true)} startDecorator={<AddCircleOutlineOutlinedIcon/>} sx={{mt: -1.8}}>Kunde erstellen</Button>
+                <Button onClick={() => setcreatekunde(true)} startDecorator={<AddCircleOutlineOutlinedIcon />} sx={{ mt: -1.8 }}>Kunde erstellen</Button>
             </Box>
-            <Box sx={{ px: 2, maxWidth: "126vh" }}>
-                <Table sx={{borderRadius: "15px"}}>
+            <Box sx={{ px: 2, maxWidth: "130vh" }}>
+                <Table sx={{ borderRadius: "15px" }}>
                     <thead>
                         <tr>
                             <th>Kunden und Rechnungen</th>
@@ -78,20 +80,45 @@ function KundenVerwaltung() {
                                 const name = item.name;
                                 const id = item.id;
                                 const istfirma = item.istfirma;
+                                const email = item.email;
                                 return (
                                     <tr>
                                         <td>
-                                            
+                                            <Box sx={{ display: "flex", alignContent: "center", flexDirection: "row" }}>
+                                                {
+                                                    istfirma ? (
+                                                        <Avatar size="lg">
+                                                            <FactoryOutlinedIcon />
+                                                        </Avatar>
+
+                                                    ) : (
+                                                        <Avatar size="lg">
+                                                            <AccountCircleOutlinedIcon />
+                                                        </Avatar>
+                                                        
+                                                    )
+                                                }
+                                                <Box sx={{display: "flex", flexDirection: "column", ml: 1}}>
+                                                    <Typography level="body-md">{name}</Typography>
+                                                    <Typography sx={{color: "darkgray"}} level="body-sm">{email}</Typography>
+                                                </Box>
+                                            </Box>
                                         </td>
                                         <td>
-
+                                            {
+                                                istfirma ? (
+                                                    <Chip>Unternehmen</Chip>
+                                                ) : (
+                                                    <Chip>PrivatKunde</Chip>
+                                                )
+                                            }
                                         </td>
                                     </tr>
 
 
                                 );
 
-                            });
+                            })
                         }
                     </tbody>
                 </Table>

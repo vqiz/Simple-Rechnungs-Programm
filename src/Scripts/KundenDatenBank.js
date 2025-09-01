@@ -29,7 +29,7 @@ export const kundeErstellen = async (name, istfirma, street, number, plz, ort, l
     } else {
         data = JSON.parse(readedjson);
     }
-    let element = { name, id, istfirma };
+    let element = { name, id, istfirma, email };
     data.list.push(element);
     await handleSaveFile("fast_accsess/kunden.db", JSON.stringify(data));
 
