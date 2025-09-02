@@ -103,7 +103,7 @@ function KundenVerwaltung() {
                         variant="outlined"
                         sx={{ flexGrow: 1, }}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                    
+
                         startDecorator={<SearchIcon />}
                     />
                 </Box>
@@ -124,10 +124,22 @@ function KundenVerwaltung() {
                                 const id = item.id;
                                 const istfirma = item.istfirma;
                                 const email = item.email;
+
                                 return (
-                                    <tr>
-                                        <td>
-                                            <Box sx={{ display: "flex", alignContent: "center", flexDirection: "row" }}>
+                                    <Box
+                                        component="tr"
+                                        key={id}
+                                        sx={{
+                                            transition: 'background-color 0.2s',
+                                            '&:hover': {
+                                                bgcolor: 'neutral.plainHoverBg',
+                                            },
+                                        }}
+                                    >
+                                        <Box component="td" sx={{ padding: '12px 16px' }}>
+                                            <Box sx={{
+                                                display: "flex", alignContent: "center", flexDirection: "row",
+                                            }}>
                                                 {
                                                     istfirma ? (
                                                         <Avatar size="lg">
@@ -146,8 +158,8 @@ function KundenVerwaltung() {
                                                     <Typography sx={{ color: "darkgray" }} level="body-sm">{email}</Typography>
                                                 </Box>
                                             </Box>
-                                        </td>
-                                        <td>
+                                        </Box>
+                                        <Box component="td" sx={{ padding: '12px 16px' }}>
                                             {
                                                 istfirma ? (
                                                     <Chip>Unternehmen</Chip>
@@ -155,8 +167,8 @@ function KundenVerwaltung() {
                                                     <Chip>PrivatKunde</Chip>
                                                 )
                                             }
-                                        </td>
-                                    </tr>
+                                        </Box>
+                                    </Box>
 
 
                                 );
