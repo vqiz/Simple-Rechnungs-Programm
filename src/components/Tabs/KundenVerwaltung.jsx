@@ -9,12 +9,19 @@ import KundeErstellung from '../KundenVerwaltung/Masks/KundeErstellung';
 import { handleLoadFile } from '../../Scripts/Filehandler';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import debounce from 'lodash/debounce';
+
 function KundenVerwaltung() {
     const [createkunde, setcreatekunde] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
     function close() {
         setcreatekunde(false);
     }
     const [data, setdata] = useState(null);
+    const [filteredList, setFilteredList] = useState([]);
+
     useEffect(() => {
         const readdata = async () => {
             const readjson = await handleLoadFile("fast_accsess/kunden.db");
@@ -28,6 +35,39 @@ function KundenVerwaltung() {
 
 
     }, []);
+
+    useEffect(() => {
+        const handler = debounce(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+        handler();
+        return () => {
+            handler.cancel();
+        };
+    }, [searchTerm]);
+
+    useEffect(() => {
+        const filterData = async () => {
+            await new Promise(resolve => setTimeout(resolve, 0));
+            if (!data || !data.list) {
+                setFilteredList([]);
+                return;
+            }
+            const term = debouncedSearchTerm.toLowerCase();
+            const filtered = data.list.filter((i) => {
+                const nameLower = i.name.toLowerCase();
+                const emailLower = i.email.toLowerCase();
+                return (
+                    nameLower.includes(term) ||
+                    emailLower.includes(term) ||
+                    i.id.includes(term)
+                );
+            });
+            setFilteredList(filtered);
+        };
+        filterData();
+    }, [data, debouncedSearchTerm]);
+
     return (
         <Box
             sx={{
@@ -36,7 +76,8 @@ function KundenVerwaltung() {
                 flexDirection: 'column',
                 gap: 2,
                 p: 0,
-                position: 'relative'
+                position: 'relative',
+
             }}
         >
             <Headline>Kundenverwaltung</Headline>
@@ -61,12 +102,14 @@ function KundenVerwaltung() {
                         placeholder="Kunden oder Rechnungsnummer suchen..."
                         variant="outlined"
                         sx={{ flexGrow: 1, }}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    
                         startDecorator={<SearchIcon />}
                     />
                 </Box>
                 <Button onClick={() => setcreatekunde(true)} startDecorator={<AddCircleOutlineOutlinedIcon />} sx={{ mt: -1.8 }}>Kunde erstellen</Button>
             </Box>
-            <Box sx={{ px: 2, maxWidth: "130vh" }}>
+            <Box sx={{ px: 2, maxWidth: "130vh", mb: 5 }}>
                 <Table sx={{ borderRadius: "15px" }}>
                     <thead>
                         <tr>
@@ -76,7 +119,7 @@ function KundenVerwaltung() {
                     </thead>
                     <tbody>
                         {
-                            data && data.list && data.list.map((item) => {
+                            filteredList.map((item) => {
                                 const name = item.name;
                                 const id = item.id;
                                 const istfirma = item.istfirma;
@@ -95,12 +138,12 @@ function KundenVerwaltung() {
                                                         <Avatar size="lg">
                                                             <AccountCircleOutlinedIcon />
                                                         </Avatar>
-                                                        
+
                                                     )
                                                 }
-                                                <Box sx={{display: "flex", flexDirection: "column", ml: 1}}>
+                                                <Box sx={{ display: "flex", flexDirection: "column", ml: 1 }}>
                                                     <Typography level="body-md">{name}</Typography>
-                                                    <Typography sx={{color: "darkgray"}} level="body-sm">{email}</Typography>
+                                                    <Typography sx={{ color: "darkgray" }} level="body-sm">{email}</Typography>
                                                 </Box>
                                             </Box>
                                         </td>

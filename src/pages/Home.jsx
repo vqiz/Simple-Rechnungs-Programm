@@ -88,7 +88,7 @@ function Home() {
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={0}>
         <RechnungErstellen />
       </TabPanel>
-      <TabPanel sx={{ p: 0 }} value={2}>
+      <TabPanel sx={{ p: 0, overflowY: "auto" }} value={2}>
         <KundenVerwaltung />
       </TabPanel>
       <TabPanel sx={{ p: 0 }} value={3}>

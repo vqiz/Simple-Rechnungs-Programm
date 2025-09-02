@@ -1,1 +1,916 @@
-{"list":[{"name":"Pauline Lilly Karl","id":"832689871885","istfirma":false,"email":"karl.pauline@gmail.com"},{"name":"Mustermann GMBR","id":"120707674644","istfirma":true,"email":"info@mustergmbr.de"}]}
+{
+  "list": [
+    {
+      "name": "Pauline Lilly Karl",
+      "id": "832689871885",
+      "istfirma": false,
+      "email": "karl.pauline@gmail.com"
+    },
+    {
+      "name": "Mustermann GMBR",
+      "id": "120707674644",
+      "istfirma": true,
+      "email": "info@mustergmbr.de"
+    },
+    {
+      "name": "Anto Werner",
+      "id": "238798795051",
+      "istfirma": false,
+      "email": "cengizkoch-ii@gmx.de"
+    },
+    {
+      "name": "Arndt Beier",
+      "id": "922034370843",
+      "istfirma": false,
+      "email": "bcaspar@trommler.de"
+    },
+    {
+      "name": "Kallert Kuhl KG",
+      "id": "384504320636",
+      "istfirma": true,
+      "email": "info@jaehn.com"
+    },
+    {
+      "name": "Misicher Mülichen OHG mbH",
+      "id": "293738573773",
+      "istfirma": true,
+      "email": "info@hofmann.de"
+    },
+    {
+      "name": "Lissi Atzler",
+      "id": "132669521266",
+      "istfirma": false,
+      "email": "uvogt@graf.de"
+    },
+    {
+      "name": "Freia Löffler",
+      "id": "973361430045",
+      "istfirma": false,
+      "email": "stephanieschmidtke@trubin.com"
+    },
+    {
+      "name": "Margrit Loos",
+      "id": "199225723439",
+      "istfirma": false,
+      "email": "denise52@franke.de"
+    },
+    {
+      "name": "Felicitas Jähn-Keudel",
+      "id": "370463959163",
+      "istfirma": false,
+      "email": "alankoehler@googlemail.com"
+    },
+    {
+      "name": "Schomber Wilms KG",
+      "id": "284789615645",
+      "istfirma": true,
+      "email": "info@paffrath.org"
+    },
+    {
+      "name": "Adalbert Nette",
+      "id": "893867873504",
+      "istfirma": false,
+      "email": "junkernst@briemer.de"
+    },
+    {
+      "name": "Univ.Prof. Sandor Stumpf B.A.",
+      "id": "640272494082",
+      "istfirma": false,
+      "email": "twalter@beier.de"
+    },
+    {
+      "name": "Dipl.-Ing. Malgorzata Tschentscher",
+      "id": "118560318355",
+      "istfirma": false,
+      "email": "beatrixlindner@gmail.com"
+    },
+    {
+      "name": "Francoise Dowerg B.Eng.",
+      "id": "927175906902",
+      "istfirma": false,
+      "email": "loewerkatrin@yahoo.de"
+    },
+    {
+      "name": "Gertraude Holt",
+      "id": "542873600164",
+      "istfirma": false,
+      "email": "hans-josef51@web.de"
+    },
+    {
+      "name": "Hentschel GmbH & Co. KG",
+      "id": "452201005672",
+      "istfirma": true,
+      "email": "info@trupp.com"
+    },
+    {
+      "name": "Ing. Christa Werner MBA.",
+      "id": "918818288218",
+      "istfirma": false,
+      "email": "waltrud43@pechel.com"
+    },
+    {
+      "name": "Univ.Prof. Hans D. Dietz",
+      "id": "712118953162",
+      "istfirma": false,
+      "email": "hbluemel@web.de"
+    },
+    {
+      "name": "Trubin AG & Co. KGaA",
+      "id": "191987348304",
+      "istfirma": true,
+      "email": "info@ebert.de"
+    },
+    {
+      "name": "Kramer GmbH",
+      "id": "209793460052",
+      "istfirma": true,
+      "email": "info@lorch.de"
+    },
+    {
+      "name": "Alwine Kaul-Mielcarek",
+      "id": "147042547629",
+      "istfirma": false,
+      "email": "dfranke@wohlgemut.net"
+    },
+    {
+      "name": "Natali Tintzmann",
+      "id": "451753194643",
+      "istfirma": false,
+      "email": "ursulatrub@googlemail.com"
+    },
+    {
+      "name": "Prof. Andrej Hendriks",
+      "id": "723410858424",
+      "istfirma": false,
+      "email": "chantal41@gmx.de"
+    },
+    {
+      "name": "Henner Vollbrecht",
+      "id": "469295402487",
+      "istfirma": false,
+      "email": "gerfried74@berger.de"
+    },
+    {
+      "name": "Becker Hermann GmbH",
+      "id": "693099201250",
+      "istfirma": true,
+      "email": "info@roerricht.com"
+    },
+    {
+      "name": "Frauke Hölzenbecher",
+      "id": "193172894404",
+      "istfirma": false,
+      "email": "bschuster@aol.de"
+    },
+    {
+      "name": "Anneke Bruder-Becker",
+      "id": "819458347033",
+      "istfirma": false,
+      "email": "nkiller@textor.de"
+    },
+    {
+      "name": "Henrik Holt MBA.",
+      "id": "740746137523",
+      "istfirma": false,
+      "email": "pbruder@hotmail.de"
+    },
+    {
+      "name": "Zenon Krein B.Sc.",
+      "id": "187939968167",
+      "istfirma": false,
+      "email": "doris32@adolph.org"
+    },
+    {
+      "name": "Mühle",
+      "id": "896591556451",
+      "istfirma": true,
+      "email": "info@stiebitz.de"
+    },
+    {
+      "name": "Dipl.-Ing. Lukas Weihmann",
+      "id": "158547140135",
+      "istfirma": false,
+      "email": "heino01@web.de"
+    },
+    {
+      "name": "Hänel",
+      "id": "320567634126",
+      "istfirma": true,
+      "email": "info@buchholz.de"
+    },
+    {
+      "name": "Wulff AG & Co. KG",
+      "id": "756804367923",
+      "istfirma": true,
+      "email": "info@karge.de"
+    },
+    {
+      "name": "Heinz-Werner Wende",
+      "id": "800390982478",
+      "istfirma": false,
+      "email": "ellaweinhold@gmail.com"
+    },
+    {
+      "name": "Kira Holt",
+      "id": "584581511676",
+      "istfirma": false,
+      "email": "zmetz@kramer.org"
+    },
+    {
+      "name": "Karl-Heinz Thanel B.Eng.",
+      "id": "358491666404",
+      "istfirma": false,
+      "email": "hentschelapollonia@yahoo.de"
+    },
+    {
+      "name": "Christine Ladeck-Speer",
+      "id": "506837235546",
+      "istfirma": false,
+      "email": "ferdinandjacob@googlemail.com"
+    },
+    {
+      "name": "Karolina Hamann MBA.",
+      "id": "190360979240",
+      "istfirma": false,
+      "email": "uloeffler@steinberg.com"
+    },
+    {
+      "name": "Prof. Karen Oestrovsky",
+      "id": "749495051495",
+      "istfirma": false,
+      "email": "ikarge@aol.de"
+    },
+    {
+      "name": "Roht Tschentscher GmbH & Co. OHG",
+      "id": "506009906728",
+      "istfirma": true,
+      "email": "info@doering.com"
+    },
+    {
+      "name": "Ing. Liesel Schuchhardt",
+      "id": "913901926837",
+      "istfirma": false,
+      "email": "odowerg@kitzmann.de"
+    },
+    {
+      "name": "Dussen van Fritsch GmbH",
+      "id": "607634811907",
+      "istfirma": true,
+      "email": "info@schomber.org"
+    },
+    {
+      "name": "Schinke",
+      "id": "563215494689",
+      "istfirma": true,
+      "email": "info@saeuberlich.de"
+    },
+    {
+      "name": "Waltraut Margraf",
+      "id": "429750499051",
+      "istfirma": false,
+      "email": "nancyjessel@siering.com"
+    },
+    {
+      "name": "Univ.Prof. Dora Mies MBA.",
+      "id": "398404222432",
+      "istfirma": false,
+      "email": "hans-d32@gmail.com"
+    },
+    {
+      "name": "Ortrud Pölitz MBA.",
+      "id": "825810997808",
+      "istfirma": false,
+      "email": "jolanthe30@gmail.com"
+    },
+    {
+      "name": "Sabine Lübs",
+      "id": "264607354555",
+      "istfirma": false,
+      "email": "sheidrich@gmail.com"
+    },
+    {
+      "name": "Kay-Uwe Hahn",
+      "id": "583754170041",
+      "istfirma": false,
+      "email": "spechel@googlemail.com"
+    },
+    {
+      "name": "Frau Catherine Roht",
+      "id": "882252010309",
+      "istfirma": false,
+      "email": "mscholtz@web.de"
+    },
+    {
+      "name": "Kobelt Hertrampf Stiftung & Co. KGaA",
+      "id": "191757917154",
+      "istfirma": true,
+      "email": "info@hein.net"
+    },
+    {
+      "name": "Karlheinz Bonbach-Stey",
+      "id": "720118367171",
+      "istfirma": false,
+      "email": "florenceklingelhoefer@schmiedt.com"
+    },
+    {
+      "name": "Dorit Hauffer",
+      "id": "536566009321",
+      "istfirma": false,
+      "email": "hans-georgheuser@trupp.de"
+    },
+    {
+      "name": "Diana Schmiedt",
+      "id": "376873893862",
+      "istfirma": false,
+      "email": "leonore03@drub.com"
+    },
+    {
+      "name": "Ruppersberger",
+      "id": "602603560226",
+      "istfirma": true,
+      "email": "info@thies.de"
+    },
+    {
+      "name": "Egbert Jessel",
+      "id": "755464702261",
+      "istfirma": false,
+      "email": "dorina65@tschentscher.com"
+    },
+    {
+      "name": "Doris Scheibe",
+      "id": "136833401775",
+      "istfirma": false,
+      "email": "kreuselekkehart@gmx.de"
+    },
+    {
+      "name": "Dipl.-Ing. Edgar Ernst B.Sc.",
+      "id": "694977415830",
+      "istfirma": false,
+      "email": "rosikallert@aol.de"
+    },
+    {
+      "name": "Dr. Aldo Steckel B.Eng.",
+      "id": "557808974143",
+      "istfirma": false,
+      "email": "georgotto@hotmail.de"
+    },
+    {
+      "name": "Binner",
+      "id": "690378864246",
+      "istfirma": true,
+      "email": "info@johann.org"
+    },
+    {
+      "name": "Löchel",
+      "id": "480624639383",
+      "istfirma": true,
+      "email": "info@kramer.com"
+    },
+    {
+      "name": "Justine Seifert",
+      "id": "296711540107",
+      "istfirma": false,
+      "email": "wesackgeraldine@loewer.com"
+    },
+    {
+      "name": "Holzapfel",
+      "id": "113263250683",
+      "istfirma": true,
+      "email": "info@kostolzin.com"
+    },
+    {
+      "name": "Schüler GmbH & Co. KGaA",
+      "id": "897116520311",
+      "istfirma": true,
+      "email": "info@baerer.de"
+    },
+    {
+      "name": "Anders Stey GmbH",
+      "id": "496084111925",
+      "istfirma": true,
+      "email": "info@etzler.net"
+    },
+    {
+      "name": "Herr Karl-Heinz Sorgatz",
+      "id": "928922473818",
+      "istfirma": false,
+      "email": "paulostolze@googlemail.com"
+    },
+    {
+      "name": "Univ.Prof. Pasquale Cichorius",
+      "id": "880771292271",
+      "istfirma": false,
+      "email": "mdoehn@googlemail.com"
+    },
+    {
+      "name": "Sabine Kuhl",
+      "id": "309345894285",
+      "istfirma": false,
+      "email": "timschenk@trupp.de"
+    },
+    {
+      "name": "Rosenow Weiß GbR",
+      "id": "905223361903",
+      "istfirma": true,
+      "email": "info@klingelhoefer.org"
+    },
+    {
+      "name": "Hölzenbecher",
+      "id": "953750486052",
+      "istfirma": true,
+      "email": "info@rohleder.de"
+    },
+    {
+      "name": "Jörg Zirme",
+      "id": "888679981706",
+      "istfirma": false,
+      "email": "hwalter@trupp.com"
+    },
+    {
+      "name": "Ing. Karl-Friedrich Barth B.Eng.",
+      "id": "186048360789",
+      "istfirma": false,
+      "email": "tom75@hofmann.com"
+    },
+    {
+      "name": "Karl-Heinz Wagner",
+      "id": "558157714955",
+      "istfirma": false,
+      "email": "giessanselm@henk.de"
+    },
+    {
+      "name": "Anne-Marie Etzold B.Sc.",
+      "id": "370270406066",
+      "istfirma": false,
+      "email": "faustagata@googlemail.com"
+    },
+    {
+      "name": "Dietrich Girschner",
+      "id": "356427535499",
+      "istfirma": false,
+      "email": "bernd-dietersaeuberlich@kambs.net"
+    },
+    {
+      "name": "Hans-Willi Wähner",
+      "id": "725394517423",
+      "istfirma": false,
+      "email": "marygerlach@aol.de"
+    },
+    {
+      "name": "Schwital Scholz AG & Co. KGaA",
+      "id": "392615175765",
+      "istfirma": true,
+      "email": "info@ruppersberger.de"
+    },
+    {
+      "name": "Isabella Stiffel",
+      "id": "312921085182",
+      "istfirma": false,
+      "email": "bbeyer@aol.de"
+    },
+    {
+      "name": "Rene Hermann-Mälzer",
+      "id": "539486639575",
+      "istfirma": false,
+      "email": "lydia23@jessel.de"
+    },
+    {
+      "name": "Mareike Wiek B.A.",
+      "id": "431093776718",
+      "istfirma": false,
+      "email": "agirschner@aol.de"
+    },
+    {
+      "name": "Wendelin Rosemann",
+      "id": "969015256790",
+      "istfirma": false,
+      "email": "dklemm@web.de"
+    },
+    {
+      "name": "Claus Weller",
+      "id": "952562590585",
+      "istfirma": false,
+      "email": "ekkehart09@web.de"
+    },
+    {
+      "name": "Gehringer",
+      "id": "196609213214",
+      "istfirma": true,
+      "email": "info@eberhardt.com"
+    },
+    {
+      "name": "Else Dippel",
+      "id": "718151771577",
+      "istfirma": false,
+      "email": "wojciechhecker@bender.de"
+    },
+    {
+      "name": "Hans-Willi Cichorius",
+      "id": "645679124287",
+      "istfirma": false,
+      "email": "helenagnatz@weihmann.com"
+    },
+    {
+      "name": "Samira Beer",
+      "id": "622946644117",
+      "istfirma": false,
+      "email": "schuchhardtclara@ditschlerin.de"
+    },
+    {
+      "name": "Killer Johann Stiftung & Co. KG",
+      "id": "646356066618",
+      "istfirma": true,
+      "email": "info@poelitz.de"
+    },
+    {
+      "name": "Jäkel Stiftung & Co. KG",
+      "id": "372323020350",
+      "istfirma": true,
+      "email": "info@lindau.com"
+    },
+    {
+      "name": "Frau Blanka Fröhlich",
+      "id": "511124430843",
+      "istfirma": false,
+      "email": "auch-schlauchinberta@web.de"
+    },
+    {
+      "name": "Herr Vinko Wulf MBA.",
+      "id": "213232544645",
+      "istfirma": false,
+      "email": "wulfamir@hotmail.de"
+    },
+    {
+      "name": "Tanja Weitzel B.Eng.",
+      "id": "112438772533",
+      "istfirma": false,
+      "email": "francesca82@klemm.com"
+    },
+    {
+      "name": "Mohaupt",
+      "id": "979139875922",
+      "istfirma": true,
+      "email": "info@kitzmann.net"
+    },
+    {
+      "name": "Nuran Ruppert",
+      "id": "161019134000",
+      "istfirma": false,
+      "email": "joachim66@kostolzin.de"
+    },
+    {
+      "name": "Ing. Achim Dietz",
+      "id": "957778520527",
+      "istfirma": false,
+      "email": "evelyn76@gmx.de"
+    },
+    {
+      "name": "Albers e.V.",
+      "id": "393558836919",
+      "istfirma": true,
+      "email": "info@juncken.com"
+    },
+    {
+      "name": "Ferdinand Weller",
+      "id": "960170569256",
+      "istfirma": false,
+      "email": "wsoelzer@loechel.de"
+    },
+    {
+      "name": "Roland Heuser",
+      "id": "900907879133",
+      "istfirma": false,
+      "email": "fkostolzin@web.de"
+    },
+    {
+      "name": "Ludmilla Kaul",
+      "id": "305996960280",
+      "istfirma": false,
+      "email": "heidemarierogner@drubin.net"
+    },
+    {
+      "name": "Univ.Prof. Christopher Schomber",
+      "id": "201707812056",
+      "istfirma": false,
+      "email": "wagenknechtguido@gmail.com"
+    },
+    {
+      "name": "Loos",
+      "id": "978439895468",
+      "istfirma": true,
+      "email": "info@beer.com"
+    },
+    {
+      "name": "Rust Hahn GmbH",
+      "id": "363396174713",
+      "istfirma": true,
+      "email": "info@matthaei.de"
+    },
+    {
+      "name": "Ben Bruder",
+      "id": "586629115793",
+      "istfirma": false,
+      "email": "serpilkrein@ruppert.net"
+    },
+    {
+      "name": "Margot Geisler-Kraushaar",
+      "id": "705558200523",
+      "istfirma": false,
+      "email": "tintzmannheinz-wilhelm@gmail.com"
+    },
+    {
+      "name": "Winkler Barth AG",
+      "id": "701116439663",
+      "istfirma": true,
+      "email": "info@striebitz.com"
+    },
+    {
+      "name": "Seip Scholz AG & Co. OHG",
+      "id": "109190072722",
+      "istfirma": true,
+      "email": "info@fischer.de"
+    },
+    {
+      "name": "Amir Rädel",
+      "id": "473740746672",
+      "istfirma": false,
+      "email": "yspeer@kaester.com"
+    },
+    {
+      "name": "Constance Trupp-Pärtzelt",
+      "id": "170097641445",
+      "istfirma": false,
+      "email": "zkrause@hethur.com"
+    },
+    {
+      "name": "Eva-Marie Atzler-Schweitzer",
+      "id": "361746387698",
+      "istfirma": false,
+      "email": "leonidheinz@aol.de"
+    },
+    {
+      "name": "Hildburg Oestrovsky MBA.",
+      "id": "629018597769",
+      "istfirma": false,
+      "email": "thieshans-juergen@schmiedt.net"
+    },
+    {
+      "name": "Dipl.-Ing. Robby Höfig B.Eng.",
+      "id": "169850645654",
+      "istfirma": false,
+      "email": "anastasios16@yahoo.de"
+    },
+    {
+      "name": "Stolze",
+      "id": "517592719049",
+      "istfirma": true,
+      "email": "info@loechel.com"
+    },
+    {
+      "name": "Valeria Harloff-Ritter",
+      "id": "707189135035",
+      "istfirma": false,
+      "email": "weitzelcarin@noack.de"
+    },
+    {
+      "name": "Susan Stadelmann",
+      "id": "496400334153",
+      "istfirma": false,
+      "email": "auch-schlauchinhenning@jaentsch.com"
+    },
+    {
+      "name": "Dipl.-Ing. Otmar Tröst",
+      "id": "609550121204",
+      "istfirma": false,
+      "email": "luitgardschomber@web.de"
+    },
+    {
+      "name": "Jeannine Flantz",
+      "id": "607110750907",
+      "istfirma": false,
+      "email": "bruderdietrich@ullrich.org"
+    },
+    {
+      "name": "Hahn Jähn GmbH",
+      "id": "322203697120",
+      "istfirma": true,
+      "email": "info@striebitz.de"
+    },
+    {
+      "name": "Weimer Wagenknecht OHG mbH",
+      "id": "386571188701",
+      "istfirma": true,
+      "email": "info@koch.com"
+    },
+    {
+      "name": "Cristina Gröttner",
+      "id": "928099231933",
+      "istfirma": false,
+      "email": "arndt81@roemer.net"
+    },
+    {
+      "name": "Trupp Carsten OHG mbH",
+      "id": "581620982658",
+      "istfirma": true,
+      "email": "info@gotthard.net"
+    },
+    {
+      "name": "Hulda Dippel",
+      "id": "414344607559",
+      "istfirma": false,
+      "email": "ralph91@gmail.com"
+    },
+    {
+      "name": "Trub GmbH",
+      "id": "951200315075",
+      "istfirma": true,
+      "email": "info@gertz.de"
+    },
+    {
+      "name": "Orhan Lorch",
+      "id": "493287338615",
+      "istfirma": false,
+      "email": "lukastey@googlemail.com"
+    },
+    {
+      "name": "Hannah Binner B.Sc.",
+      "id": "201869059498",
+      "istfirma": false,
+      "email": "shenschel@hotmail.de"
+    },
+    {
+      "name": "Lieschen Klotz",
+      "id": "626143340476",
+      "istfirma": false,
+      "email": "kstroh@ladeck.org"
+    },
+    {
+      "name": "Knappe AG & Co. KGaA",
+      "id": "777738009146",
+      "istfirma": true,
+      "email": "info@wernecke.de"
+    },
+    {
+      "name": "Reichmann Jähn e.V.",
+      "id": "330614491652",
+      "istfirma": true,
+      "email": "info@koester.net"
+    },
+    {
+      "name": "Prof. Rolf-Peter Wilms B.Eng.",
+      "id": "131876079829",
+      "istfirma": false,
+      "email": "meryemjaentsch@wesack.de"
+    },
+    {
+      "name": "Ing. Franziska Löwer",
+      "id": "328707116817",
+      "istfirma": false,
+      "email": "renebluemel@gmail.com"
+    },
+    {
+      "name": "Gabriele Gumprich",
+      "id": "437721598028",
+      "istfirma": false,
+      "email": "dirkmitschke@hoerle.de"
+    },
+    {
+      "name": "Kranz Kitzmann KGaA",
+      "id": "308518025157",
+      "istfirma": true,
+      "email": "info@tschentscher.de"
+    },
+    {
+      "name": "Dörschner GbR",
+      "id": "333728891472",
+      "istfirma": true,
+      "email": "info@seifert.de"
+    },
+    {
+      "name": "Adelheid Eimer-Geisel",
+      "id": "458564519429",
+      "istfirma": false,
+      "email": "ybudig@gmx.de"
+    },
+    {
+      "name": "Ulrike Steinberg",
+      "id": "148509408397",
+      "istfirma": false,
+      "email": "hans-peterpatberg@googlemail.com"
+    },
+    {
+      "name": "Charles Kruschwitz",
+      "id": "649575225611",
+      "istfirma": false,
+      "email": "henkanna@hotmail.de"
+    },
+    {
+      "name": "Univ.Prof. Gerda Juncken",
+      "id": "391201991578",
+      "istfirma": false,
+      "email": "arnulfrogge@seidel.de"
+    },
+    {
+      "name": "Alicia Loos",
+      "id": "850233691086",
+      "istfirma": false,
+      "email": "jorge52@jacob.net"
+    },
+    {
+      "name": "Corinna Christoph",
+      "id": "443007365698",
+      "istfirma": false,
+      "email": "vhuhn@hotmail.de"
+    },
+    {
+      "name": "Kobelt",
+      "id": "713591647505",
+      "istfirma": true,
+      "email": "info@stiebitz.com"
+    },
+    {
+      "name": "Norma Ullrich",
+      "id": "139995183459",
+      "istfirma": false,
+      "email": "evelin05@beyer.net"
+    },
+    {
+      "name": "Dobes Nerger KGaA",
+      "id": "636076291871",
+      "istfirma": true,
+      "email": "info@kade.de"
+    },
+    {
+      "name": "Steckel GbR",
+      "id": "740664770790",
+      "istfirma": true,
+      "email": "info@stolze.de"
+    },
+    {
+      "name": "Holt",
+      "id": "211151231729",
+      "istfirma": true,
+      "email": "info@beer.com"
+    },
+    {
+      "name": "Marika Hentschel",
+      "id": "891431842824",
+      "istfirma": false,
+      "email": "proerricht@yahoo.de"
+    },
+    {
+      "name": "Janus Käster B.Eng.",
+      "id": "447647541271",
+      "istfirma": false,
+      "email": "nurten15@gmx.de"
+    },
+    {
+      "name": "Jana Dörschner",
+      "id": "727772398752",
+      "istfirma": false,
+      "email": "shaase@mielcarek.de"
+    },
+    {
+      "name": "Univ.Prof. Minna Junck",
+      "id": "789930466923",
+      "istfirma": false,
+      "email": "romy78@grein.org"
+    },
+    {
+      "name": "Karz AG & Co. KG",
+      "id": "791851695647",
+      "istfirma": true,
+      "email": "info@reichmann.org"
+    },
+    {
+      "name": "Löchel",
+      "id": "115057246323",
+      "istfirma": true,
+      "email": "info@kreusel.de"
+    },
+    {
+      "name": "Univ.Prof. Mirjana Harloff B.A.",
+      "id": "725201939429",
+      "istfirma": false,
+      "email": "jopichkarl-ernst@googlemail.com"
+    },
+    {
+      "name": "Semra Tlustek",
+      "id": "137721855127",
+      "istfirma": false,
+      "email": "zoltan11@yahoo.de"
+    },
+    {
+      "name": "Hans-Karl Oestrovsky-Kobelt",
+      "id": "615562604621",
+      "istfirma": false,
+      "email": "zahnbrian@aol.de"
+    },
+    {
+      "name": "Fedor Schomber-Jacob",
+      "id": "250473455445",
+      "istfirma": false,
+      "email": "keudelsieglinde@aol.de"
+    }
+  ]
+}
