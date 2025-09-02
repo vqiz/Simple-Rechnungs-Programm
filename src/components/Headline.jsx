@@ -18,7 +18,9 @@ function Headline({children}) {
             ml: '15px',
             fontSize: '1.25rem',
             fontWeight: 600,
-            color: '#333'
+            color: '#333',
+            cursor: "default",
+            userSelect: "none",
           }}
         >
           {children}

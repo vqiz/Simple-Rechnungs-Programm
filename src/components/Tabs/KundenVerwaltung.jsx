@@ -154,8 +154,8 @@ function KundenVerwaltung() {
                                                     )
                                                 }
                                                 <Box sx={{ display: "flex", flexDirection: "column", ml: 1 }}>
-                                                    <Typography level="body-md">{name}</Typography>
-                                                    <Typography sx={{ color: "darkgray" }} level="body-sm">{email}</Typography>
+                                                    <Typography level="body-md" sx={{cursor: "default",userSelect: "none"}}>{name}</Typography>
+                                                    <Typography sx={{ color: "darkgray", cursor: "default",userSelect: "none" }} level="body-sm">{email}</Typography>
                                                 </Box>
                                             </Box>
                                         </Box>

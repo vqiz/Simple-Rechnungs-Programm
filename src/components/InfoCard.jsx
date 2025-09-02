@@ -25,10 +25,10 @@ function InfoCard({headline,children}) {
             <InfoOutlinedIcon />
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', marginLeft: 2 }}>
-            <Typography level="title-md" sx={{ fontWeight: 500, color: '#333' }}>
+            <Typography level="title-md" sx={{ fontWeight: 500, color: '#333', cursor: "default", userSelect: "none"}}>
               {headline}
             </Typography>
-            <Typography sx={{ color: '#555', fontSize: '0.95rem' }}>
+            <Typography sx={{ color: '#555', fontSize: '0.95rem',  cursor: "default", userSelect: "none" }}>
                 {children}
             </Typography>
           </Box>
