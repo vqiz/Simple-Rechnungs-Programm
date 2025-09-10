@@ -7,6 +7,7 @@ import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import { debounce } from 'lodash';
 import SearchIcon from '@mui/icons-material/Search';
+import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 function RechnungErstellen() {
 
@@ -33,7 +34,7 @@ function RechnungErstellen() {
 
   const [rechnung, setRechnung] = React.useState({
     kundenId: -1,
-    positionen: [],
+    positionen: new Map(),
   });
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,14 +48,35 @@ function RechnungErstellen() {
       handler.cancel();
     };
   }, [searchTerm]);
-  function addItem(item) {
-    //const update = rechnung.positione
-    //setRechnung({...rechnung, positionen: })
-  }
-  function removeItem(item) {
+  const addPosition = (key, value) => {
+    setRechnung((prev) => {
+      const updatedMap = new Map(prev.positionen);
+      updatedMap.set(key, value);
+      return { ...prev, positionen: updatedMap };
+    });
+  };
 
-  }
-
+  const removePosition = (key) => {
+    setRechnung((prev) => {
+      const updatedMap = new Map(prev.positionen);
+      updatedMap.delete(key);
+      return { ...prev, positionen: updatedMap };
+    });
+  };
+  const containsPosition = (key) => {
+    return rechnung.positionen.has(key);
+  };
+  const updatePosition = (key, newValue) => {
+    setRechnung((prev) => {
+      if (!prev.positionen.has(key)) {
+        console.warn(`Position with key "${key}" not found`);
+        return prev; // no change
+      }
+      const updatedMap = new Map(prev.positionen);
+      updatedMap.set(key, newValue); // overwrite value
+      return { ...prev, positionen: updatedMap };
+    });
+  };
   return (
     <Box
       sx={{
@@ -62,22 +84,27 @@ function RechnungErstellen() {
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
-        p: 0,
-        position: 'relative'
+        position: 'relative',
+        bgcolor: 'background.level1',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
+
       <Headline>Rechnung erstellen</Headline>
+
+
       <Box sx={{ p: 2 }}>
         <InfoCard headline={"Information"}>
           Im Folgenden können Sie eine Rechnung erstellen. Wählen Sie einen Kunden aus oder erstellen Sie einen, falls dieser noch nicht existiert.
           <br /> Bestehende Rechnungen können sie unter dem jeweiligen Kunden finden. Diese sind unter <Typography sx={{ fontWeight: "bold" }}>KundenVerwaltung</Typography> zu finden
         </InfoCard>
       </Box>
-      <Box sx={{ p: 2, display: "flex", flexDirection: "row", gap: 2 }}>
-        <Card sx={{ width: "30%", height: "70vh", display: "flex", flexDirection: "column", overflowY: "auto" }}>
-          <Typography level="body-md" sx={{ fontWeight: "bold" }}>Produktauswahl</Typography>
+      <Box sx={{ p: 2, display: "flex", flexDirection: "row", gap: 2, width: '100%', maxWidth: 1200 }}>
+        <Card variant="outlined" sx={{ width: "30%", height: "70vh", display: "flex", flexDirection: "column", overflowY: "auto", borderRadius: 2, boxShadow: "md", p: 2 }}>
+          <Typography level="title-md" sx={{ fontWeight: "bold", mb: 1 }}>Produktauswahl</Typography>
           <Divider orientation="horizontal" />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2}}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <Input
               placeholder="Produkt suchen"
               variant="outlined"
@@ -89,25 +116,54 @@ function RechnungErstellen() {
           </Box>
 
           {
-            produkte && produkte.list?.map((item) => {
-              const name = item.name;
+            produkte && produkte.list?.filter((i) => {
+              const overname = i.name.toLocaleLowerCase();
+              const search = debouncedSearchTerm.toLocaleLowerCase();
+              const matchesCategory = overname.includes(search);
+              const matchesSubitem = i.content.some((sub) => sub.name.toLocaleLowerCase().includes(search));
+              return matchesCategory || matchesSubitem;
+            }).map((item) => {
+              const overname = item.name;
               const items = item.content;
               return (
-                <Box>
-                  <Typography level="title-lg">{name}</Typography>
-                  <Divider sx={{mb: 1}} orientation="horizontal"/>
+                <Box key={overname}>
+                  <Typography level="title-lg">{overname}</Typography>
+                  <Divider sx={{ mb: 1 }} orientation="horizontal" />
                   {
-                    items.map((subitem) => {
+                    items.filter((i) => i.name.toLocaleLowerCase().includes(debouncedSearchTerm.toLocaleLowerCase())).map((subitem) => {
                       const name = subitem.name;
                       const price = subitem.price;
                       return (
-                        <Box sx={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                          <Typography color="neutral" level="body-md">{name}</Typography>
-                          <IconButton color="success">
-                            <AddCircleOutlineOutlinedIcon/>
-                          </IconButton>
-
-
+                        <Box key={name} sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", p: 1, borderRadius: 1 }}>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <Typography color="neutral" level="body-md" fontWeight={"bold"}>{name}</Typography>
+                          </Box>
+                          <ButtonGroup sx={{ mb: 0.5 }}>
+                            {
+                              containsPosition(overname + "_" + name) && (
+                                <IconButton onClick={() => {
+                                  const n = overname + "_" + name;
+                                  if (rechnung.positionen.get(n) == 1) {
+                                    removePosition(n);
+                                    return;
+                                  }
+                                  updatePosition(n, rechnung.positionen.get(n) - 1);
+                                }} color="danger">
+                                  <RemoveCircleOutlineOutlinedIcon />
+                                </IconButton>
+                              )
+                            }
+                            <IconButton onClick={() => {
+                              const n = overname + "_" + name;
+                              if (containsPosition(n)) {
+                                updatePosition(n, rechnung.positionen.get(n) + 1);
+                                return;
+                              }
+                              addPosition(n, 1);
+                            }} color="success">
+                              <AddCircleOutlineOutlinedIcon />
+                            </IconButton>
+                          </ButtonGroup>
                         </Box>
                       )
 
@@ -125,8 +181,8 @@ function RechnungErstellen() {
 
 
         </Card>
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <FormControl sx={{ mb: 3 }}>
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+          <FormControl variant="outlined" sx={{ mb: 3, p: 2, borderRadius: 2, boxShadow: "sm", bgcolor: "white" }}>
             <FormLabel>Kunde auswählen</FormLabel>
             <Autocomplete
               value={kunden?.find((i) => i.id === rechnung.kundenId)}
@@ -182,12 +238,24 @@ function RechnungErstellen() {
             />
 
           </FormControl>
-          <Table sx={{ maxWidth: "90vh", height: "65vh", bgcolor: "white", borderRadius: "15px" }}>
+          <Table size="md" sx={{ bgcolor: "white", maxHeight: "60vh", overflowY: "auto" }}>
             <thead>
               <th>Rechnungs Positionen</th>
             </thead>
             <tbody>
+              {
+                Array.from(rechnung.positionen.entries()).map(([key, value]) => (
+                  <tr key={key}>
+                    <td>
+                      <Box sx={{display: "flex", flexDirection: "row", justifyContent: "space-between", p: 2}}>
+                        <Typography>{key.split("_")[1]} (x{value})</Typography>
+                        <Typography color="success">{(value * 1).toFixed(2)}€</Typography>
+                      </Box>
 
+                    </td>
+                  </tr>
+                ))
+              }
             </tbody>
           </Table>
 

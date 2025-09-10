@@ -241,7 +241,7 @@ function Unternehmen() {
             />
           </FormControl>
         </Box>
-        <Box sx={boxlinestyle}>
+        <Box sx={{...boxlinestyle, mb: 5}}>
           <FormControl sx={{ width: "50%" }}>
             <FormLabel sx={labelstyle}>Emailadresse</FormLabel>
             <Input
