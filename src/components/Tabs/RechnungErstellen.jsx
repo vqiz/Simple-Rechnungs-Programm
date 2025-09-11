@@ -9,6 +9,7 @@ import { debounce } from 'lodash';
 import SearchIcon from '@mui/icons-material/Search';
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import TableContainer from '@mui/material/TableContainer';
 function RechnungErstellen() {
 
   const [kathpath] = useState('kathegories/kathegories.rechnix');
@@ -101,9 +102,9 @@ function RechnungErstellen() {
         </InfoCard>
       </Box>
       <Box sx={{ p: 2, display: "flex", flexDirection: "row", gap: 2, width: '100%', maxWidth: 1200 }}>
-        <Card variant="outlined" sx={{ width: "30%", height: "70vh", display: "flex", flexDirection: "column", overflowY: "auto", borderRadius: 2, boxShadow: "md", p: 2 }}>
-          <Typography level="title-md" sx={{ fontWeight: "bold", mb: 1 }}>Produktauswahl</Typography>
-          <Divider orientation="horizontal" />
+        <Card variant="outlined" sx={{ width: "30%", height: "70vh", display: "flex", flexDirection: "column", overflow: "hidden", borderRadius: 2, boxShadow: "md", p: 2 }}>
+          <Typography level="title-md" sx={{ fontWeight: "bold", mb: 1, mt: 1 }}>Produktauswahl</Typography>
+          <Divider orientation="horizontal" sx={{ my: 1 }} />
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <Input
               placeholder="Produkt suchen"
@@ -114,71 +115,74 @@ function RechnungErstellen() {
               startDecorator={<SearchIcon />}
             />
           </Box>
-
-          {
-            produkte && produkte.list?.filter((i) => {
-              const overname = i.name.toLocaleLowerCase();
-              const search = debouncedSearchTerm.toLocaleLowerCase();
-              const matchesCategory = overname.includes(search);
-              const matchesSubitem = i.content.some((sub) => sub.name.toLocaleLowerCase().includes(search));
-              return matchesCategory || matchesSubitem;
-            }).map((item) => {
-              const overname = item.name;
-              const items = item.content;
-              return (
-                <Box key={overname}>
-                  <Typography level="title-lg">{overname}</Typography>
-                  <Divider sx={{ mb: 1 }} orientation="horizontal" />
-                  {
-                    items.filter((i) => i.name.toLocaleLowerCase().includes(debouncedSearchTerm.toLocaleLowerCase())).map((subitem) => {
-                      const name = subitem.name;
-                      const price = subitem.price;
-                      return (
-                        <Box key={name} sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", p: 1, borderRadius: 1 }}>
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <Typography color="neutral" level="body-md" fontWeight={"bold"}>{name}</Typography>
-                          </Box>
-                          <ButtonGroup sx={{ mb: 0.5 }}>
-                            {
-                              containsPosition(overname + "_" + name) && (
-                                <IconButton onClick={() => {
-                                  const n = overname + "_" + name;
-                                  if (rechnung.positionen.get(n) == 1) {
-                                    removePosition(n);
-                                    return;
-                                  }
-                                  updatePosition(n, rechnung.positionen.get(n) - 1);
-                                }} color="danger">
-                                  <RemoveCircleOutlineOutlinedIcon />
-                                </IconButton>
-                              )
-                            }
-                            <IconButton onClick={() => {
-                              const n = overname + "_" + name;
-                              if (containsPosition(n)) {
-                                updatePosition(n, rechnung.positionen.get(n) + 1);
-                                return;
+          <Box sx={{
+            flex: 1,
+            overflowY: "auto",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            "&::-webkit-scrollbar": { display: "none" }
+          }}>
+            {
+              produkte && produkte.list?.filter((i) => {
+                const overname = i.name.toLocaleLowerCase();
+                const search = debouncedSearchTerm.toLocaleLowerCase();
+                const matchesCategory = overname.includes(search);
+                const matchesSubitem = i.content.some((sub) => sub.name.toLocaleLowerCase().includes(search));
+                return matchesCategory || matchesSubitem;
+              }).map((item) => {
+                const overname = item.name;
+                const items = item.content;
+                return (
+                  <Box key={overname}>
+                    <Typography level="title-lg" sx={{ mt: 1, mb: 1 }}>{overname}</Typography>
+                    <Divider sx={{ my: 1 }} orientation="horizontal" />
+                    {
+                      items.filter((i) => i.name.toLocaleLowerCase().includes(debouncedSearchTerm.toLocaleLowerCase())).map((subitem) => {
+                        const name = subitem.name;
+                        const price = subitem.price;
+                        return (
+                          <Box key={name} sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", p: 1, borderRadius: 1 }}>
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                              <Typography color="neutral" level="body-md" fontWeight={"bold"}>{name}</Typography>
+                            </Box>
+                            <ButtonGroup sx={{ mb: 0.5 }}>
+                              {
+                                containsPosition(overname + "_" + name) && (
+                                  <IconButton onClick={() => {
+                                    const n = overname + "_" + name;
+                                    if (rechnung.positionen.get(n) == 1) {
+                                      removePosition(n);
+                                      return;
+                                    }
+                                    updatePosition(n, rechnung.positionen.get(n) - 1);
+                                  }} color="danger">
+                                    <RemoveCircleOutlineOutlinedIcon />
+                                  </IconButton>
+                                )
                               }
-                              addPosition(n, 1);
-                            }} color="success">
-                              <AddCircleOutlineOutlinedIcon />
-                            </IconButton>
-                          </ButtonGroup>
-                        </Box>
-                      )
+                              <IconButton onClick={() => {
+                                const n = overname + "_" + name;
+                                if (containsPosition(n)) {
+                                  updatePosition(n, rechnung.positionen.get(n) + 1);
+                                  return;
+                                }
+                                addPosition(n, 1);
+                              }} color="success">
+                                <AddCircleOutlineOutlinedIcon />
+                              </IconButton>
+                            </ButtonGroup>
+                          </Box>
+                        )
 
 
-                    })
-                  }
-                </Box>
-              );
+                      })
+                    }
+                  </Box>
+                );
 
-            })
-          }
-
-
-
-
+              })
+            }
+          </Box>
 
         </Card>
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -238,27 +242,49 @@ function RechnungErstellen() {
             />
 
           </FormControl>
-          <Table size="md" sx={{ bgcolor: "white", maxHeight: "60vh", overflowY: "auto" }}>
-            <thead>
-              <th>Rechnungs Positionen</th>
-            </thead>
-            <tbody>
-              {
-                Array.from(rechnung.positionen.entries()).map(([key, value]) => (
-                  <tr key={key}>
-                    <td>
-                      <Box sx={{display: "flex", flexDirection: "row", justifyContent: "space-between", p: 2}}>
-                        <Typography>{key.split("_")[1]} (x{value})</Typography>
-                        <Typography color="success">{(value * 1).toFixed(2)}€</Typography>
-                      </Box>
+          <TableContainer sx={{maxHeight: "60vh", overflowY: "auto"}}>
+            <Table stickyHeader size="md" sx={{ bgcolor: "white", overflowY: "auto" }}>
+              <thead>
+                <th>Rechnungs Positionen</th>
+              </thead>
+              <tbody>
+                {
+                  Array.from(rechnung.positionen.entries()).map(([key, value]) => (
+                    <tr key={key}>
+                      <td>
+                        <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", p: 2 }}>
+                          <Typography>{key.split("_")[1]} (x{value})</Typography>
+                          <Typography color="success">
+                            {(
+                              value *
+                              (
+                                produkte.list
+                                  ?.find((i) => i.name === key.split("_")[0])
+                                  ?.content.find((i) => i.name === key.split("_")[1])
+                                  ?.price || 0
+                              )
+                            ).toFixed(2)}€
+                          </Typography>
+                        </Box>
 
-                    </td>
-                  </tr>
-                ))
-              }
-            </tbody>
-          </Table>
-
+                      </td>
+                    </tr>
+                  ))
+                }
+                {
+                  rechnung.positionen.size > 0 && rechnung.kundenId && (
+                    <tr>
+                      <td>
+                        <Box sx={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
+                          <Button>Rechnung generieren</Button>
+                        </Box>
+                      </td>
+                    </tr>
+                  )
+                }
+              </tbody>
+            </Table>
+          </TableContainer>
         </Box>
       </Box>
 
