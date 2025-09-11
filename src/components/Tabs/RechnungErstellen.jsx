@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
-import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Table, Typography } from '@mui/joy'
+import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Table, Tooltip, Typography } from '@mui/joy'
 import InfoCard from '../InfoCard'
 import { handleLoadFile } from '../../Scripts/Filehandler';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
@@ -84,14 +84,12 @@ function RechnungErstellen() {
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
+        gap: 0,
         position: 'relative',
         bgcolor: 'background.level1',
         alignItems: 'center',
-        justifyContent: 'center',
       }}
     >
-
       <Headline>Rechnung erstellen</Headline>
 
 
@@ -105,7 +103,7 @@ function RechnungErstellen() {
         <Card variant="outlined" sx={{ width: "30%", height: "70vh", display: "flex", flexDirection: "column", overflow: "hidden", borderRadius: 2, boxShadow: "md", p: 2 }}>
           <Typography level="title-md" sx={{ fontWeight: "bold", mb: 1, mt: 1 }}>Produktauswahl</Typography>
           <Divider orientation="horizontal" sx={{ my: 1 }} />
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, flexDirection: "row", gap: 2 }}>
             <Input
               placeholder="Produkt suchen"
               variant="outlined"
@@ -114,6 +112,12 @@ function RechnungErstellen() {
 
               startDecorator={<SearchIcon />}
             />
+            <Tooltip title={"Produkt hinzufügen das nicht in der Schnellauswahl vorhanden ist"}>
+              <IconButton color="primary" size='sm'>
+                <AddCircleOutlineOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+
           </Box>
           <Box sx={{
             flex: 1,
@@ -148,28 +152,34 @@ function RechnungErstellen() {
                             <ButtonGroup sx={{ mb: 0.5 }}>
                               {
                                 containsPosition(overname + "_" + name) && (
-                                  <IconButton onClick={() => {
-                                    const n = overname + "_" + name;
-                                    if (rechnung.positionen.get(n) == 1) {
-                                      removePosition(n);
-                                      return;
-                                    }
-                                    updatePosition(n, rechnung.positionen.get(n) - 1);
-                                  }} color="danger">
-                                    <RemoveCircleOutlineOutlinedIcon />
-                                  </IconButton>
+                                  <Tooltip title={"Position veringern/entfernen"}>
+                                    <IconButton onClick={() => {
+                                      const n = overname + "_" + name;
+                                      if (rechnung.positionen.get(n) == 1) {
+                                        removePosition(n);
+                                        return;
+                                      }
+                                      updatePosition(n, rechnung.positionen.get(n) - 1);
+                                    }} color="danger">
+                                      <RemoveCircleOutlineOutlinedIcon />
+                                    </IconButton>
+                                  </Tooltip>
+
                                 )
                               }
-                              <IconButton onClick={() => {
-                                const n = overname + "_" + name;
-                                if (containsPosition(n)) {
-                                  updatePosition(n, rechnung.positionen.get(n) + 1);
-                                  return;
-                                }
-                                addPosition(n, 1);
-                              }} color="success">
-                                <AddCircleOutlineOutlinedIcon />
-                              </IconButton>
+                              <Tooltip title={"Position hinzufügen"}>
+                                <IconButton onClick={() => {
+                                  const n = overname + "_" + name;
+                                  if (containsPosition(n)) {
+                                    updatePosition(n, rechnung.positionen.get(n) + 1);
+                                    return;
+                                  }
+                                  addPosition(n, 1);
+                                }} color="success">
+                                  <AddCircleOutlineOutlinedIcon />
+                                </IconButton>
+                              </Tooltip>
+
                             </ButtonGroup>
                           </Box>
                         )
@@ -242,7 +252,7 @@ function RechnungErstellen() {
             />
 
           </FormControl>
-          <TableContainer sx={{maxHeight: "60vh", overflowY: "auto"}}>
+          <TableContainer sx={{ maxHeight: "60vh", overflowY: "auto" }}>
             <Table stickyHeader size="md" sx={{ bgcolor: "white", overflowY: "auto" }}>
               <thead>
                 <th>Rechnungs Positionen</th>
@@ -253,18 +263,27 @@ function RechnungErstellen() {
                     <tr key={key}>
                       <td>
                         <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", p: 2 }}>
-                          <Typography>{key.split("_")[1]} (x{value})</Typography>
-                          <Typography color="success">
-                            {(
-                              value *
-                              (
-                                produkte.list
-                                  ?.find((i) => i.name === key.split("_")[0])
-                                  ?.content.find((i) => i.name === key.split("_")[1])
-                                  ?.price || 0
-                              )
-                            ).toFixed(2)}€
-                          </Typography>
+                          <Typography sx={{ mt: 1 }}>{key.split("_")[1]} (x{value})</Typography>
+                          <Box sx={{ gap: 2, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                            <Typography color="success">
+                              {(
+                                value *
+                                (
+                                  produkte.list
+                                    ?.find((i) => i.name === key.split("_")[0])
+                                    ?.content.find((i) => i.name === key.split("_")[1])
+                                    ?.price || 0
+                                )
+                              ).toFixed(2)}€
+                            </Typography>
+                            <Tooltip title={"Position entfernen"}>
+                              <IconButton onClick={() => { removePosition(key) }} color='danger'>
+                                <RemoveCircleOutlineOutlinedIcon />
+                              </IconButton>
+                            </Tooltip>
+
+                          </Box>
+
                         </Box>
 
                       </td>
