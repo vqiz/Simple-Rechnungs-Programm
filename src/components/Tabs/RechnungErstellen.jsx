@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
-import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Table, Tooltip, Typography } from '@mui/joy'
+import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Modal, ModalDialog, Table, Tooltip, Typography } from '@mui/joy'
 import InfoCard from '../InfoCard'
 import { handleLoadFile } from '../../Scripts/Filehandler';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
@@ -10,11 +10,20 @@ import SearchIcon from '@mui/icons-material/Search';
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import TableContainer from '@mui/material/TableContainer';
+import MaskProvider from '../MaskProvider';
 function RechnungErstellen() {
 
   const [kathpath] = useState('kathegories/kathegories.rechnix');
   const [kunden, setkunden] = useState();
   const [produkte, setprodukte] = useState();
+
+
+
+  //create produkt properties 
+  const [createProdukt, setCreateProdukt] = useState(false);
+  const [price, setprice] = useState(0);
+  const [produktname, setproduktname] = useState("");
+  const [error, seterror] = useState(false);
   useEffect(() => {
     const readdata = async () => {
       const readjson = await handleLoadFile("fast_accsess/kunden.db");
@@ -91,7 +100,99 @@ function RechnungErstellen() {
       }}
     >
       <Headline>Rechnung erstellen</Headline>
+      {
+        createProdukt && (
+          <MaskProvider>
+            <Modal open={"true"}>
+              <ModalDialog
+                variant="outlined"
+                sx={{
+                  borderRadius: "md",
+                  width: "55vh",
+                  maxWidth: "90vw",
+                }}>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
 
+                  }}
+                  style={{ width: "100%" }}
+                >
+                  <Typography level='h3' mb={1}>
+                    Produkt hinzufügen
+                  </Typography>
+                  <Divider />
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-evenly",
+                      gap: 2,
+                      mt: 2,
+                    }}
+                  >
+                    <FormControl sx={{ width: "60%" }}>
+                      <FormLabel sx={{ color: 'gray' }}>Produktname</FormLabel>
+                      <Input
+                        value={produktname}
+                        onChange={(e) => {
+                          setproduktname(e.target.value);
+                          seterror(false);
+                        }}
+                      />
+                    </FormControl>
+                    <FormControl>
+                      <FormLabel sx={{ color: 'gray' }}>Brutto Betrag in €</FormLabel>
+                      <Input
+                        onChange={(e) => {
+                          const value = e.target.value.replace(',', '.');
+                          setprice(value);
+                          seterror(false);
+                        }}
+                        type='number'
+                        value={price}
+                        inputProps={{ step: "0.01" }}
+                      />
+                    </FormControl>
+                  </Box>
+
+                  {error && (
+                    <Typography color='danger' level="body-xs" mt={1}>
+                      Bitte überprüfe deine Eingabe
+                    </Typography>
+                  )}
+
+                  <Box
+                    sx={{
+                      width: "100%",
+                      mt: 3,
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Button
+                      onClick={() => setCreateProdukt(false)}
+                      variant='outlined'
+                      color="neutral"
+                    >
+                      Abbrechen
+                    </Button>
+
+                    <Button
+                      
+                      color="success"
+                      variant='solid'
+                    >
+                      Hinzufügen
+                    </Button>
+                  </Box>
+                </form>
+              </ModalDialog>
+            </Modal>
+          </MaskProvider>
+        )
+      }
 
       <Box sx={{ p: 2 }}>
         <InfoCard headline={"Information"}>
@@ -107,13 +208,13 @@ function RechnungErstellen() {
             <Input
               placeholder="Produkt suchen"
               variant="outlined"
-              sx={{ flexGrow: 1, }}
+              sx={{ flexGrow: 1, display: "flex", maxWidth: "83.6%" }}
               onChange={(e) => setSearchTerm(e.target.value)}
 
               startDecorator={<SearchIcon />}
             />
             <Tooltip title={"Produkt hinzufügen das nicht in der Schnellauswahl vorhanden ist"}>
-              <IconButton color="primary" size='sm'>
+              <IconButton onClick={() => setCreateProdukt(true)} color="primary" size='sm'>
                 <AddCircleOutlineOutlinedIcon />
               </IconButton>
             </Tooltip>
@@ -253,7 +354,7 @@ function RechnungErstellen() {
 
           </FormControl>
           <TableContainer sx={{ maxHeight: "60vh", overflowY: "auto" }}>
-            <Table stickyHeader size="md" sx={{ bgcolor: "white", overflowY: "auto" }}>
+            <Table stickyHeader={!createProdukt} size="md" sx={{ bgcolor: "white", overflowY: "auto" }}>
               <thead>
                 <th>Rechnungs Positionen</th>
               </thead>
