@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
-import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Modal, ModalDialog, Table, Tooltip, Typography } from '@mui/joy'
+import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Link, Modal, ModalDialog, Table, Tooltip, Typography } from '@mui/joy'
 import InfoCard from '../InfoCard'
 import { handleLoadFile } from '../../Scripts/Filehandler';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
@@ -24,6 +24,11 @@ function RechnungErstellen() {
   const [price, setprice] = useState(0);
   const [produktname, setproduktname] = useState("");
   const [error, seterror] = useState(false);
+
+  //count mask and variables
+  const [editCount,seteditCount] = useState(false);
+  const [count,setCount] = useState(0);
+  const [targetEditCount,setTargetEditCount] = useState();
   useEffect(() => {
     const readdata = async () => {
       const readjson = await handleLoadFile("fast_accsess/kunden.db");
@@ -103,7 +108,7 @@ function RechnungErstellen() {
       {
         createProdukt && (
           <MaskProvider>
-            <Modal open={"true"}>
+            <Modal open={true}>
               <ModalDialog
                 variant="outlined"
                 sx={{
@@ -180,7 +185,35 @@ function RechnungErstellen() {
                     </Button>
 
                     <Button
-                      
+                      onClick={() => {
+                        if (!price || !produktname || produktname === ""){
+                          seterror(true);
+                          return;
+                        }
+                        const data = produkte;
+                        const element = {
+                          name: produktname,
+                          price: price,
+                          temporary: true,
+                        }
+                        const tempCategory = data.list.find((i) => i.name === "temp");
+
+                        if (tempCategory) {
+                          tempCategory.content.push(element);
+                        } else {
+                          const tempkath = {
+                            name: "temp",
+                            content: [element],
+                          };
+                          data.list.push(tempkath);
+                        }
+                        setprodukte(data);
+                        addPosition("temp_" + produktname, 1);
+                        setCreateProdukt(false);
+                        console.log(produkte);
+                        setprice(0);
+                        setproduktname("");
+                      }}
                       color="success"
                       variant='solid'
                     >
@@ -193,6 +226,10 @@ function RechnungErstellen() {
           </MaskProvider>
         )
       }
+
+
+
+
 
       <Box sx={{ p: 2 }}>
         <InfoCard headline={"Information"}>
@@ -233,6 +270,9 @@ function RechnungErstellen() {
                 const search = debouncedSearchTerm.toLocaleLowerCase();
                 const matchesCategory = overname.includes(search);
                 const matchesSubitem = i.content.some((sub) => sub.name.toLocaleLowerCase().includes(search));
+                if (overname === "temp") {
+                  return false;
+                }
                 return matchesCategory || matchesSubitem;
               }).map((item) => {
                 const overname = item.name;
@@ -242,7 +282,7 @@ function RechnungErstellen() {
                     <Typography level="title-lg" sx={{ mt: 1, mb: 1 }}>{overname}</Typography>
                     <Divider sx={{ my: 1 }} orientation="horizontal" />
                     {
-                      items.filter((i) => i.name.toLocaleLowerCase().includes(debouncedSearchTerm.toLocaleLowerCase())).map((subitem) => {
+                      items.filter((i) => i.name.toLocaleLowerCase().includes(debouncedSearchTerm.toLocaleLowerCase())).filter((i) => !i.temporary).map((subitem) => {
                         const name = subitem.name;
                         const price = subitem.price;
                         return (
@@ -364,7 +404,7 @@ function RechnungErstellen() {
                     <tr key={key}>
                       <td>
                         <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", p: 2 }}>
-                          <Typography sx={{ mt: 1 }}>{key.split("_")[1]} (x{value})</Typography>
+                          <Typography sx={{ mt: 1 }}>{key.split("_")[1]} <Link>(x{value})</Link></Typography>
                           <Box sx={{ gap: 2, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
                             <Typography color="success">
                               {(
