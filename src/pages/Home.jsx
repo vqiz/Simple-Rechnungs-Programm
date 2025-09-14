@@ -1,6 +1,6 @@
-import { Box } from '@mui/joy'
+import { Box, colors, Divider, List, ListItem, ListItemDecorator, Typography } from '@mui/joy'
 import { Tab, TabList, TabPanel, Tabs } from '@mui/joy'
-import React from 'react'
+import React, { useState } from 'react'
 import ReceiptIcon from '@mui/icons-material/Receipt'
 import FindInPageIcon from '@mui/icons-material/FindInPage'
 import InventoryIcon from '@mui/icons-material/Inventory'
@@ -11,6 +11,7 @@ import LeaderboardOutlinedIcon from '@mui/icons-material/LeaderboardOutlined';
 import Unternehmen from '../components/Tabs/Unternehmen'
 import RechnungErstellen from '../components/Tabs/RechnungErstellen'
 import KundenVerwaltung from '../components/Tabs/KundenVerwaltung'
+import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
 function Home() {
 
   const TabProvider = ({ children }) => {
@@ -20,19 +21,19 @@ function Home() {
           justifyContent: 'flex-start',
           textAlign: 'left',
           fontWeight: 500,
-          fontSize: '1rem',
-          padding: '12px 16px',
-          borderRadius: '6px',
+          fontSize: '0.9rem',
+          padding: '8px 12px',
+          borderRadius: 'md',
           mx: 1,
           my: 0.5,
           textTransform: 'none',
-          color: '#333',
+          color: 'text.secondary',
           '&:hover': {
-            bgcolor: '#f0f0f0',
+            bgcolor: 'neutral.100',
           },
           '&[aria-selected="true"]': {
-            bgcolor: '#e0e0e0',
-            color: '#000',
+            bgcolor: 'neutral.200',
+            color: 'text.primary',
           },
         }}
       >
@@ -40,50 +41,109 @@ function Home() {
       </Tab>
     )
   }
+  const [value, setvalue] = useState(0);
+
+  const ListPart = ({ title, children }) => {
+
+    return (
+      <Box sx={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-start", width: "100%", flexDirection: "column", mb: 3 }}>
+        <Typography
+          id={title}
+          level="body-xs"
+          sx={{ textTransform: 'uppercase', fontWeight: 'lg', mb: 1, ml: 1 }}
+        >
+          {title}
+        </Typography>
+        <List size='sm' aria-labelledby={title}>
+          {children}
+        </List>
+      </Box>
+    )
+  }
+
 
 
   return (
     <Tabs
-      sx={{ width: "100%", height: "100vh", bgcolor: "#f9f9f9", color: "#333", fontFamily: "Arial, sans-serif" }}
+      sx={{ width: "100%",minHeight: "100vh", bgcolor: "background.body", color: "#333", fontFamily: "Arial, sans-serif", boxShadow: "sm", borderRadius: "md" }}
       orientation="vertical"
+      value={value}
     >
-      <TabList sx={{ bgcolor: "#ffffff", borderRight: "1px solid #ddd" }}>
-        <TabProvider>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <ReceiptIcon />
-            Rechnung erstellen
-          </Box>
-        </TabProvider>
-        <TabProvider>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <FindInPageIcon />
-            Bestehende Rechnung abrufen
-          </Box>
-        </TabProvider>
-        <TabProvider>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <ContactPageOutlinedIcon />
-            Kundenverwaltung
-          </Box>
-        </TabProvider>
-        <TabProvider>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <InventoryIcon />
-            Produkte verwalten
-          </Box>
-        </TabProvider>
-        <TabProvider>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <LeaderboardOutlinedIcon />
-            Unternehmensdaten
-          </Box>
-        </TabProvider>
-        <TabProvider>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <SettingsOutlinedIcon />
-            Einstellungen
-          </Box>
-        </TabProvider>
+      <TabList sx={{ bgcolor: "#ffffff", borderRight: "1px solid", borderColor: "divider", px: 0, py: 1, display: "flex", alignItems: "center", minWidth: "220px" }}>
+        <Typography startDecorator={<NearMeOutlinedIcon />} sx={{ fontSize: '1.25rem', mt: 1, fontWeight: "bold", mb: 1 }}>Navigation</Typography>
+        <Box sx={{ width: "100%", display: "flex", justifyContent: "center", mb: 2 }}><Divider sx={{ width: "90%" }} orientation="horizontal" /></Box>
+        <ListPart title={"Allgemein"}>
+          <ListItem >
+            <Box onClick={() => setvalue(0)}>
+              <Typography
+                level="body-xs"
+                startDecorator={<ReceiptIcon />}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 0 ? "primary.plainColor": "" }}
+              >
+                Rechnung erstellen
+              </Typography>
+            </Box>
+          </ListItem>
+        </ListPart>
+        <ListPart title={"Verwaltung"}>
+          <ListItem>
+            <Box onClick={() => setvalue(1)}>
+              <Typography
+                level='body-xs'
+                startDecorator={<FindInPageIcon />}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 1 ? "primary.plainColor": ""   }}
+              >
+                Rechnung suchen
+              </Typography>
+            </Box>
+          </ListItem>
+          <ListItem>
+            <Box onClick={() => setvalue(2)}>
+              <Typography
+                level='body-xs'
+                startDecorator={<ContactPageOutlinedIcon />}
+                sx={{ "&:hover": { color: "primary.plainColor" } , cursor: "pointer", color: value == 2 ? "primary.plainColor": ""  }}
+              >
+                Kundenverwaltung
+              </Typography>
+            </Box>
+          </ListItem>
+          <ListItem>
+            <Box onClick={() => setvalue(3)}>
+              <Typography
+                level='body-xs'
+                startDecorator={<InventoryIcon />}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 3 ? "primary.plainColor": ""   }}
+              >
+                Produktverwaltung
+              </Typography>
+            </Box>
+          </ListItem>
+        </ListPart>
+        <ListPart title={"Sonstiges"}>
+          <ListItem>
+            <Box onClick={() => setvalue(4)}>
+              <Typography
+                level='body-xs'
+                startDecorator={<LeaderboardOutlinedIcon />}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 4 ? "primary.plainColor": ""   }}
+              >
+                Datenverwaltung
+              </Typography>
+            </Box>
+          </ListItem>
+          <ListItem>
+            <Box onClick={() => setvalue(5)}>
+              <Typography
+                level='body-xs'
+                startDecorator={<SettingsOutlinedIcon />}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor": ""   }}
+              >
+                Settings
+              </Typography>
+            </Box>
+          </ListItem>
+        </ListPart>
       </TabList>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={0}>
         <RechnungErstellen />

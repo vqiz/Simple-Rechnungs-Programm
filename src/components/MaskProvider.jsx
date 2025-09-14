@@ -1,6 +1,6 @@
 import { Box } from '@mui/joy';
 import React from 'react'
-
+//bgcolor: 'rgba(0, 0, 0, 0.5)',
 function MaskProvider({children}) {
   return (
         <Box
@@ -13,7 +13,7 @@ function MaskProvider({children}) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                bgcolor: 'rgba(0, 0, 0, 0.5)',
+                
                 zIndex: 10
             }}
         >

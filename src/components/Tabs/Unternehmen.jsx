@@ -33,8 +33,8 @@ function Unternehmen() {
     const fetch = async () => {
       const jsonstring = await handleLoadFile("settings/unternehmen.rechnix");
       const phrased = JSON.parse(jsonstring);
-      if (jsonstring === "{}"){
-          return;
+      if (jsonstring === "{}") {
+        return;
       }
       setFormData(phrased);
       setoldjson(phrased);
@@ -56,12 +56,13 @@ function Unternehmen() {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        display: 'flex',
+        height: '100vh',
+        display: 'block',
         flexDirection: 'column',
         gap: 2,
         p: 0,
-        position: 'relative'
+        position: 'relative',
+        overflowY: "auto"
       }}
     >
       <Headline>Unternehmensdaten Verwalten</Headline>
@@ -71,7 +72,7 @@ function Unternehmen() {
       </Box>
       {
         changes && (
-          <Box sx={{p: 2}}>
+          <Box sx={{ p: 2 }}>
             <Alert sx={{ mb: 2 }} variant='soft' color="primary" endDecorator={<Button onClick={() => save()}>Speichern</Button>}>
               Es wurden änderungen vorgenommen die noch nicht Gespeichert sind.
             </Alert>
@@ -241,7 +242,7 @@ function Unternehmen() {
             />
           </FormControl>
         </Box>
-        <Box sx={{...boxlinestyle, mb: 5}}>
+        <Box sx={{ ...boxlinestyle, mb: 5 }}>
           <FormControl sx={{ width: "50%" }}>
             <FormLabel sx={labelstyle}>Emailadresse</FormLabel>
             <Input

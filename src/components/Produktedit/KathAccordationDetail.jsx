@@ -8,6 +8,7 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 import DeleteConfirmation from './Masks/DeleteConfirmation';
 import SingleLineinput from './Masks/SingleLineinput';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 function KathAccordationDetail({
     item,
     setconfirmation,
@@ -61,7 +62,13 @@ function KathAccordationDetail({
                                                             <ListItemDecorator>
                                                                 <EuroSymbolOutlinedIcon />
                                                             </ListItemDecorator>
-                                                            Preiß Bearbeiten
+                                                            Preiß bearbeiten
+                                                        </MenuItem>
+                                                        <MenuItem color="primary">
+                                                            <ListItemDecorator>
+                                                                <AccountBalanceIcon/>
+                                                            </ListItemDecorator>
+                                                            Mehrwertsteuer bearbeiten
                                                         </MenuItem>
                                                         <MenuItem onClick={() => {
                                                             setproduktdeleteconfirm(item);

@@ -71,13 +71,13 @@ function KundenVerwaltung() {
     return (
         <Box
             sx={{
-                minHeight: '100vh',
-                display: 'flex',
+                height: '100vh',
+                display: 'block',
                 flexDirection: 'column',
                 gap: 2,
                 p: 0,
                 position: 'relative',
-
+                overflowY: "auto"
             }}
         >
             <Headline>Kundenverwaltung</Headline>
@@ -109,7 +109,15 @@ function KundenVerwaltung() {
                 </Box>
                 <Button onClick={() => setcreatekunde(true)} startDecorator={<AddCircleOutlineOutlinedIcon />} sx={{ mt: -1.8 }}>Kunde erstellen</Button>
             </Box>
-            <Box sx={{ px: 2, maxWidth: "130vh", mb: 5 }}>
+            <Box
+                sx={{
+                    px: 2,
+                    maxWidth: "140vh",
+                    mb: 5,
+                    mx: "auto",
+                    width: "100%"
+                }}
+            >
                 <Table sx={{ borderRadius: "15px" }}>
                     <thead>
                         <tr>

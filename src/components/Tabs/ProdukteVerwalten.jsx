@@ -109,7 +109,8 @@ const ProdukteVerwalten = () => {
                 flexDirection: 'column',
                 gap: 2,
                 p: 0,
-                position: 'relative'
+                position: 'relative',
+                
             }}
         >
             {

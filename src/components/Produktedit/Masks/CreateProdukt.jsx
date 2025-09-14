@@ -15,6 +15,7 @@ import { handleLoadFile, handleSaveFile } from '../../../Scripts/Filehandler';
 function CreateProdukt({ kathname, disable, update, kathpath }) {
   const [price, setprice] = useState(0);
   const [produktname, setproduktname] = useState("");
+  const [mehrWertSteuer,setMehrWertSteuer] = useState(19);
   const [error, seterror] = useState(false);
 
   async function addprodukt() {
@@ -29,6 +30,7 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
     kath.content.push({
       name: produktname,
       price: price,
+      steuer: mehrWertSteuer,
     });
 
     await handleSaveFile(kathpath, JSON.stringify(json));
@@ -89,6 +91,10 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
                 value={price}
                 inputProps={{ step: "0.01" }}
               />
+            </FormControl>
+            <FormControl>
+              <FormLabel sx={{color: "gray"}}>Mehrwertsteuer in %</FormLabel>
+              <Input type='number' value={mehrWertSteuer} onChange={(e) => setMehrWertSteuer(e.target.value)}/>
             </FormControl>
           </Box>
 

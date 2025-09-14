@@ -11,10 +11,11 @@ import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOut
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import TableContainer from '@mui/material/TableContainer';
 import MaskProvider from '../MaskProvider';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 function RechnungErstellen() {
 
   const [kathpath] = useState('kathegories/kathegories.rechnix');
-  const [kunden, setkunden] = useState();
+  const [kunden, setkunden] = useState(null);
   const [produkte, setprodukte] = useState();
 
 
@@ -26,9 +27,10 @@ function RechnungErstellen() {
   const [error, seterror] = useState(false);
 
   //count mask and variables
-  const [editCount,seteditCount] = useState(false);
-  const [count,setCount] = useState(0);
-  const [targetEditCount,setTargetEditCount] = useState();
+  const [editCount, seteditCount] = useState(false);
+  const [count, setCount] = useState(0);
+  const [targetEditCount, setTargetEditCount] = useState();
+
   useEffect(() => {
     const readdata = async () => {
       const readjson = await handleLoadFile("fast_accsess/kunden.db");
@@ -48,7 +50,7 @@ function RechnungErstellen() {
   }, []);
 
   const [rechnung, setRechnung] = React.useState({
-    kundenId: -1,
+    kundenId: null,
     positionen: new Map(),
   });
 
@@ -102,9 +104,63 @@ function RechnungErstellen() {
         position: 'relative',
         bgcolor: 'background.level1',
         alignItems: 'center',
+        
       }}
     >
       <Headline>Rechnung erstellen</Headline>
+
+      {
+        editCount && (
+          <MaskProvider>
+            <Modal open={true}>
+              <ModalDialog
+                variant="outlined"
+                sx={{
+                  borderRadius: "md",
+                  width: "55vh",
+                  maxWidth: "90vw",
+                }}>
+                <form onSubmit={() => { updatePosition(targetEditCount, count); seteditCount(false) }}>
+                  <Typography level='h3' mb={1}>
+                    Anzahl ändern
+                  </Typography>
+                  <Divider />
+                  <Input type='number' value={count} onChange={(e) => {
+                    setCount(Number(e.target.value))
+                  }} />
+                  <Box
+                    sx={{
+                      width: "100%",
+                      mt: 3,
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Button
+                      onClick={() => seteditCount(false)}
+                      variant='outlined'
+                      color="neutral"
+                    >
+                      Abbrechen
+                    </Button>
+
+                    <Button
+                      color="success"
+                      variant='solid'
+                      onClick={() => { updatePosition(targetEditCount, count); seteditCount(false) }}
+                    >
+                      Speichern
+                    </Button>
+                  </Box>
+                </form>
+              </ModalDialog>
+            </Modal>
+          </MaskProvider>
+
+        )
+      }
+
+
       {
         createProdukt && (
           <MaskProvider>
@@ -186,7 +242,7 @@ function RechnungErstellen() {
 
                     <Button
                       onClick={() => {
-                        if (!price || !produktname || produktname === ""){
+                        if (!price || !produktname || produktname === "") {
                           seterror(true);
                           return;
                         }
@@ -226,6 +282,15 @@ function RechnungErstellen() {
           </MaskProvider>
         )
       }
+
+
+    </Box>
+  )
+}
+
+export default RechnungErstellen
+//ablage wird redisigned
+/*
 
 
 
@@ -278,8 +343,8 @@ function RechnungErstellen() {
                 const overname = item.name;
                 const items = item.content;
                 return (
-                  <Box key={overname}>
-                    <Typography level="title-lg" sx={{ mt: 1, mb: 1 }}>{overname}</Typography>
+                  <Box key={overname} sx={{cursor: "default", userSelect: "none"}}>
+                    <Typography level="title-md" sx={{ mt: 1, mb: 1, ml: 1 }}>{overname}</Typography>
                     <Divider sx={{ my: 1 }} orientation="horizontal" />
                     {
                       items.filter((i) => i.name.toLocaleLowerCase().includes(debouncedSearchTerm.toLocaleLowerCase())).filter((i) => !i.temporary).map((subitem) => {
@@ -288,13 +353,13 @@ function RechnungErstellen() {
                         return (
                           <Box key={name} sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", p: 1, borderRadius: 1 }}>
                             <Box sx={{ display: "flex", alignItems: "center" }}>
-                              <Typography color="neutral" level="body-md" fontWeight={"bold"}>{name}</Typography>
+                              <Typography color="neutral" level="body-sm" >{name}</Typography>
                             </Box>
-                            <ButtonGroup sx={{ mb: 0.5 }}>
+                            <ButtonGroup sx={{  }}>
                               {
                                 containsPosition(overname + "_" + name) && (
                                   <Tooltip title={"Position veringern/entfernen"}>
-                                    <IconButton onClick={() => {
+                                    <IconButton size='sm' onClick={() => {
                                       const n = overname + "_" + name;
                                       if (rechnung.positionen.get(n) == 1) {
                                         removePosition(n);
@@ -309,7 +374,7 @@ function RechnungErstellen() {
                                 )
                               }
                               <Tooltip title={"Position hinzufügen"}>
-                                <IconButton onClick={() => {
+                                <IconButton size='sm' onClick={() => {
                                   const n = overname + "_" + name;
                                   if (containsPosition(n)) {
                                     updatePosition(n, rechnung.positionen.get(n) + 1);
@@ -393,63 +458,99 @@ function RechnungErstellen() {
             />
 
           </FormControl>
-          <TableContainer sx={{ maxHeight: "60vh", overflowY: "auto" }}>
-            <Table stickyHeader={!createProdukt} size="md" sx={{ bgcolor: "white", overflowY: "auto" }}>
+          <TableContainer sx={{ maxHeight: "60vh", overflowY: "auto","&::-webkit-scrollbar": { display: "none" }  }}>
+            <Table stickyFooter={!createProdukt && !editCount} stickyHeader={!createProdukt && !editCount} size="md" sx={{ bgcolor: "white", overflowY: "auto" }}>
               <thead>
                 <th>Rechnungs Positionen</th>
               </thead>
               <tbody>
-                {
-                  Array.from(rechnung.positionen.entries()).map(([key, value]) => (
+                {Array.from(rechnung.positionen.entries()).map(([key, value]) => {
+                  const [categoryName, productName] = key.split("_");
+                  const product = produkte?.list
+                    ?.find((i) => i.name === categoryName)
+                    ?.content.find((i) => i.name === productName);
+                  const price = product?.price || 0;
+                  return (
                     <tr key={key}>
                       <td>
                         <Box sx={{ display: "flex", flexDirection: "row", justifyContent: "space-between", p: 2 }}>
-                          <Typography sx={{ mt: 1 }}>{key.split("_")[1]} <Link>(x{value})</Link></Typography>
+                          <Tooltip title="Anzahl bearbeiten">
+                            <Box
+                              sx={{ cursor: "default" }}
+                              onClick={() => {
+                                seteditCount(true);
+                                setTargetEditCount(key);
+                                setCount(value);
+                              }}
+                            >
+                              <Typography sx={{ mt: 1 }}>
+                                {productName} <Link>(x{value})</Link>
+                              </Typography>
+                            </Box>
+                          </Tooltip>
                           <Box sx={{ gap: 2, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                            <Typography color="success">
-                              {(
-                                value *
-                                (
-                                  produkte.list
-                                    ?.find((i) => i.name === key.split("_")[0])
-                                    ?.content.find((i) => i.name === key.split("_")[1])
-                                    ?.price || 0
-                                )
-                              ).toFixed(2)}€
-                            </Typography>
+                            <Typography color="success">{(value * price).toFixed(2)}€</Typography>
                             <Tooltip title={"Position entfernen"}>
-                              <IconButton onClick={() => { removePosition(key) }} color='danger'>
+                              <IconButton onClick={() => removePosition(key)} color="danger">
                                 <RemoveCircleOutlineOutlinedIcon />
                               </IconButton>
                             </Tooltip>
-
                           </Box>
-
-                        </Box>
-
-                      </td>
-                    </tr>
-                  ))
-                }
-                {
-                  rechnung.positionen.size > 0 && rechnung.kundenId && (
-                    <tr>
-                      <td>
-                        <Box sx={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
-                          <Button>Rechnung generieren</Button>
                         </Box>
                       </td>
                     </tr>
-                  )
-                }
+                  );
+                })}
               </tbody>
+              <tfoot>
+                <tr
+                  style={{
+                    position: "sticky",
+                    bottom: 0,
+                    backgroundColor: "white",
+                    borderTop: "1px solid #ddd",
+                    zIndex: 10,
+                  }}
+                >
+                  <td
+                    colSpan={1}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "16px",
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: "bold", fontSize: "1rem" }}>
+                      Gesamt:{" "}
+                      {Array.from(rechnung.positionen.entries())
+                        .reduce((sum, [key, value]) => {
+                          const [categoryName, productName] = key.split("_");
+                          const productPrice = produkte?.list
+                            ?.find((i) => i.name === categoryName)
+                            ?.content.find((i) => i.name === productName)?.price || 0;
+                          return sum + value * productPrice;
+                        }, 0)
+                        .toFixed(2)}
+                      €
+                    </Typography>
+
+                    {rechnung.positionen.size > 0 && rechnung.kundenId != null && (
+                      <Button
+                        variant="solid"
+                        color="success"
+                        startDecorator={<SaveOutlinedIcon />}
+                        sx={{ whiteSpace: "nowrap" }}
+                      >
+                        Rechnung erstellen
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              </tfoot>
+
             </Table>
           </TableContainer>
         </Box>
       </Box>
-
-    </Box>
-  )
-}
-
-export default RechnungErstellen
+      */
