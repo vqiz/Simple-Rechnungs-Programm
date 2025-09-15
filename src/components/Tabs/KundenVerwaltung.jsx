@@ -142,6 +142,7 @@ function KundenVerwaltung() {
                                             '&:hover': {
                                                 bgcolor: 'neutral.plainHoverBg',
                                             },
+                                            cursor: "pointer"
                                         }}
                                     >
                                         <Box component="td" sx={{ padding: '12px 16px' }}>
@@ -161,9 +162,9 @@ function KundenVerwaltung() {
 
                                                     )
                                                 }
-                                                <Box sx={{ display: "flex", flexDirection: "column", ml: 1 }}>
-                                                    <Typography level="body-md" sx={{cursor: "default",userSelect: "none"}}>{name}</Typography>
-                                                    <Typography sx={{ color: "darkgray", cursor: "default",userSelect: "none" }} level="body-sm">{email}</Typography>
+                                                <Box sx={{ display: "flex", flexDirection: "column", ml: 1,cursor: "pointer" }}>
+                                                    <Typography level="body-md" sx={{cursor: "pointer",userSelect: "none"}}>{name}</Typography>
+                                                    <Typography sx={{ color: "darkgray", cursor: "pointer",userSelect: "none" }} level="body-sm">{email}</Typography>
                                                 </Box>
                                             </Box>
                                         </Box>

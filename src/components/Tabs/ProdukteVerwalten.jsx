@@ -245,7 +245,7 @@ const ProdukteVerwalten = () => {
                     })}
                 >
                     {data?.list?.map((item) => (
-                        <Accordion key={item.name} sx={{ borderBottom: `1px solid ${theme.vars.palette.divider}` }}>
+                        <Accordion  key={item.name} sx={{ borderBottom: `1px solid ${theme.vars.palette.divider}` }}>
                             <AccordionSummary>{item.name}</AccordionSummary>
                             <AccordionDetails>
                                 <KathAccordationDetail
