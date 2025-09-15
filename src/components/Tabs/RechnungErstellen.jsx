@@ -94,21 +94,16 @@ function RechnungErstellen() {
       return { ...prev, positionen: updatedMap };
     });
   };
+  //bgcolor: 'background.level1',
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 0,
-        position: 'relative',
-        bgcolor: 'background.level1',
-        alignItems: 'center',
-        
+        minHeight: "100vh",
+        bgcolor: "background.level1",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <Headline>Rechnung erstellen</Headline>
-
       {
         editCount && (
           <MaskProvider>
@@ -145,7 +140,7 @@ function RechnungErstellen() {
                     </Button>
 
                     <Button
-                      color="success"
+                      color="primary"
                       variant='solid'
                       onClick={() => { updatePosition(targetEditCount, count); seteditCount(false) }}
                     >
@@ -270,7 +265,7 @@ function RechnungErstellen() {
                         setprice(0);
                         setproduktname("");
                       }}
-                      color="success"
+                      color="primary"
                       variant='solid'
                     >
                       Hinzufügen
@@ -282,10 +277,323 @@ function RechnungErstellen() {
           </MaskProvider>
         )
       }
+      {/* Top AppBar */}
+      <Box
+        sx={{
+          maxHeight: 57,
+          height: 57,
+          px: 3,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          
+        }}
+      >
+        <Typography level="h4" fontWeight="lg">
+          Neue Rechnung
+        </Typography>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button
+            variant="solid"
+            color="primary"
+            startDecorator={<SaveOutlinedIcon />}
+            disabled={rechnung.positionen.size === 0 || !rechnung.kundenId}
+          >
+            Speichern
+          </Button>
+        </Box>
+      </Box>
 
+      {/* Main Layout */}
+      <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
+        {/* Sidebar: Produkt Browser */}
+        <Card
+          variant="outlined"
+          sx={{
+            width: 320,
+            p: 2,
+            borderRadius: 0,
+            borderRight: "1px solid",
+            borderColor: "divider",
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {/* Suche */}
+          <Input
+            placeholder="Produkte durchsuchen..."
+            startDecorator={<SearchIcon />}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button
+            fullWidth
+            variant="soft"
+            color="primary"
+            startDecorator={<AddCircleOutlineOutlinedIcon />}
+            onClick={() => setCreateProdukt(true)}
+          >
+            Neues Produkt
+          </Button>
 
+          {/* Kategorien */}
+          <Box sx={{ flex: 1, overflowY: "auto", "&::-webkit-scrollbar": { display: "none" } }}>
+            {produkte &&
+              produkte.list
+                ?.filter((cat) => {
+                  const s = debouncedSearchTerm.toLowerCase();
+                  const catMatch = cat.name.toLowerCase().includes(s);
+                  const prodMatch = cat.content.some((p) =>
+                    p.name.toLowerCase().includes(s)
+                  );
+                  return cat.name !== "temp" && (catMatch || prodMatch);
+                })
+                .map((category) => (
+                  <Box key={category.name} mb={2}>
+                    <Typography level="body-sm" sx={{ fontWeight: "md", color: "text.secondary", mb: 1 }}>
+                      {category.name}
+                    </Typography>
+                    {category.content
+                      .filter((p) =>
+                        p.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+                      )
+                      .filter((p) => !p.temporary)
+                      .map((product) => {
+                        const key = `${category.name}_${product.name}`;
+                        return (
+                          <Box
+                            key={product.name}
+                            sx={{
+                              px: 1.5,
+                              py: 1,
+                              borderRadius: "md",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              "&:hover": { bgcolor: "neutral.softBg", cursor: "pointer" },
+                            }}
+                          >
+                            <Typography level="body-md">{product.name}</Typography>
+                            <ButtonGroup size="sm" variant="plain">
+                              {containsPosition(key) && (
+                                <IconButton
+                                  color="danger"
+                                  onClick={() => {
+                                    if (rechnung.positionen.get(key) === 1) {
+                                      removePosition(key);
+                                    } else {
+                                      updatePosition(key, rechnung.positionen.get(key) - 1);
+                                    }
+                                  }}
+                                >
+                                  <RemoveCircleOutlineOutlinedIcon />
+                                </IconButton>
+                              )}
+                              <IconButton
+                                color="success"
+                                onClick={() => {
+                                  if (containsPosition(key)) {
+                                    updatePosition(key, rechnung.positionen.get(key) + 1);
+                                  } else {
+                                    addPosition(key, 1);
+                                  }
+                                }}
+                              >
+                                <AddCircleOutlineOutlinedIcon />
+                              </IconButton>
+                            </ButtonGroup>
+                          </Box>
+                        );
+                      })}
+                  </Box>
+                ))}
+          </Box>
+        </Card>
+
+        {/* Main Workspace: Invoice Preview */}
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            p: 4,
+            bgcolor: "neutral.softBg",
+          }}
+        >
+          <Card
+            variant="outlined"
+            sx={{
+              width: "100%",
+              maxWidth: 900,
+              p: 4,
+              borderRadius: "2xl",
+              boxShadow: "lg",
+              bgcolor: "background.surface",
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+            }}
+          >
+            {/* Customer */}
+            <Box>
+              <FormLabel>Kunde</FormLabel>
+              <Autocomplete
+                value={kunden?.find((i) => i.id === rechnung.kundenId)}
+                onChange={(e, newval) => {
+                  setRechnung({ ...rechnung, kundenId: newval })
+                }}
+                options={kunden || []}
+                getOptionLabel={(option) => {
+                  if (typeof option === "string") {
+                    return option;
+                  }
+                  if (option && typeof option === "object") {
+                    return option.name || "";
+                  }
+                  return "";
+                }}
+                renderOption={(props, item) => (
+                  <Box
+                    {...props}
+                    key={item.id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      padding: "8px 12px",
+                      minHeight: "50px",
+                      userSelect: "none",
+                      cursor: "default",
+                      transition: 'background-color 0.2s',
+                      '&:hover': {
+                        bgcolor: 'neutral.plainHoverBg',
+                      },
+                    }}
+                  >
+                    {item.istfirma ? (
+                      <Avatar size="sm">
+                        <FactoryOutlinedIcon />
+                      </Avatar>
+                    ) : (
+                      <Avatar size="sm">
+                        <AccountCircleOutlinedIcon />
+                      </Avatar>
+                    )}
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      <Typography level="body-md">{item.name}</Typography>
+                      <Typography level="body-sm" sx={{ color: "darkgray" }}>
+                        {item.email}
+                      </Typography>
+                    </Box>
+                  </Box>
+                )}
+                placeholder="Bitte wählen"
+              />
+
+            </Box>
+
+            {/* Invoice Items */}
+            <Box sx={{ flex: 1 }}>
+              {Array.from(rechnung.positionen.entries()).map(([key, value]) => {
+                const [catName, prodName] = key.split("_");
+                const product = produkte?.list
+                  ?.find((c) => c.name === catName)
+                  ?.content.find((p) => p.name === prodName);
+                const price = product?.price || 0;
+
+                return (
+                  <Box
+                    key={key}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      py: 1.5,
+                      borderBottom: "1px solid",
+                      borderColor: "divider",
+                    }}
+                  >
+                    <Tooltip title="Anzahl ändern">
+                      <Typography
+                        sx={{ cursor: "pointer" }}
+                        onClick={() => {
+                          seteditCount(true);
+                          setTargetEditCount(key);
+                          setCount(value);
+                        }}
+                      >
+                        {prodName} <Link>(x{value})</Link>
+                      </Typography>
+                    </Tooltip>
+                    <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                      <Typography fontWeight="md" color="success">
+                        {(value * price).toFixed(2)} €
+                      </Typography>
+                      <IconButton color="danger" onClick={() => removePosition(key)}>
+                        <RemoveCircleOutlineOutlinedIcon />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                );
+              })}
+            </Box>
+
+            {/* Total */}
+            <Box
+              sx={{
+                mt: "auto",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                pt: 2,
+                borderTop: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Typography level="title-lg" fontWeight="xl">
+                Gesamt:{" "}
+                {Array.from(rechnung.positionen.entries())
+                  .reduce((sum, [key, value]) => {
+                    const [catName, prodName] = key.split("_");
+                    const productPrice =
+                      produkte?.list
+                        ?.find((c) => c.name === catName)
+                        ?.content.find((p) => p.name === prodName)?.price || 0;
+                    return sum + value * productPrice;
+                  }, 0)
+                  .toFixed(2)}{" "}
+                €
+              </Typography>
+            </Box>
+          </Card>
+        </Box>
+      </Box>
+
+      {/* Floating Action */}
+      {rechnung.positionen.size > 0 && rechnung.kundenId && (
+        <Tooltip title="Rechnung erstellen">
+          <IconButton
+            color="success"
+            size="lg"
+            sx={{
+              position: "fixed",
+              bottom: 32,
+              right: 32,
+              borderRadius: "50%",
+              width: 64,
+              height: 64,
+              boxShadow: "lg",
+            }}
+          >
+            <SaveOutlinedIcon fontSize="xl" />
+          </IconButton>
+        </Tooltip>
+      )}
     </Box>
-  )
+  );
 }
 
 export default RechnungErstellen

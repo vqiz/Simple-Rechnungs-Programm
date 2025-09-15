@@ -10,7 +10,8 @@ function Headline({children}) {
           bgcolor: '#ffffff',
           display: 'flex',
           alignItems: 'center',
-          borderBottom: '1px solid #ddd'
+          borderBottom: '1px solid #ddd',
+          bgcolor: "background.surface",
         }}
       >
         <Typography
