@@ -69,8 +69,8 @@ function Home() {
       orientation="vertical"
       value={value}
     >
-      <TabList sx={{ bgcolor: "#ffffff", borderRight: "1px solid", borderColor: "divider", px: 0, py: 1, display: "flex", alignItems: "center", minWidth: "220px" }}>
-        <Typography startDecorator={<NearMeOutlinedIcon />} sx={{ fontSize: '1.25rem', mt: 1, fontWeight: "bold", mb: 1 }}>Navigation</Typography>
+      <TabList sx={{ bgcolor: "#ffffff", borderRight: "1px solid", borderColor: "divider", px: 0, py: 1, display: "flex", alignItems: "center", minWidth: "220px", userSelect: "none" }}>
+        <Typography startDecorator={<NearMeOutlinedIcon />} sx={{ fontSize: '1.25rem', mt: 0.7, fontWeight: "bold", mb: 1.387 }}>Navigation</Typography>
         <Box sx={{ width: "100%", display: "flex", justifyContent: "center", mb: 2 }}><Divider sx={{ width: "90%" }} orientation="horizontal" /></Box>
         <ListPart title={"Allgemein"}>
           <ListItem >

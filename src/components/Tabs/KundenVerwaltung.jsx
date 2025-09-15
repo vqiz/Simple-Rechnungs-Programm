@@ -112,7 +112,7 @@ function KundenVerwaltung() {
             <Box
                 sx={{
                     px: 2,
-                    maxWidth: "140vh",
+                    maxWidth: "100%",
                     mb: 5,
                     mx: "auto",
                     width: "100%"

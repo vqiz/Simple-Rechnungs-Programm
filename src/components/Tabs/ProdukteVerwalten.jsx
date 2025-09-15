@@ -1,5 +1,6 @@
 import {
     Accordion,
+    accordionClasses,
     AccordionDetails,
     accordionDetailsClasses,
     AccordionGroup,
@@ -8,7 +9,8 @@ import {
     Box,
     Button,
     Card,
-    Typography
+    Typography,
+    useTheme
 } from '@mui/joy';
 import React, { useEffect, useState } from 'react';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -97,7 +99,7 @@ const ProdukteVerwalten = () => {
     useEffect(() => {
         readdata();
     }, []);
-
+    const theme = useTheme();
 
 
     return (
@@ -110,7 +112,7 @@ const ProdukteVerwalten = () => {
                 gap: 2,
                 p: 0,
                 position: 'relative',
-                
+
             }}
         >
             {
@@ -181,11 +183,11 @@ const ProdukteVerwalten = () => {
             {deleteCategoryConfirmation && (
                 <MaskProvider>
                     <DeleteConfirmation
-                        title="Kathegorie Löschen"
+                        title="Kategorie Löschen"
                         confirmfunction={deleteKathegorie}
                         disable={setDeleteCategoryConfirmation}
                         buttontitle="Löschen"
-                        description={`Sind sie sicher das die die Kathegorie ${deleteCategoryConfirmation.name} mit allen Produkten löschen wollen ?`}
+                        description={`Sind sie sicher das die die Kategorie ${deleteCategoryConfirmation.name} mit allen Produkten löschen wollen ?`}
                         parameter={deleteCategoryConfirmation.name}
                     />
                 </MaskProvider>
@@ -201,31 +203,49 @@ const ProdukteVerwalten = () => {
                     Rechnung konfiguriert
                 </InfoCard>
                 <Box sx={{ justifyContent: 'space-between', display: 'flex', mt: 2 }}>
-                    <Typography>Kathegorien</Typography>
-                    <Button onClick={() => setCreateCategory(true)}>Kathegorie Erstellen</Button>
+                    <Typography>Kategorien</Typography>
+                    <Button onClick={() => setCreateCategory(true)}>Kategorie Erstellen</Button>
                 </Box>
 
                 <AccordionGroup
                     variant="outlined"
                     size="lg"
-                    transition="0.2s"
-                    sx={(theme) => ({
-                        mt: 2,
-                        borderRadius: 'lg',
-                        [`& .${accordionSummaryClasses.button}:hover`]: {
-                            bgcolor: 'transparent'
+                    transition="0.3s"
+                    sx={() => ({
+                        mt: 3,
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                        [`& .${accordionSummaryClasses.root}`]: {
+                            bgcolor: theme.vars.palette.background.surface,
+                            fontWeight: 600,
+                            fontSize: '1rem',
+                            color: theme.vars.palette.text.primary,
+                            padding: '0.75rem 1rem',
+                            transition: 'background-color 0.2s',
+                            '&:hover': {
+                                bgcolor: theme.vars.palette.primary.softHover,
+                            },
+                        },
+                        [`& .${accordionSummaryClasses.expandIcon}`]: {
+                            color: theme.vars.palette.primary.main,
                         },
                         [`& .${accordionDetailsClasses.content}`]: {
-                            boxShadow: `inset 0 1px ${theme.vars.palette.divider}`,
-                            [`&.${accordionDetailsClasses.expanded}`]: {
-                                paddingBlock: '0.75rem'
-                            }
+                            bgcolor: theme.vars.palette.background.body,
+                            padding: '1rem 1.5rem',
+                            borderTop: `1px solid ${theme.vars.palette.divider}`,
                         },
-                        overflowY: 'auto'
+                        [`& .${accordionSummaryClasses.root} + .${accordionDetailsClasses.root}`]: {
+                            marginTop: 0, // Remove margin between summary and details
+                        },
+                        [`& .${accordionClasses.root}`]: {
+                            margin: 0, // Remove default margin between Accordions
+                            borderBottom: `1px solid ${theme.vars.palette.divider}`, // optional separator
+                        }
                     })}
                 >
                     {data?.list?.map((item) => (
-                        <Accordion key={item.name}>
+                        <Accordion key={item.name} sx={{ borderBottom: `1px solid ${theme.vars.palette.divider}` }}>
                             <AccordionSummary>{item.name}</AccordionSummary>
                             <AccordionDetails>
                                 <KathAccordationDetail
