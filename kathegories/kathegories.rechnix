@@ -1,1 +1,1 @@
-{"list":[{"name":"test","content":[{"name":"TestProdukt","price":"12.5","steuer":19}]},{"name":"Meditation","content":[{"name":"Meditation ","price":"25","steuer":19},{"name":"Chackrareinigung","price":"100","steuer":19},{"name":"Famielien aufstellung","price":"150.2","steuer":19}]}]}
+{"list":[{"name":"test","content":[{"name":"TestProdukt","price":"12.5","steuer":19}]},{"name":"Meditation","content":[{"name":"Meditation ","price":"25","steuer":19},{"name":"Chackrareinigung","price":"100","steuer":19},{"name":"Famielien aufstellung","price":150.36,"steuer":19.5}]}]}

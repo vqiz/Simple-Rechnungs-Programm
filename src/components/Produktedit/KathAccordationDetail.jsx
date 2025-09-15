@@ -16,6 +16,8 @@ function KathAccordationDetail({
     settitleitemkath,
     setpriceedit,
     setpriceeditkath,
+    setsteueredit,
+    setsteuereditkath,
 }) {
     return (
         <Box>
@@ -65,7 +67,13 @@ function KathAccordationDetail({
                                             <ListItemDecorator><EuroSymbolOutlinedIcon /></ListItemDecorator>
                                             Preis bearbeiten
                                         </MenuItem>
-                                        <MenuItem>
+                                        <MenuItem
+                                        color='primary'
+                                        onClick={() => {
+                                            setsteueredit(i);
+                                            setsteuereditkath(item);
+                                        }}
+                                        >
                                             <ListItemDecorator><AccountBalanceIcon /></ListItemDecorator>
                                             Mehrwertsteuer bearbeiten
                                         </MenuItem>

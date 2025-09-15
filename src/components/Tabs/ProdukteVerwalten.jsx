@@ -43,6 +43,8 @@ const ProdukteVerwalten = () => {
     const [produktEditPrice, setProduktEditPrice] = useState(null);
     const [produktEditPriceKath, setProduktEditPriceKath] = useState(null);
 
+    const [produktEditSteuer,setProduktEditSteuer] = useState(null);
+    const [produktEditSteuerKath,setProduktEditSteuerKath] = useState(null);
     const readdata = async () => {
         const jsonString = await handleLoadFile(kathpath);
         const json = JSON.parse(jsonString);
@@ -72,30 +74,28 @@ const ProdukteVerwalten = () => {
         setProduktDeletionItem(null);
         readdata();
     };
-
-    const editProdukttitle = async (value) => {
+    
+    const editProduktField = async (kathState, produktState, field, value, resetKath, resetProdukt) => {
         const jsonString = await handleLoadFile(kathpath);
         const json = JSON.parse(jsonString);
-        const kath = json.list.find((i) => i.name === produktEditTitleKath.name);
-        const item = kath.content.find((i) => i.name === produktEditTitle.name);
-        item.name = value;
+        const kath = json.list.find((i) => i.name === kathState.name);
+        const item = kath.content.find((i) => i.name === produktState.name);
+        item[field] = value;
         await handleSaveFile(kathpath, JSON.stringify(json));
-        setProduktEditTitle(null);
-        setProduktEditTitleKath(null);
+        resetProdukt(null);
+        resetKath(null);
         readdata();
     };
-    const editProduktPrice = async (value) => {
-        const jsonString = await handleLoadFile(kathpath);
-        const json = JSON.parse(jsonString);
-        const kath = json.list.find((i) => i.name === produktEditPriceKath.name);
-        const item = kath.content.find((i) => i.name === produktEditPrice.name);
-        item.price = value;
-        await handleSaveFile(kathpath, JSON.stringify(json));
-        setProduktEditPrice(null);
-        setProduktEditPriceKath(null);
-        readdata();
-    }
 
+    const editProdukttitle = async (value) => {
+        await editProduktField(produktEditTitleKath, produktEditTitle, "name", value, setProduktEditTitleKath, setProduktEditTitle);
+    };
+    const editProduktPrice = async (value) => {
+        await editProduktField(produktEditPriceKath, produktEditPrice, "price", value, setProduktEditPriceKath, setProduktEditPrice);
+    }
+    const editProduktSteuer = async (value) => {
+        await editProduktField(produktEditSteuerKath, produktEditSteuer, "steuer", value, setProduktEditSteuerKath, setProduktEditSteuer);
+    }
     useEffect(() => {
         readdata();
     }, []);
@@ -115,6 +115,20 @@ const ProdukteVerwalten = () => {
 
             }}
         >
+            {
+                produktEditSteuer != null && (
+                    <MaskProvider>
+                        <SingleLineinput title={"Mehrwertsteuer bearbeiten"} 
+                        onClose={() => {
+                            setProduktEditSteuer(null);
+                            setProduktEditSteuerKath(null);
+                        }}
+                        val={produktEditSteuer.steuer}
+                        inputtype={"number"}
+                        onSave={editProduktSteuer}/>
+                    </MaskProvider>
+                )
+            }
             {
                 produktEditPrice != null && (
                     <MaskProvider>
@@ -259,6 +273,8 @@ const ProdukteVerwalten = () => {
                                     settitleitemkath={setProduktEditTitleKath}
                                     setpriceedit={setProduktEditPrice}
                                     setpriceeditkath={setProduktEditPriceKath}
+                                    setsteueredit={setProduktEditSteuer}
+                                    setsteuereditkath={setProduktEditSteuerKath}
                                 />
                             </AccordionDetails>
                         </Accordion>
