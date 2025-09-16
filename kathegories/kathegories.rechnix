@@ -1,1 +1,84 @@
-{"list":[{"name":"test","content":[{"name":"TestProdukt","price":"12.5","steuer":19}]},{"name":"Meditation","content":[{"name":"Meditation ","price":"25","steuer":19},{"name":"Chackrareinigung","price":"100","steuer":19},{"name":"Famielien aufstellung","price":150.36,"steuer":19.5}]}]}
+{
+  "list": [
+    {
+      "name": "Allgemein",
+      "content": [
+        { "name": "TestProdukt", "price": "12.5", "steuer": 19 },
+        { "name": "Bürobedarf", "price": "9.99", "steuer": 19 },
+        { "name": "Kaffee", "price": "4.5", "steuer": 7 },
+        { "name": "Druckerpapier", "price": "6.0", "steuer": 19 },
+        { "name": "Kugelschreiber", "price": "1.5", "steuer": 19 },
+        { "name": "USB Stick 32GB", "price": "12.0", "steuer": 19 },
+        { "name": "Monitorhalterung", "price": "35.0", "steuer": 19 },
+        { "name": "Schreibtischlampe", "price": "22.0", "steuer": 19 }
+      ]
+    },
+    {
+      "name": "Meditation",
+      "content": [
+        { "name": "Meditation", "price": "25", "steuer": 19 },
+        { "name": "Chakra Reinigung", "price": "100", "steuer": 19 },
+        { "name": "Familienaufstellung", "price": 150.36, "steuer": 19 },
+        { "name": "Yoga Einzelsitzung", "price": 45, "steuer": 19 },
+        { "name": "Gruppenmeditation", "price": 60, "steuer": 19 },
+        { "name": "Reiki Behandlung", "price": 80, "steuer": 19 },
+        { "name": "Atemtherapie", "price": 50, "steuer": 19 },
+        { "name": "Sound Bath", "price": 90, "steuer": 19 }
+      ]
+    },
+    {
+      "name": "IT-Dienstleistungen",
+      "content": [
+        { "name": "Website Erstellung", "price": 1200, "steuer": 19 },
+        { "name": "Wartungsvertrag (Monat)", "price": 199, "steuer": 19 },
+        { "name": "SEO Optimierung", "price": 450, "steuer": 19 },
+        { "name": "Cloud Setup", "price": 800, "steuer": 19 },
+        { "name": "IT-Support (Stunde)", "price": 75, "steuer": 19 },
+        { "name": "Software Lizenz", "price": 299, "steuer": 19 },
+        { "name": "Backup Einrichtung", "price": 150, "steuer": 19 },
+        { "name": "Netzwerkkonfiguration", "price": 300, "steuer": 19 },
+        { "name": "Schulung Microsoft 365", "price": 400, "steuer": 19 }
+      ]
+    },
+    {
+      "name": "Coaching",
+      "content": [
+        { "name": "Business Coaching (Stunde)", "price": 120, "steuer": 19 },
+        { "name": "Karriere Beratung", "price": 250, "steuer": 19 },
+        { "name": "Leadership Training", "price": 500, "steuer": 19 },
+        { "name": "Zeitmanagement Workshop", "price": 200, "steuer": 19 },
+        { "name": "Kommunikationstraining", "price": 350, "steuer": 19 },
+        { "name": "Team Building", "price": 600, "steuer": 19 },
+        { "name": "Online Kurs - Persönlichkeitsentwicklung", "price": 79, "steuer": 19 },
+        { "name": "Coaching Paket (10 Stunden)", "price": 1000, "steuer": 19 }
+      ]
+    },
+    {
+      "name": "Produkte",
+      "content": [
+        { "name": "Laptop Pro 15\"", "price": 1599, "steuer": 19 },
+        { "name": "Tablet X", "price": 799, "steuer": 19 },
+        { "name": "Smartphone Z", "price": 999, "steuer": 19 },
+        { "name": "Kabellose Maus", "price": 29, "steuer": 19 },
+        { "name": "Ergonomische Tastatur", "price": 89, "steuer": 19 },
+        { "name": "Dockingstation", "price": 129, "steuer": 19 },
+        { "name": "Noise Cancelling Kopfhörer", "price": 199, "steuer": 19 },
+        { "name": "Webcam HD", "price": 49, "steuer": 19 },
+        { "name": "Externe Festplatte 1TB", "price": 75, "steuer": 19 }
+      ]
+    },
+    {
+      "name": "Dienstleistungen",
+      "content": [
+        { "name": "Reinigungspauschale", "price": 50, "steuer": 19 },
+        { "name": "Transport", "price": 80, "steuer": 19 },
+        { "name": "Beratungspauschale", "price": 120, "steuer": 19 },
+        { "name": "Installation Vor-Ort", "price": 200, "steuer": 19 },
+        { "name": "Schulung Vor-Ort", "price": 300, "steuer": 19 },
+        { "name": "Telefonberatung", "price": 45, "steuer": 19 },
+        { "name": "Projektmanagement (Tag)", "price": 600, "steuer": 19 },
+        { "name": "Notfallservice", "price": 250, "steuer": 19 }
+      ]
+    }
+  ]
+}

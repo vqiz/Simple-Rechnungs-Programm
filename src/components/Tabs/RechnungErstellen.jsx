@@ -144,7 +144,7 @@ function RechnungErstellen() {
                       variant='solid'
                       onClick={() => { updatePosition(targetEditCount, count); seteditCount(false) }}
                     >
-                      Speichern
+                      Rechnung erstellen
                     </Button>
                   </Box>
                 </form>
@@ -280,15 +280,15 @@ function RechnungErstellen() {
       {/* Top AppBar */}
       <Box
         sx={{
-          maxHeight: 57,
-          height: 57,
+          maxHeight: 56,
+          height: 56,
           px: 3,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           borderBottom: "1px solid",
           borderColor: "divider",
-          
+          bgcolor: "background.surface",
         }}
       >
         <Typography level="h4" fontWeight="lg">
@@ -301,7 +301,7 @@ function RechnungErstellen() {
             startDecorator={<SaveOutlinedIcon />}
             disabled={rechnung.positionen.size === 0 || !rechnung.kundenId}
           >
-            Speichern
+            Rechnung erstellen
           </Button>
         </Box>
       </Box>
@@ -339,7 +339,7 @@ function RechnungErstellen() {
           </Button>
 
           {/* Kategorien */}
-          <Box sx={{ flex: 1, overflowY: "auto", "&::-webkit-scrollbar": { display: "none" } }}>
+          <Box sx={{ flex: 1, overflowY: "auto", "&::-webkit-scrollbar": { display: "none" }, maxHeight: "82vh" }}>
             {produkte &&
               produkte.list
                 ?.filter((cat) => {
@@ -352,7 +352,7 @@ function RechnungErstellen() {
                 })
                 .map((category) => (
                   <Box key={category.name} mb={2}>
-                    <Typography level="body-sm" sx={{ fontWeight: "md", color: "text.secondary", mb: 1 }}>
+                    <Typography level="body-sm" sx={{ fontWeight: "lg", color: "text.secondary", mb: 1 }}>
                       {category.name}
                     </Typography>
                     {category.content
@@ -392,7 +392,7 @@ function RechnungErstellen() {
                                 </IconButton>
                               )}
                               <IconButton
-                                color="success"
+                                color="primary"
                                 onClick={() => {
                                   if (containsPosition(key)) {
                                     updatePosition(key, rechnung.positionen.get(key) + 1);
@@ -409,6 +409,7 @@ function RechnungErstellen() {
                       })}
                   </Box>
                 ))}
+                
           </Box>
         </Card>
 
@@ -496,7 +497,7 @@ function RechnungErstellen() {
             </Box>
 
             {/* Invoice Items */}
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{ flex: 1, maxHeight: "70vh", overflowY: "auto","&::-webkit-scrollbar": { display: "none" } }}>
               {Array.from(rechnung.positionen.entries()).map(([key, value]) => {
                 const [catName, prodName] = key.split("_");
                 const product = produkte?.list
@@ -529,7 +530,7 @@ function RechnungErstellen() {
                       </Typography>
                     </Tooltip>
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                      <Typography fontWeight="md" color="success">
+                      <Typography fontWeight="md" color="primary">
                         {(value * price).toFixed(2)} €
                       </Typography>
                       <IconButton color="danger" onClick={() => removePosition(key)}>
@@ -576,7 +577,7 @@ function RechnungErstellen() {
       {rechnung.positionen.size > 0 && rechnung.kundenId && (
         <Tooltip title="Rechnung erstellen">
           <IconButton
-            color="success"
+            color="primary"
             size="lg"
             sx={{
               position: "fixed",
