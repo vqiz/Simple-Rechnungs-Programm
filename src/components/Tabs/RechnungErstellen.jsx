@@ -23,6 +23,7 @@ function RechnungErstellen() {
   //create produkt properties 
   const [createProdukt, setCreateProdukt] = useState(false);
   const [price, setprice] = useState(0);
+  const [createsteuer,setCreateSteuer] = useState(19);
   const [produktname, setproduktname] = useState("");
   const [error, seterror] = useState(false);
 
@@ -95,7 +96,7 @@ function RechnungErstellen() {
     });
   };
   const createRechnung = async () => {
-    const kunde = await getKunde(rechnung.kundenId);
+    //const kunde = await getKunde(rechnung.kundenId);
 
 
 
@@ -224,8 +225,21 @@ function RechnungErstellen() {
                         inputProps={{ step: "0.01" }}
                       />
                     </FormControl>
+                    <FormControl>
+                      <FormLabel sx={{color: "gray"}}>
+                        Mehrwertsteuer in %
+                      </FormLabel>
+                      <Input onChange={(e) => {
+                            const value = e.target.value.replace(',', '.');
+                            setCreateSteuer(Number(value));
+                            seterror(false);
+                      }}
+                      type='number'
+                      value={createsteuer} 
+                      inputProps={{ step: "0.01" }}/>
+                    </FormControl>
                   </Box>
-
+                  
                   {error && (
                     <Typography color='danger' level="body-xs" mt={1}>
                       Bitte überprüfe deine Eingabe
@@ -258,6 +272,7 @@ function RechnungErstellen() {
                         const element = {
                           name: produktname,
                           price: price,
+                          steuer: createsteuer,
                           temporary: true,
                         }
                         const tempCategory = data.list.find((i) => i.name === "temp");
@@ -277,6 +292,7 @@ function RechnungErstellen() {
                         console.log(produkte);
                         setprice(0);
                         setproduktname("");
+                        setCreateSteuer(19);
                       }}
                       color="primary"
                       variant='solid'
@@ -605,27 +621,7 @@ function RechnungErstellen() {
         </Box>
       </Box>
 
-      {/* Floating Action */}
-      {rechnung.positionen.size > 0 && rechnung.kundenId && (
-        <Tooltip title="Rechnung erstellen">
-          <IconButton
-            color="primary"
-            size="lg"
-            onClick={() => createRechnung()}
-            sx={{
-              position: "fixed",
-              bottom: 32,
-              right: 32,
-              borderRadius: "50%",
-              width: 64,
-              height: 64,
-              boxShadow: "lg",
-            }}
-          >
-            <SaveOutlinedIcon fontSize="xl" />
-          </IconButton>
-        </Tooltip>
-      )}
+
     </Box>
   );
 }
