@@ -6,7 +6,7 @@ const fs = require('fs').promises;
 function createWindow() {
   console.log("Creating window...");
 
-  const indexPath = path.join(__dirname, '../build/index.html');
+  const indexPath = path.join(__dirname, 'index.html');
 
   if (!fs.existsSync(indexPath)) {
     console.error("❌ build/index.html NOT FOUND at:", indexPath);

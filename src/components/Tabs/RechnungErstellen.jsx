@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
-import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Link, Modal, ModalDialog, Table, Tooltip, Typography } from '@mui/joy'
+import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Link, Modal, ModalDialog, Switch, Table, Tooltip, Typography } from '@mui/joy'
 import InfoCard from '../InfoCard'
-import { handleLoadFile } from '../../Scripts/Filehandler';
+import { getKunde, handleLoadFile } from '../../Scripts/Filehandler';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import { debounce } from 'lodash';
@@ -94,6 +94,19 @@ function RechnungErstellen() {
       return { ...prev, positionen: updatedMap };
     });
   };
+  const createRechnung = async () => {
+    const kunde = await getKunde(rechnung.kundenId);
+
+
+
+
+
+
+
+
+
+  }
+  const [brutto, setbrutto] = useState(false);
   //bgcolor: 'background.level1',
   return (
     <Box
@@ -144,7 +157,7 @@ function RechnungErstellen() {
                       variant='solid'
                       onClick={() => { updatePosition(targetEditCount, count); seteditCount(false) }}
                     >
-                      Rechnung erstellen
+                      Speichern
                     </Button>
                   </Box>
                 </form>
@@ -298,6 +311,7 @@ function RechnungErstellen() {
           <Button
             variant="solid"
             color="primary"
+            onClick={() => createRechnung()}
             startDecorator={<SaveOutlinedIcon />}
             disabled={rechnung.positionen.size === 0 || !rechnung.kundenId}
           >
@@ -409,7 +423,7 @@ function RechnungErstellen() {
                       })}
                   </Box>
                 ))}
-                
+
           </Box>
         </Card>
 
@@ -497,14 +511,14 @@ function RechnungErstellen() {
             </Box>
 
             {/* Invoice Items */}
-            <Box sx={{ flex: 1, maxHeight: "70vh", overflowY: "auto","&::-webkit-scrollbar": { display: "none" } }}>
+            <Box sx={{ flex: 1, maxHeight: "70vh", overflowY: "auto", "&::-webkit-scrollbar": { display: "none" } }}>
               {Array.from(rechnung.positionen.entries()).map(([key, value]) => {
                 const [catName, prodName] = key.split("_");
                 const product = produkte?.list
                   ?.find((c) => c.name === catName)
                   ?.content.find((p) => p.name === prodName);
                 const price = product?.price || 0;
-
+                const steuer = product?.steuer || 19;
                 return (
                   <Box
                     key={key}
@@ -531,7 +545,11 @@ function RechnungErstellen() {
                     </Tooltip>
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                       <Typography fontWeight="md" color="primary">
-                        {(value * price).toFixed(2)} €
+                        {
+                          brutto
+                            ? (value * price).toFixed(2) + "€"   // Brutto = before Steuer
+                            : (value * price * (1 + steuer / 100)).toFixed(2) + "€"  // Netto = after Steuer
+                        }
                       </Typography>
                       <IconButton color="danger" onClick={() => removePosition(key)}>
                         <RemoveCircleOutlineOutlinedIcon />
@@ -552,10 +570,11 @@ function RechnungErstellen() {
                 pt: 2,
                 borderTop: "1px solid",
                 borderColor: "divider",
+                gap: 2
               }}
             >
               <Typography level="title-lg" fontWeight="xl">
-                Gesamt:{" "}
+                {brutto ? "Netto (ohne Steuer)" : "Brutto (mit Steuer)"} gesamt:{" "}
                 {Array.from(rechnung.positionen.entries())
                   .reduce((sum, [key, value]) => {
                     const [catName, prodName] = key.split("_");
@@ -563,11 +582,24 @@ function RechnungErstellen() {
                       produkte?.list
                         ?.find((c) => c.name === catName)
                         ?.content.find((p) => p.name === prodName)?.price || 0;
-                    return sum + value * productPrice;
+                    const steuer =
+                      produkte?.list
+                        ?.find((c) => c.name === catName)
+                        ?.content.find((p) => p.name === prodName)?.steuer || 19;
+                    if (brutto) {
+                      return sum + value * productPrice;
+                    } else {
+                      return sum + value * productPrice * (1 + steuer / 100);
+                    }
                   }, 0)
                   .toFixed(2)}{" "}
                 €
               </Typography>
+              <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+                <Typography level="title-lg" fontWeight="xl">Netto</Typography>
+                <Switch onChange={(e) => setbrutto(e.target.checked)} checked={brutto} />
+                <Typography level="title-lg" fontWeight="xl">Brutto</Typography>
+              </Box>
             </Box>
           </Card>
         </Box>
@@ -579,6 +611,7 @@ function RechnungErstellen() {
           <IconButton
             color="primary"
             size="lg"
+            onClick={() => createRechnung()}
             sx={{
               position: "fixed",
               bottom: 32,

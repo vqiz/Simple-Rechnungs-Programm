@@ -23,3 +23,25 @@ export const handleSaveFile = async (filePath, content) => {
     }
   }
 };
+export const getNewRechnungsnummer = async () => {
+  const jsonstring = await handleLoadFile("fast_accsess/config.rechnix");
+  const date = new Date();
+  if (jsonstring === "{}") {
+    const newjson = {
+      count: 1,
+    }
+    await handleSaveFile("fast_accsess/config.rechnix", JSON.stringify(newjson))
+    return "R" + date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + "-" + "1";
+  }
+  const json = JSON.parse(jsonstring);
+  json.count = json.count + 1;
+  const nummer = "R" + date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + "-" + json.count;
+  await handleSaveFile("fast_accsess/config.rechnix", JSON.stringify(json))
+  return nummer;
+}
+export const getKunde = async (id) => {
+  const jsonstring = await handleLoadFile("kunden/" + id + ".person");
+  const json = JSON.parse(jsonstring);
+  return json;
+
+}
