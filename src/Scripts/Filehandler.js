@@ -45,3 +45,6 @@ export const getKunde = async (id) => {
   return json;
 
 }
+export const saveKunde = async (json, id) => {
+  await handleSaveFile("kunden/" + id + ".person", JSON.stringify(json));
+} 

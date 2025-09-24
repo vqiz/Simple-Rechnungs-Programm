@@ -69,7 +69,7 @@ ipcMain.handle('read-file', async (_, filePath) => {
 
 ipcMain.handle('write-file', async (_, filePath, content) => {
   try {
-    await fs.writeFile(filePath, content, 'utf-8');
+    await fs.writeFile(filePath, content, {encoding: 'utf-8',flag: 'w', });
     return 'success';
   } catch (err) {
     console.error("Fehler beim Schreiben:", err);

@@ -12,6 +12,8 @@ import Unternehmen from '../components/Tabs/Unternehmen'
 import RechnungErstellen from '../components/Tabs/RechnungErstellen'
 import KundenVerwaltung from '../components/Tabs/KundenVerwaltung'
 import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
+import AssuredWorkloadIcon from '@mui/icons-material/AssuredWorkload';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 function Home() {
 
   const TabProvider = ({ children }) => {
@@ -65,7 +67,7 @@ function Home() {
 
   return (
     <Tabs
-      sx={{ width: "100%",minHeight: "100vh", bgcolor: "background.body", color: "#333", fontFamily: "Arial, sans-serif", boxShadow: "sm", borderRadius: "md" }}
+      sx={{ width: "100%", minHeight: "100vh", bgcolor: "background.body", color: "#333", fontFamily: "Arial, sans-serif", boxShadow: "sm", borderRadius: "md" }}
       orientation="vertical"
       value={value}
     >
@@ -78,7 +80,7 @@ function Home() {
               <Typography
                 level="body-xs"
                 startDecorator={<ReceiptIcon />}
-                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 0 ? "primary.plainColor": "" }}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 0 ? "primary.plainColor" : "" }}
               >
                 Rechnung erstellen
               </Typography>
@@ -91,7 +93,7 @@ function Home() {
               <Typography
                 level='body-xs'
                 startDecorator={<FindInPageIcon />}
-                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 1 ? "primary.plainColor": ""   }}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 1 ? "primary.plainColor" : "" }}
               >
                 Rechnung suchen
               </Typography>
@@ -102,7 +104,7 @@ function Home() {
               <Typography
                 level='body-xs'
                 startDecorator={<ContactPageOutlinedIcon />}
-                sx={{ "&:hover": { color: "primary.plainColor" } , cursor: "pointer", color: value == 2 ? "primary.plainColor": ""  }}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 2 ? "primary.plainColor" : "" }}
               >
                 Kundenverwaltung
               </Typography>
@@ -113,7 +115,7 @@ function Home() {
               <Typography
                 level='body-xs'
                 startDecorator={<InventoryIcon />}
-                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 3 ? "primary.plainColor": ""   }}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 3 ? "primary.plainColor" : "" }}
               >
                 Produktverwaltung
               </Typography>
@@ -126,7 +128,7 @@ function Home() {
               <Typography
                 level='body-xs'
                 startDecorator={<LeaderboardOutlinedIcon />}
-                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 4 ? "primary.plainColor": ""   }}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 4 ? "primary.plainColor" : "" }}
               >
                 Datenverwaltung
               </Typography>
@@ -137,11 +139,32 @@ function Home() {
               <Typography
                 level='body-xs'
                 startDecorator={<SettingsOutlinedIcon />}
-                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor": ""   }}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
               >
-                Settings
+                Einstellungen
               </Typography>
             </Box>
+          </ListItem>
+        </ListPart>
+
+        <ListPart title={"Schnittstellen"}>
+          <ListItem>
+            <Typography
+              level='body-xs'
+              startDecorator={<AssuredWorkloadIcon />}
+              sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
+            >
+              Elster 
+            </Typography>
+          </ListItem>
+                    <ListItem>
+            <Typography
+              level='body-xs'
+              startDecorator={<AccountBalanceWalletIcon />}
+              sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
+            >
+              Datev 
+            </Typography>
           </ListItem>
         </ListPart>
       </TabList>

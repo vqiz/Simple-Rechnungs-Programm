@@ -213,7 +213,7 @@ function RechnungErstellen() {
                       />
                     </FormControl>
                     <FormControl>
-                      <FormLabel sx={{ color: 'gray' }}>Brutto Betrag in €</FormLabel>
+                      <FormLabel sx={{ color: 'gray' }}>Netto Betrag in €</FormLabel>
                       <Input
                         onChange={(e) => {
                           const value = e.target.value.replace(',', '.');

@@ -106,8 +106,9 @@ const ProdukteVerwalten = () => {
         <Box
             sx={{
                 height: '100vh',
+                maxHeight: "100vh",
                 overflowY: 'auto',
-                display: 'flex',
+                display: 'block',
                 flexDirection: 'column',
                 gap: 2,
                 p: 0,

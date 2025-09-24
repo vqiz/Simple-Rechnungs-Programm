@@ -29,7 +29,7 @@ function KathAccordationDetail({
                 <thead>
                     <tr>
                         <th>Produktname</th>
-                        <th style={{ textAlign: 'right' }}>Preis</th>
+                        <th style={{ textAlign: 'right' }}>Netto-Preis</th>
                         <th style={{ textAlign: "right" }}>Mehrwertsteuer</th>
                         <th style={{ textAlign: 'right' }}>Aktionen</th>
                     </tr>
