@@ -17,6 +17,8 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    minWidth: 1200,
+    minHeight: 800,
     icon: path.join(__dirname, "icon.png"),
     title: "Rechnix",
     webPreferences: {

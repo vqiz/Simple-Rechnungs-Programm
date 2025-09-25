@@ -8,6 +8,8 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1920,
     height: 1080,
+    minWidth: 1200,
+    minHeight: 800,
     icon: path.join(__dirname, "icon.png"),
     title: "Rechnix",
     webPreferences: {

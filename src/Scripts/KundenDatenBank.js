@@ -14,7 +14,7 @@ export const kundeErstellen = async (name, istfirma, street, number, plz, ort, l
         "tel": telefon,
         "ansprechpartner": ansprechpartner,
         "leitwegid": leitwegid,
-        "rechnungen": {},
+        "rechnungen": [],
     }
     const folderdata = await window.api.listfiles("kunden/");
     let id = generateCode();

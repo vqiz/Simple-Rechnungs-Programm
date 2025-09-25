@@ -40,6 +40,7 @@ export const getNewRechnungsnummer = async () => {
   return nummer;
 }
 export const getKunde = async (id) => {
+  console.log("kunden/" + id + ".person");
   const jsonstring = await handleLoadFile("kunden/" + id + ".person");
   const json = JSON.parse(jsonstring);
   return json;
@@ -48,3 +49,9 @@ export const getKunde = async (id) => {
 export const saveKunde = async (json, id) => {
   await handleSaveFile("kunden/" + id + ".person", JSON.stringify(json));
 } 
+export const saveRechnung = async (json, nummer) => {
+  const path = "rechnungen/" + nummer;
+  json.positionen = Object.fromEntries(json.positionen);
+  await handleLoadFile(path)
+  await handleSaveFile(path,JSON.stringify(json));
+}

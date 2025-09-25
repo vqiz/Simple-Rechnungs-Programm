@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
 import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Link, Modal, ModalDialog, Switch, Table, Tooltip, Typography } from '@mui/joy'
 import InfoCard from '../InfoCard'
-import { getKunde, handleLoadFile } from '../../Scripts/Filehandler';
+import { getKunde, getNewRechnungsnummer, handleLoadFile, saveKunde, saveRechnung } from '../../Scripts/Filehandler';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import { debounce } from 'lodash';
@@ -96,16 +96,12 @@ function RechnungErstellen() {
     });
   };
   const createRechnung = async () => {
-    //const kunde = await getKunde(rechnung.kundenId);
 
-
-
-
-
-
-
-
-
+    const kunde = await getKunde(rechnung.kundenId);
+    const rnummer = await getNewRechnungsnummer();
+    kunde.rechnungen.push(rnummer);
+    await saveKunde(kunde,rechnung.kundenId);
+    await saveRechnung(rechnung, rnummer);
   }
   const [brutto, setbrutto] = useState(false);
   //bgcolor: 'background.level1',
@@ -474,7 +470,7 @@ function RechnungErstellen() {
               <Autocomplete
                 value={kunden?.find((i) => i.id === rechnung.kundenId)}
                 onChange={(e, newval) => {
-                  setRechnung({ ...rechnung, kundenId: newval })
+                  setRechnung({ ...rechnung, kundenId: newval.id })
                 }}
                 options={kunden || []}
                 getOptionLabel={(option) => {
