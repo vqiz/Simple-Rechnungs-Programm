@@ -97,6 +97,7 @@ function RechnungErstellen() {
   };
   const createRechnung = async () => {
 
+    
     const kunde = await getKunde(rechnung.kundenId);
     const rnummer = await getNewRechnungsnummer();
     kunde.rechnungen.push(rnummer);
