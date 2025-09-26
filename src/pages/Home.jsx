@@ -14,6 +14,7 @@ import KundenVerwaltung from '../components/Tabs/KundenVerwaltung'
 import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
 import AssuredWorkloadIcon from '@mui/icons-material/AssuredWorkload';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 function Home() {
 
   const TabProvider = ({ children }) => {
@@ -75,6 +76,17 @@ function Home() {
         <Typography startDecorator={<NearMeOutlinedIcon />} sx={{ fontSize: '1.25rem', mt: 0.7, fontWeight: "bold", mb: 1.387 }}>Navigation</Typography>
         <Box sx={{ width: "100%", display: "flex", justifyContent: "center", mb: 2 }}><Divider sx={{ width: "90%" }} orientation="horizontal" /></Box>
         <ListPart title={"Allgemein"}>
+          <ListItem>
+            <Box>
+              <Typography
+                level="body-xs"
+                startDecorator={<DashboardIcon />}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == -1 ? "primary.plainColor" : "" }}
+              >
+                Dashboard
+              </Typography>
+            </Box>
+          </ListItem>
           <ListItem >
             <Box onClick={() => setvalue(0)}>
               <Typography
@@ -86,6 +98,7 @@ function Home() {
               </Typography>
             </Box>
           </ListItem>
+
         </ListPart>
         <ListPart title={"Verwaltung"}>
           <ListItem>
@@ -122,6 +135,28 @@ function Home() {
             </Box>
           </ListItem>
         </ListPart>
+
+
+        <ListPart title={"Buchaltung"}>
+          <ListItem>
+            <Typography
+              level='body-xs'
+              startDecorator={<AssuredWorkloadIcon />}
+              sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
+            >
+              Lieferantenrechnungen
+            </Typography>
+          </ListItem>
+          <ListItem>
+            <Typography
+              level='body-xs'
+              startDecorator={<AccountBalanceWalletIcon />}
+              sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
+            >
+              Export
+            </Typography>
+          </ListItem>
+        </ListPart>
         <ListPart title={"Sonstiges"}>
           <ListItem>
             <Box onClick={() => setvalue(4)}>
@@ -147,26 +182,6 @@ function Home() {
           </ListItem>
         </ListPart>
 
-        <ListPart title={"Schnittstellen"}>
-          <ListItem>
-            <Typography
-              level='body-xs'
-              startDecorator={<AssuredWorkloadIcon />}
-              sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
-            >
-              Elster 
-            </Typography>
-          </ListItem>
-                    <ListItem>
-            <Typography
-              level='body-xs'
-              startDecorator={<AccountBalanceWalletIcon />}
-              sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
-            >
-              Datev 
-            </Typography>
-          </ListItem>
-        </ListPart>
       </TabList>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={0}>
         <RechnungErstellen />

@@ -53,6 +53,7 @@ function RechnungErstellen() {
   const [rechnung, setRechnung] = React.useState({
     kundenId: null,
     positionen: new Map(),
+    items: null,
   });
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -96,7 +97,7 @@ function RechnungErstellen() {
     });
   };
   const createRechnung = async () => {
-
+    setRechnung({...rechnung, items: produkte})
     
     const kunde = await getKunde(rechnung.kundenId);
     const rnummer = await getNewRechnungsnummer();

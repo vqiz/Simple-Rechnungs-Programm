@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -22,6 +22,58 @@ function createWindow() {
   win.loadURL('http://localhost:3000');
   win.setTitle("Rechnix");
   win.webContents.openDevTools();
+
+
+  const menuTemplate = [
+    {
+      label: "Electron",
+      submenu: [{ label: 'Beenden', role: 'quit' }],
+
+    },
+    {
+      label: 'Datei', // File
+      submenu: [
+        { label: 'Neu', click: () => console.log('Neu clicked') },
+        { label: 'Öffnen', click: () => console.log('Öffnen clicked') },
+        { type: 'separator' },
+        { label: 'Beenden', role: 'quit' }
+      ]
+    },
+    {
+      label: 'Bearbeiten', // Edit
+      submenu: [
+        { label: "zurück", role: 'undo' },
+        { label: "vorwärts", role: 'redo' },
+        { type: 'separator' },
+        { label: "Ausschneiden", role: 'cut' },
+        { label: "Copieren", role: 'copy' },
+        { label: "Einfügen", role: 'paste' }
+      ]
+    },
+    {
+      label: "Sicherung",
+      submenu: [
+        { label: "Letztes Jahr Exportieren", click: () => console.log("soon") },
+        { label: "Letztes Quatal Exportieren", click: () => console.log("soon") },
+        { label: "Letzten Monat Exportieren", click: () => console.log("soon") },
+        { type: 'separator' },
+        { label: "Gesammtsicherung erstellen", click: () => console.log("soon") }
+      ]
+    },
+    {
+      label: 'Hilfe', // View
+      submenu: [
+        { label: "Neu Laden", role: 'reload' },
+        { label: "Entwicklungsoptionen anzeigen", role: 'toggledevtools' },
+        { type: 'separator' },
+      ]
+    }
+  ];
+  const menu = Menu.buildFromTemplate(menuTemplate);
+  Menu.setApplicationMenu(menu);
+
+
+
 }
 
 app.whenReady().then(createWindow);
@@ -71,7 +123,7 @@ ipcMain.handle('read-file', async (_, filePath) => {
 
 ipcMain.handle('write-file', async (_, filePath, content) => {
   try {
-    await fs.writeFile(filePath, content, {encoding: 'utf-8',flag: 'w', });
+    await fs.writeFile(filePath, content, { encoding: 'utf-8', flag: 'w', });
     return 'success';
   } catch (err) {
     console.error("Fehler beim Schreiben:", err);

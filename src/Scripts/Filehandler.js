@@ -49,9 +49,26 @@ export const getKunde = async (id) => {
 export const saveKunde = async (json, id) => {
   await handleSaveFile("kunden/" + id + ".person", JSON.stringify(json));
 } 
+const saveRechnungUnbezahlt = async (kundenid, rechnung) => {
+  const path = "fast_accsess/u_Rechnungen.db";
+  let jsonstring = await handleLoadFile(path);
+  if (jsonstring === "{}"){
+    jsonstring = `{"list": []}`
+  }
+  const json = JSON.parse(jsonstring);
+  const element = {
+    id: kundenid,
+    "rechnung": rechnung,
+  }
+  json.list.push(element);
+  await handleSaveFile(path, JSON.stringify(json));
+}
+
 export const saveRechnung = async (json, nummer) => {
   const path = "rechnungen/" + nummer;
   json.positionen = Object.fromEntries(json.positionen);
   await handleLoadFile(path)
   await handleSaveFile(path,JSON.stringify(json));
+  await saveRechnungUnbezahlt(json.kundenId, nummer);
 }
+
