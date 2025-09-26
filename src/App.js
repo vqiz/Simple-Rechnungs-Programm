@@ -4,6 +4,7 @@ import Login  from "./pages/Login.jsx";
 
 import "./App.css";
 import Home from "./pages/Home.jsx";
+import KundenViewer from "./viewer/KundenViewer.jsx";
 
 
 
@@ -14,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/kunden-viewer/:id" element={<KundenViewer />}/>
       </Routes>
     </Router>
   );
