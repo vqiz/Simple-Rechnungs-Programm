@@ -53,11 +53,16 @@ function createWindow() {
     {
       label: "Sicherung",
       submenu: [
+        { type: 'separator' },
+        { label: "Gesammtsicherung erstellen", click: () => console.log("soon") }
+      ]
+    },
+    {
+      label: "Export",
+      submenu: [
         { label: "Letztes Jahr Exportieren", click: () => console.log("soon") },
         { label: "Letztes Quatal Exportieren", click: () => console.log("soon") },
         { label: "Letzten Monat Exportieren", click: () => console.log("soon") },
-        { type: 'separator' },
-        { label: "Gesammtsicherung erstellen", click: () => console.log("soon") }
       ]
     },
     {
