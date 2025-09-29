@@ -97,13 +97,14 @@ function RechnungErstellen() {
     });
   };
   const createRechnung = async () => {
-    setRechnung({...rechnung, items: produkte})
+    const nRechnung = { ...rechnung, items: produkte };
+
     
-    const kunde = await getKunde(rechnung.kundenId);
+    const kunde = await getKunde(nRechnung.kundenId);
     const rnummer = await getNewRechnungsnummer();
     kunde.rechnungen.push(rnummer);
-    await saveKunde(kunde,rechnung.kundenId);
-    await saveRechnung(rechnung, rnummer);
+    await saveKunde(kunde,nRechnung.kundenId);
+    await saveRechnung(nRechnung, rnummer);
   }
   const [brutto, setbrutto] = useState(false);
   //bgcolor: 'background.level1',
