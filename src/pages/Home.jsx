@@ -1,6 +1,6 @@
 import { Box, colors, Divider, List, ListItem, ListItemDecorator, Typography } from '@mui/joy'
 import { Tab, TabList, TabPanel, Tabs } from '@mui/joy'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ReceiptIcon from '@mui/icons-material/Receipt'
 import FindInPageIcon from '@mui/icons-material/FindInPage'
 import InventoryIcon from '@mui/icons-material/Inventory'
@@ -15,8 +15,15 @@ import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
 import AssuredWorkloadIcon from '@mui/icons-material/AssuredWorkload';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import { useParams } from 'react-router-dom'
+import ListPart from '../components/ListPart'
 function Home() {
-
+  const {selected} = useParams();
+  useEffect(() => {
+    if (selected !== undefined){
+      setvalue(Number(selected));
+    }
+  }, [])
   const TabProvider = ({ children }) => {
     return (
       <Tab
@@ -46,23 +53,7 @@ function Home() {
   }
   const [value, setvalue] = useState(0);
 
-  const ListPart = ({ title, children }) => {
 
-    return (
-      <Box sx={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-start", width: "100%", flexDirection: "column", mb: 3 }}>
-        <Typography
-          id={title}
-          level="body-xs"
-          sx={{ textTransform: 'uppercase', fontWeight: 'lg', mb: 1, ml: 1 }}
-        >
-          {title}
-        </Typography>
-        <List size='sm' aria-labelledby={title}>
-          {children}
-        </List>
-      </Box>
-    )
-  }
 
 
 

@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
 import { kundeErstellen } from '../../../Scripts/KundenDatenBank';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import { useNavigate } from 'react-router-dom';
 function KundeErstellung({ submit }) {
     const [formData, setFormData] = React.useState({
         name: "",
@@ -17,11 +18,12 @@ function KundeErstellung({ submit }) {
         ansprechüartner: "",
         leitwegid: "",
     });
-    function create() {
+    const navigate = useNavigate();
+    async function create() {
         if (formData.name === "") {
             return;
         }
-        kundeErstellen(
+        const id = await kundeErstellen(
             formData.name,
             formData.istfirma,
             formData.strasse,
@@ -34,7 +36,9 @@ function KundeErstellung({ submit }) {
             formData.ansprechüartner,
             formData.leitwegid,
         );
+        navigate("/kunden-viewer/" + id);
         submit();
+
     }
 
     return (
@@ -51,7 +55,7 @@ function KundeErstellung({ submit }) {
                         <Typography level='h3' mb={1}>
                             Kunde erstellen
                         </Typography>
-                        <IconButton onClick={() => submit()} sx={{mt: -1}}>
+                        <IconButton onClick={() => {submit();}} sx={{mt: -1}}>
                             <CloseOutlinedIcon/>
                         </IconButton>
                     </Box>

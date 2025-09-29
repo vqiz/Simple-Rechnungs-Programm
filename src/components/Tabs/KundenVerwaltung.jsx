@@ -10,12 +10,13 @@ import { handleLoadFile } from '../../Scripts/Filehandler';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import debounce from 'lodash/debounce';
+import { useNavigate } from 'react-router-dom';
 
 function KundenVerwaltung() {
     const [createkunde, setcreatekunde] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-
+    const navigate = useNavigate();
     function close() {
         setcreatekunde(false);
     }
@@ -144,6 +145,7 @@ function KundenVerwaltung() {
                                             },
                                             cursor: "pointer"
                                         }}
+                                        onClick={() => navigate("/kunden-viewer/" + id)}
                                     >
                                         <Box component="td" sx={{ padding: '12px 16px' }}>
                                             <Box sx={{

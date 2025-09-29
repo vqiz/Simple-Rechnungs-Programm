@@ -14,6 +14,7 @@ export const kundeErstellen = async (name, istfirma, street, number, plz, ort, l
         "tel": telefon,
         "ansprechpartner": ansprechpartner,
         "leitwegid": leitwegid,
+        "erstellt": new Date().getTime(),
         "rechnungen": [],
     }
     const folderdata = await window.api.listfiles("kunden/");
@@ -32,7 +33,7 @@ export const kundeErstellen = async (name, istfirma, street, number, plz, ort, l
     let element = { name, id, istfirma, email };
     data.list.push(element);
     await handleSaveFile("fast_accsess/kunden.db", JSON.stringify(data));
-
+    return id;
 
 }
 export function generateCode() {
