@@ -71,4 +71,12 @@ export const saveRechnung = async (json, nummer) => {
   await handleSaveFile(path,JSON.stringify(json));
   await saveRechnungUnbezahlt(json.kundenId, nummer);
 }
+export const get_uRechnungen = async () => {
+  const path = "fast_accsess/u_Rechnungen.db";
+  const jsonstring = await handleLoadFile(path);
+    if (jsonstring === "{}"){
+    jsonstring = `{"list": []}`
+  }
+  return JSON.parse(jsonstring);
+}
 

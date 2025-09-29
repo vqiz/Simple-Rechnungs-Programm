@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { getKunde } from '../Scripts/Filehandler';
-import { Avatar, Box, Button, Chip, IconButton, Input, ListItem, Table, Tooltip, Typography } from '@mui/joy';
+import { get_uRechnungen, getKunde } from '../Scripts/Filehandler';
+import { Avatar, Box, Button, Chip, Dropdown, IconButton, Input, ListItem, Menu, MenuButton, MenuItem, Table, Tooltip, Typography } from '@mui/joy';
 import Headline from '../components/Headline';
 import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
@@ -16,9 +16,18 @@ import DateRangeOutlinedIcon from '@mui/icons-material/DateRangeOutlined';
 import FormatListNumberedOutlinedIcon from '@mui/icons-material/FormatListNumberedOutlined';
 import PersonPinCircleOutlinedIcon from '@mui/icons-material/PersonPinCircleOutlined';
 import SearchIcon from '@mui/icons-material/Search';
+import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
+import DangerousOutlinedIcon from '@mui/icons-material/DangerousOutlined';
+import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
+import debounce from 'lodash/debounce';
+import InfoCard from '../components/InfoCard';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
+import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
 function KundenViewer() {
   const { id } = useParams();
   const [kunde, setkunde] = useState();
+  const [u_Rechnungen, set_uRechnungen] = useState();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -28,11 +37,22 @@ function KundenViewer() {
     const fetch = async () => {
       const fkunde = await getKunde(Number(id));
       setkunde(fkunde);
+
+      const u_R = await get_uRechnungen();
+      set_uRechnungen(u_R);
     }
     fetch();
   }, []);
 
-
+  useEffect(() => {
+    const handler = debounce(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+    handler();
+    return () => {
+      handler.cancel();
+    };
+  }, [searchTerm]);
   return (
     <Box>
       <Box
@@ -185,27 +205,98 @@ function KundenViewer() {
             </ListPart>
           </Box>
         </Box>
-        <Box sx={{ width: "85%", p: 2 }}>
+        <Box sx={{ width: "85%", p: 2, display: "block", overflowY: "auto" }}>
+          <InfoCard headline={"Information"}>Hier finden sie alle Rechnungen für {kunde?.name} aufgelistet. <br></br> Unbezahlte Rechnungen werden <Typography fontWeight={"bold"}>immer</Typography> ganz oben angezeigt</InfoCard>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 2, mt: 7 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: "50%" }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: "55%", flexDirection: "row" }}>
               <Input
                 placeholder="Rechnung suchen..."
                 variant="outlined"
-                sx={{ flexGrow: 1, }}
+                sx={{ flexGrow: 1, userSelect: "all" }}
                 onChange={(e) => setSearchTerm(e.target.value)}
 
                 startDecorator={<SearchIcon />}
               />
             </Box>
+            <Button startDecorator={<EditOutlinedIcon />} sx={{ mt: -1.7 }}>Kunden Bearbeiten</Button>
           </Box>
-          <Table  sx={{mt: 2, "& th:nth-of-type(1)": { width: "70%" }, "& th:nth-of-type(2)": { width: "30%" }}}>
+          <Table sx={{ mt: 2, "& th:nth-of-type(1)": { width: "70%" }, "& th:nth-of-type(2)": { width: "20%" } ,"& th:nth-of-type(3)": { width: "10%" } }}>
             <thead>
               <tr>
-                  <th>Rechnung</th>
-                  <th >Status</th>
+                <th>Rechnung</th>
+                <th>Status</th>
+                <th></th>
               </tr>
             </thead>
+            <tbody>
+              {
+                kunde?.rechnungen
+                  .filter((i) => i.includes(debouncedSearchTerm))
+                  .slice().reverse() // Kopie
+                  .sort((a, b) => {
+                    const isAUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === a);
+                    const isBUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === b);
 
+                    // Unbezahlte zuerst
+                    if (isAUnpaid && !isBUnpaid) return -1;
+                    if (!isAUnpaid && isBUnpaid) return 1;
+                    return 0; // beide gleich
+                  }).map((item) => {
+                    return (
+                      <Box
+                        component="tr"
+                        key={id}
+                        sx={{
+                          transition: 'background-color 0.2s',
+                          '&:hover': {
+                            bgcolor: 'neutral.plainHoverBg',
+                          },
+                          cursor: "pointer"
+                        }}
+                        onClick={() => navigate("/kunden-viewer/" + id)}
+                      >
+
+                        <Box component="td" sx={{ padding: '12px 16px' }}>
+                          <Box sx={{
+                            display: "flex", alignContent: "center", flexDirection: "row",
+                          }}>
+                            <ReceiptLongOutlinedIcon />
+                            <Box sx={{ display: "flex", flexDirection: "column", ml: 1, cursor: "pointer" }}>
+                              <Typography level="body-md" sx={{ cursor: "pointer", userSelect: "none" }}>{item}</Typography>
+                              <Typography sx={{ color: "darkgray", cursor: "pointer", userSelect: "none" }} level="body-sm">{ }</Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                        <Box component="td" sx={{ padding: '12px 16px' }}>
+                          {
+                            u_Rechnungen?.list
+                              .filter((i) => i.id === id)  // compare strings
+                              .some((i) => i.rechnung === item) ? (
+                              <Tooltip title="diese Rechnung wurde noch nicht bezahlt">
+                                <Chip startDecorator={<DangerousOutlinedIcon />} color='danger'>Ausstehend</Chip>
+                              </Tooltip>
+                            ) : (
+
+                              <Chip startDecorator={<AccountBalanceWalletOutlinedIcon />} color="success">Bezahlt</Chip>
+                            )
+                          }
+                        </Box>
+                        <Box component={"td"}>
+                          <Dropdown>
+                            <MenuButton sx={{borderColor: "lightgray", width: "40px"}}>
+                                <MoreVertOutlinedIcon/>
+                            </MenuButton>
+                            <Menu size='md'>
+                              <MenuItem>Als PDF Exportieren</MenuItem>
+                              <MenuItem>Als E-Rechnung Exportieren</MenuItem>
+                            </Menu>
+                          </Dropdown>
+                        </Box>
+                      </Box>
+                    )
+                  })
+              }
+            </tbody>
           </Table>
         </Box>
       </Box>
