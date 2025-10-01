@@ -18,7 +18,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useParams } from 'react-router-dom'
 import ListPart from '../components/ListPart'
 function Home() {
-  const {selected} = useParams();
+  const {selected, selectedUserRechnung} = useParams();
   useEffect(() => {
     if (selected !== undefined){
       setvalue(Number(selected));
@@ -175,7 +175,7 @@ function Home() {
 
       </TabList>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={0}>
-        <RechnungErstellen />
+        <RechnungErstellen  selUser={selectedUserRechnung}/>
       </TabPanel>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={2}>
         <KundenVerwaltung />

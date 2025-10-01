@@ -20,7 +20,7 @@ function Login() {
   function submit() {
     if (passwordinput === "login") {
       Key.set("login");
-      navigate("/home");
+      navigate("/home/0/-1");
     } else {
       console.log("falsches passwort");
       setalert(true);

@@ -12,7 +12,7 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import TableContainer from '@mui/material/TableContainer';
 import MaskProvider from '../MaskProvider';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
-function RechnungErstellen() {
+function RechnungErstellen({ selUser }) {
 
   const [kathpath] = useState('kathegories/kathegories.rechnix');
   const [kunden, setkunden] = useState(null);
@@ -23,7 +23,7 @@ function RechnungErstellen() {
   //create produkt properties 
   const [createProdukt, setCreateProdukt] = useState(false);
   const [price, setprice] = useState(0);
-  const [createsteuer,setCreateSteuer] = useState(19);
+  const [createsteuer, setCreateSteuer] = useState(19);
   const [produktname, setproduktname] = useState("");
   const [error, seterror] = useState(false);
 
@@ -55,7 +55,17 @@ function RechnungErstellen() {
     positionen: new Map(),
     items: null,
   });
-
+  useEffect(() => {
+    const setUser = () => {
+      console.log("Debug Render Erstellen ", selUser)
+      if (selUser !== undefined) {
+        setRechnung({ ...rechnung, kundenId: selUser })
+      }
+    }
+    setTimeout(() => {
+      setUser();
+    }, 50);
+  }, []);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   useEffect(() => {
@@ -99,11 +109,11 @@ function RechnungErstellen() {
   const createRechnung = async () => {
     const nRechnung = { ...rechnung, items: produkte };
 
-    
+
     const kunde = await getKunde(nRechnung.kundenId);
     const rnummer = await getNewRechnungsnummer();
     kunde.rechnungen.push(rnummer);
-    await saveKunde(kunde,nRechnung.kundenId);
+    await saveKunde(kunde, nRechnung.kundenId);
     await saveRechnung(nRechnung, rnummer);
   }
   const [brutto, setbrutto] = useState(false);
@@ -225,20 +235,20 @@ function RechnungErstellen() {
                       />
                     </FormControl>
                     <FormControl>
-                      <FormLabel sx={{color: "gray"}}>
+                      <FormLabel sx={{ color: "gray" }}>
                         Mehrwertsteuer in %
                       </FormLabel>
                       <Input onChange={(e) => {
-                            const value = e.target.value.replace(',', '.');
-                            setCreateSteuer(Number(value));
-                            seterror(false);
+                        const value = e.target.value.replace(',', '.');
+                        setCreateSteuer(Number(value));
+                        seterror(false);
                       }}
-                      type='number'
-                      value={createsteuer} 
-                      inputProps={{ step: "0.01" }}/>
+                        type='number'
+                        value={createsteuer}
+                        inputProps={{ step: "0.01" }} />
                     </FormControl>
                   </Box>
-                  
+
                   {error && (
                     <Typography color='danger' level="body-xs" mt={1}>
                       Bitte überprüfe deine Eingabe
@@ -471,7 +481,7 @@ function RechnungErstellen() {
             <Box>
               <FormLabel>Kunde</FormLabel>
               <Autocomplete
-                value={kunden?.find((i) => i.id === rechnung.kundenId)}
+                value={kunden?.find((i) => i.id === rechnung.kundenId) || null}
                 onChange={(e, newval) => {
                   setRechnung({ ...rechnung, kundenId: newval.id })
                 }}

@@ -14,7 +14,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/home/:selected" element={<Home />} />
+        <Route path="/home/:selected/:selectedUserRechnung" element={<Home />} />
         <Route path="/kunden-viewer/:id" element={<KundenViewer />}/>
       </Routes>
     </Router>

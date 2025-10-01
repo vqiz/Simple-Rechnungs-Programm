@@ -25,6 +25,8 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+
 function KundenViewer() {
   const { id } = useParams();
   const [kunde, setkunde] = useState();
@@ -76,7 +78,7 @@ function KundenViewer() {
       >
         <Box sx={{ width: "50%", flexDirection: "row", display: "flex" }}>
           <Tooltip title="Zurück">
-            <IconButton onClick={() => navigate("/home/2")} sx={{
+            <IconButton onClick={() => navigate("/home/2/-1")} sx={{
               "&:hover": {
                 color: "#1976d2"
               }
@@ -224,7 +226,17 @@ function KundenViewer() {
                 startDecorator={<SearchIcon />}
               />
             </Box>
-            <Button startDecorator={<EditOutlinedIcon />} sx={{ mt: -1.7 }}>Kunden Bearbeiten</Button>
+            <Dropdown>
+              <MenuButton color="primary" sx={{mt: -1.7}}>
+                <EditOutlinedIcon/>
+                Bearbeiten
+              </MenuButton>
+              <Menu>
+                <MenuItem onClick={() => navigate("/home/0/" + id)}><AddCircleOutlineOutlinedIcon/>Rechnung hinzufügen</MenuItem>
+                <MenuItem><EditOutlinedIcon/>Kunden bearbeiten</MenuItem>
+              </Menu>
+            </Dropdown>
+            
           </Box>
           <Table sx={{ mt: 2, "& th:nth-of-type(1)": { width: "70%" }, "& th:nth-of-type(2)": { width: "20%" }, "& th:nth-of-type(3)": { width: "10%" } }}>
             <thead>

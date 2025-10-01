@@ -83,7 +83,7 @@ function KundenVerwaltung() {
         >
             <Headline>Kundenverwaltung</Headline>
             <Box sx={{ p: 2 }}>
-                <InfoCard headline={"Information"}>In der Kundenverwaltung können sie nach Kunden und Rechnungsnummern suchen um vorgänge nachvollziehen zu können und alte rechnungen wieder zu finden.</InfoCard>
+                <InfoCard headline={"Information"}>In der Kundenverwaltung können sie nach Kunden suchen um vorgänge nachvollziehen zu können.</InfoCard>
             </Box>
 
             {
@@ -100,7 +100,7 @@ function KundenVerwaltung() {
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: "50%" }}>
                     <Input
-                        placeholder="Kunden oder Rechnungsnummer suchen..."
+                        placeholder="Kunden suchen..."
                         variant="outlined"
                         sx={{ flexGrow: 1, }}
                         onChange={(e) => setSearchTerm(e.target.value)}
