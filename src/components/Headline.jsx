@@ -22,6 +22,9 @@ function Headline({children}) {
             color: '#333',
             cursor: "default",
             userSelect: "none",
+            display: "flex",
+            flexDirection: "row",
+            gap: 2,
           }}
         >
           {children}

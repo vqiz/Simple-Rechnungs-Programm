@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { change_PayStatus, get_uRechnungen, getKunde } from '../Scripts/Filehandler';
-import { Avatar, Box, Button, Chip, Dropdown, IconButton, Input, ListItem, Menu, MenuButton, MenuItem, Table, Tooltip, Typography } from '@mui/joy';
+import { Avatar, Box, Button, Chip, Dropdown, IconButton, Input, ListItem, ListItemDecorator, Menu, MenuButton, MenuItem, Table, Tooltip, Typography } from '@mui/joy';
 import Headline from '../components/Headline';
 import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
@@ -36,6 +36,21 @@ function KundenViewer() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
+  const [anchor, setAnchor] = React.useState(null);
+
+  const [target, settarget] = useState(null);
+  const handleContextMenu = (event, item, payed) => {
+    event.preventDefault(); // Standard-Menü verhindern
+    settarget({ item, payed });
+    setAnchor({
+      mouseX: event.clientX,
+      mouseY: event.clientY,
+    });
+  };
+
+  const handleClose = () => {
+    setAnchor(null);
+  };
   useEffect(() => {
     const fetch = async () => {
       const fkunde = await getKunde(Number(id));
@@ -76,6 +91,47 @@ function KundenViewer() {
           justifyContent: "space-between"
         }}
       >
+        {anchor && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: anchor.mouseY,
+              left: anchor.mouseX,
+              bgcolor: "background.surface",
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: "4px",
+              boxShadow: 3,
+              zIndex: 1300,
+              p: 1,
+            }}
+            onMouseLeave={handleClose}
+          >
+            <Box
+              sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
+              onClick={() => { alert("PDF Export"); handleClose(); }}
+            >
+              <IosShareOutlinedIcon fontSize="small" />
+              <Typography level="body-sm" sx={{ ml: 1 }}>Als PDF Exportieren</Typography>
+            </Box>
+            <Box
+              sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
+              onClick={() => { alert("E-Rechnung Export"); handleClose(); }}
+            >
+              <IosShareOutlinedIcon fontSize="small" />
+              <Typography level="body-sm" sx={{ ml: 1 }}>Als E-Rechnung Exportieren</Typography>
+            </Box>
+            <Box
+              sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
+              onClick={() => { change_pstatus(target.item); handleClose(); }}
+            >
+              {target?.payed ? <AccountBalanceWalletOutlinedIcon fontSize="small" /> : <DangerousOutlinedIcon fontSize="small" />}
+              <Typography level="body-sm" sx={{ ml: 1 }}>
+                Als {target?.payed ? "Bezahlt" : "Ausstehend"} kennzeichnen
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box sx={{ width: "50%", flexDirection: "row", display: "flex" }}>
           <Tooltip title="Zurück">
             <IconButton onClick={() => navigate("/home/2/-1")} sx={{
@@ -227,23 +283,23 @@ function KundenViewer() {
               />
             </Box>
             <Dropdown>
-              <MenuButton color="primary" sx={{mt: -1.7}}>
-                <EditOutlinedIcon/>
+              <MenuButton color="primary" sx={{ mt: -1.7 }}>
+                <EditOutlinedIcon />
                 Bearbeiten
               </MenuButton>
               <Menu>
-                <MenuItem onClick={() => navigate("/home/0/" + id)}><AddCircleOutlineOutlinedIcon/>Rechnung hinzufügen</MenuItem>
-                <MenuItem><EditOutlinedIcon/>Kunden bearbeiten</MenuItem>
+                <MenuItem onClick={() => navigate("/home/0/" + id)}><AddCircleOutlineOutlinedIcon />Rechnung hinzufügen</MenuItem>
+                <MenuItem><EditOutlinedIcon />Kunden bearbeiten</MenuItem>
               </Menu>
             </Dropdown>
-            
+
           </Box>
           <Table sx={{ mt: 2, "& th:nth-of-type(1)": { width: "70%" }, "& th:nth-of-type(2)": { width: "20%" }, "& th:nth-of-type(3)": { width: "10%" } }}>
             <thead>
               <tr>
                 <th>Rechnung</th>
                 <th>Status</th>
-                <th></th>
+
               </tr>
             </thead>
             <tbody>
@@ -259,7 +315,7 @@ function KundenViewer() {
                     if (isAUnpaid && !isBUnpaid) return -1;
                     if (!isAUnpaid && isBUnpaid) return 1;
                     return 0; // beide gleich
-                  }).map((item,index) => {
+                  }).map((item, index) => {
                     const payed = u_Rechnungen?.list
                       .filter((i) => i.id === id)  // compare strings
                       .some((i) => i.rechnung === item);
@@ -267,6 +323,8 @@ function KundenViewer() {
                       <Box
                         component="tr"
                         key={index}
+                        onContextMenu={(e) => handleContextMenu(e, item, payed)}
+                        
                         sx={{
                           transition: 'background-color 0.2s',
                           '&:hover': {
@@ -274,7 +332,7 @@ function KundenViewer() {
                           },
                           cursor: "pointer"
                         }}
-                        onClick={() => navigate("/kunden-viewer/" + id)}
+                        onClick={() => navigate("/rechnung-viewer/" + item)}
                       >
 
                         <Box component="td" sx={{ padding: '12px 16px' }}>
@@ -302,24 +360,7 @@ function KundenViewer() {
                             )
                           }
                         </Box>
-                        <Box component={"td"}>
-                          <Dropdown>
-                            <MenuButton sx={{ borderColor: "lightgray", width: "40px" }}>
-                              <MoreVertOutlinedIcon />
-                            </MenuButton>
-                            <Menu size='md'>
-                              <MenuItem>
-                                <IosShareOutlinedIcon />
-                                Als PDF Exportieren
-                              </MenuItem>
-                              <MenuItem>
-                                <IosShareOutlinedIcon />
-                                Als E-Rechnung Exportieren
-                              </MenuItem>
-                              <MenuItem onClick={() => change_pstatus(item)} color={!payed ? "danger" : "success"}>{!payed ? (<DangerousOutlinedIcon />) : <AccountBalanceWalletOutlinedIcon />} Als {payed ? "Bezahlt" : "Ausstehend"} kennzeichnen</MenuItem>
-                            </Menu>
-                          </Dropdown>
-                        </Box>
+
                       </Box>
                     )
                   })

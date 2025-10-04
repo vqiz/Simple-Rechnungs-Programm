@@ -5,6 +5,7 @@ import Login  from "./pages/Login.jsx";
 import "./App.css";
 import Home from "./pages/Home.jsx";
 import KundenViewer from "./viewer/KundenViewer.jsx";
+import RechnungsViewer from "./viewer/RechnungsViewer.jsx";
 
 
 
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/home/:selected/:selectedUserRechnung" element={<Home />} />
         <Route path="/kunden-viewer/:id" element={<KundenViewer />}/>
+        <Route path="/rechnung-viewer/:id" element={<RechnungsViewer/>}/>
       </Routes>
     </Router>
   );
