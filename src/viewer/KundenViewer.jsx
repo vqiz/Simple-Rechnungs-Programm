@@ -76,21 +76,12 @@ function KundenViewer() {
     const u_R = await get_uRechnungen();
     set_uRechnungen(u_R);
   }
+  function onb(){
+    navigate("/home/2/-1");
+  }
   return (
     <Box>
-      <Box
-        sx={{
-          width: '100%',
-          minHeight: '55px',
-          bgcolor: '#ffffff',
-          display: 'flex',
-          alignItems: 'center',
-          borderBottom: '1px solid #ddd',
-          bgcolor: "background.surface",
-          flexDirection: "row",
-          justifyContent: "space-between"
-        }}
-      >
+        <Headline back={true} onback={onb}>{kunde?.name}</Headline>
         {anchor && (
           <Box
             sx={{
@@ -132,32 +123,8 @@ function KundenViewer() {
             </Box>
           </Box>
         )}
-        <Box sx={{ width: "50%", flexDirection: "row", display: "flex" }}>
-          <Tooltip title="Zurück">
-            <IconButton onClick={() => navigate("/home/2/-1")} sx={{
-              "&:hover": {
-                color: "#1976d2"
-              }
-            }}>
-              <ArrowCircleLeftOutlinedIcon />
-            </IconButton>
-          </Tooltip>
-          <Typography
-            sx={{
-              ml: '15px',
-              fontSize: '1.25rem',
-              fontWeight: 600,
-              color: '#333',
-              cursor: "default",
-              userSelect: "none",
-              mt: 0.35,
-            }}
-          >
-            {kunde?.name}
-          </Typography>
-        </Box>
 
-      </Box>
+
       <Box sx={{ width: "100%", height: "calc(100vh - 55px)", display: "flex", overflowY: "auto", flexDirection: "row" }}>
         <Box
           sx={{
@@ -332,7 +299,7 @@ function KundenViewer() {
                           },
                           cursor: "pointer"
                         }}
-                        onClick={() => navigate("/rechnung-viewer/" + item)}
+                        onClick={() => navigate("/rechnung-viewer/" + id + "/" + item)}
                       >
 
                         <Box component="td" sx={{ padding: '12px 16px' }}>
