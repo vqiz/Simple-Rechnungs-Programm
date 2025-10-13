@@ -12,7 +12,7 @@ function RechnungsViewer() {
     return (
         <Box sx={{width: "100%", height: "100vh"}}>
             <Headline back={!(Number(kid) == -1)} onback={onb}> {id}</Headline>
-            
+             
 
 
 

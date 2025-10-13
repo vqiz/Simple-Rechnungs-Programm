@@ -17,10 +17,11 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useParams } from 'react-router-dom'
 import ListPart from '../components/ListPart'
+import RechnungsViewerTab from '../components/Tabs/RechnungsViewerTab'
 function Home() {
-  const {selected, selectedUserRechnung} = useParams();
+  const { selected, selectedUserRechnung } = useParams();
   useEffect(() => {
-    if (selected !== undefined){
+    if (selected !== undefined) {
       setvalue(Number(selected));
     }
   }, [])
@@ -99,7 +100,7 @@ function Home() {
                 startDecorator={<FindInPageIcon />}
                 sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 1 ? "primary.plainColor" : "" }}
               >
-                Rechnung suchen
+                Rechnungen anzeigen
               </Typography>
             </Box>
           </ListItem>
@@ -175,7 +176,10 @@ function Home() {
 
       </TabList>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={0}>
-        <RechnungErstellen  selUser={selectedUserRechnung}/>
+        <RechnungErstellen selUser={selectedUserRechnung} />
+      </TabPanel>
+      <TabPanel sx={{ p: 0, overflowY: "auto" }} value={1}>
+        <RechnungsViewerTab  />
       </TabPanel>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={2}>
         <KundenVerwaltung />
