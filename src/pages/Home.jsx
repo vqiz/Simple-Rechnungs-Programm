@@ -179,7 +179,7 @@ function Home() {
         <RechnungErstellen selUser={selectedUserRechnung} />
       </TabPanel>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={1}>
-        <RechnungsViewerTab  />
+        <RechnungsViewerTab tabtoOpen={selectedUserRechnung} />
       </TabPanel>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={2}>
         <KundenVerwaltung />
