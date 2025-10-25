@@ -1,4 +1,4 @@
-import { Box, IconButton, Tooltip, Typography } from '@mui/joy';
+import { Box, IconButton, Table, Tooltip, Typography } from '@mui/joy';
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import Headline from '../components/Headline';
@@ -30,7 +30,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     }
     fetchkunde();
   }, [data]);
-  function Head({page, of}) {
+  function Head({ page, of }) {
     return (
       <>
         <Box sx={{ width: 450, minHeight: 45, mb: 14 }}>
@@ -51,7 +51,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
             <Typography level='body-md'>  Ausstellungsdatum: {(() => {
               const parts = rechnung.split("-");
               if (parts.length >= 4) {
-                const jahr = parts[0].substring(1); 
+                const jahr = parts[0].substring(1);
                 const monat = parts[1];
                 const tag = parts[2];
                 return `${tag}.${monat}.${jahr}`;
@@ -135,7 +135,32 @@ function RechnungsViewer({ rechnung, unternehmen }) {
           display: "flex",
         }}
       >
-        <Head page={1} of={2}  />
+        <Head page={1} of={2} />
+        <Table sx={{ bgcolor: "white", borderRadius: "15px", fontWeight: "bold" }}>
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th>Menge</th>
+              <th>Einzelpreiß</th>
+              <th>Gesammt</th>
+            </tr>
+
+          </thead>
+          <tbody>
+            <tr>
+              <td>Arbeitstunde</td>
+              <td>15</td>
+              <td>35€</td>
+              <td>525€</td>
+            </tr>
+            <tr>
+              <td>Arbeitstunde</td>
+              <td>15</td>
+              <td>35€</td>
+              <td>525€</td>
+            </tr>
+          </tbody>
+        </Table>
       </Box>
 
 
