@@ -147,18 +147,24 @@ function RechnungsViewer({ rechnung, unternehmen }) {
 
           </thead>
           <tbody>
-            <tr>
-              <td>Arbeitstunde</td>
-              <td>15</td>
-              <td>35€</td>
-              <td>525€</td>
-            </tr>
-            <tr>
-              <td>Arbeitstunde</td>
-              <td>15</td>
-              <td>35€</td>
-              <td>525€</td>
-            </tr>
+            {data?.positionen &&
+              Array.from(Object.entries(data.positionen)).map(([key, value]) => {
+                const [category, itemName] = key.split("_");
+                const amount = value;
+                const item = data?.items?.list?.find(i => i.name === category);
+                const price = item?.content.find((i) => i.name == itemName).price;
+                const total = amount * price;
+
+                return (
+                  <tr key={key}>
+                    <td>{itemName}</td>
+                    <td>{amount}x</td>
+                    <td>{price}€</td>
+                    <td>{total}€</td>
+                  </tr>
+                );
+              })
+            }
           </tbody>
         </Table>
       </Box>
