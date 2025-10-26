@@ -25,7 +25,10 @@ function Unternehmen() {
     kontaktTelefon: "",
     handelsregisternummer: "",
     sonstigeTelefonnummer: "",
-    sonstigeEmail: ""
+    sonstigeEmail: "",
+    website: "",
+    inhaber: "",
+    steuernr: "",
   });
   const [oldjson, setoldjson] = useState();
   const [changes, setchanges] = useState(false);
@@ -137,12 +140,30 @@ function Unternehmen() {
               onChange={e => setFormData({ ...formData, laenderCode: e.target.value })}
             />
           </FormControl>
-          <FormControl sx={{ width: "31%" }}>
+          <FormControl sx={{ width: "27.5%" }}>
             <FormLabel sx={labelstyle}>Umsatzsteuer-ID {"(Pflichtfeld)"}</FormLabel>
             <Input
               placeholder='z.B. DE123456789'
               value={formData.umsatzsteuerId}
               onChange={e => setFormData({ ...formData, umsatzsteuerId: e.target.value })}
+            />
+          </FormControl>
+          <FormControl sx={{ width: "31%" }}>
+            <FormLabel sx={labelstyle}>Steuer-Nr {"(Pflichtfeld)"}</FormLabel>
+            <Input
+              placeholder='z.B. 12/345/67890'
+              value={formData.steuernr}
+              onChange={e => setFormData({ ...formData, steuernr: e.target.value })}
+            />
+          </FormControl>
+        </Box>
+        <Box sx={boxlinestyle}>
+          <FormControl sx={{ width: "31%" }}>
+            <FormLabel sx={labelstyle}>Inhaber {"(Pflichtfeld)"}</FormLabel>
+            <Input
+              placeholder='z.B. Max Mustermann'
+              value={formData.inhaber}
+              onChange={e => setFormData({ ...formData, inhaber: e.target.value })}
             />
           </FormControl>
         </Box>
@@ -228,7 +249,9 @@ function Unternehmen() {
         <Box sx={boxlinestyle}>
           <FormControl sx={{ width: "50%" }}>
             <FormLabel sx={labelstyle}>Handelsregisternummer</FormLabel>
+            
             <Input
+              placeholder='HRA 12345'
               value={formData.handelsregisternummer}
               onChange={e => setFormData({ ...formData, handelsregisternummer: e.target.value })}
             />
@@ -243,12 +266,20 @@ function Unternehmen() {
           </FormControl>
         </Box>
         <Box sx={{ ...boxlinestyle, mb: 5 }}>
-          <FormControl sx={{ width: "50%" }}>
+          <FormControl sx={{ width: "49%" }}>
             <FormLabel sx={labelstyle}>Emailadresse</FormLabel>
             <Input
               placeholder='z.B. org.example@firma.com'
               value={formData.sonstigeEmail}
               onChange={e => setFormData({ ...formData, sonstigeEmail: e.target.value })}
+            />
+          </FormControl>
+          <FormControl sx={{ width: "40.5%" }}>
+            <FormLabel sx={labelstyle}>Website</FormLabel>
+            <Input
+              placeholder='z.B. www.test.de'
+              value={formData.website}
+              onChange={e => setFormData({ ...formData, website: e.target.value })}
             />
           </FormControl>
         </Box>

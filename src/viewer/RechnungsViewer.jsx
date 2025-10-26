@@ -65,7 +65,20 @@ function RechnungsViewer({ rechnung, unternehmen }) {
       </>
     );
   }
+  function Footer() {
+    return (
+      <Box sx={{height: "150px", width: "100%", mt: 25}}>
+        <Typography level="body-xs" fontWeight={"bold"}>{unternehmen?.unternehmensname}</Typography>
+        <Typography level='body-xs'>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
+        <Typography level='body-xs'>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
+        <Typography level='body-xs'>{unternehmen?.bankname}, IBAN: {unternehmen?.bankverbindung}, BIC: {unternehmen?.bic}</Typography>
+        <Typography level='body-xs'>{unternehmen?.handelsregisternummer}, Inhaber: {unternehmen?.inhaber},USt-ID-NR: {unternehmen?.umsatzsteuerId}, Steuer-Nr: {unternehmen?.steuernr}</Typography>
+      </Box>
 
+
+
+    )
+  }
 
 
 
@@ -167,6 +180,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
             }
           </tbody>
         </Table>
+        <Footer/>
       </Box>
 
 
