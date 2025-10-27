@@ -6,7 +6,6 @@ import FactoryIcon from '@mui/icons-material/Factory';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 import BrokenImageOutlinedIcon from '@mui/icons-material/BrokenImageOutlined';
 import Cropper from "react-easy-crop";
-import { Buffer } from 'buffer';
 const labelstyle = { color: "gray" }
 const boxlinestyle = { display: "flex", width: "auto", flexDirection: "row", gap: 2 }
 function Unternehmen() {
@@ -100,25 +99,39 @@ function Unternehmen() {
       cropPixels.height
     );
 
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), "image/png");
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) return reject(new Error("Failed to create blob from canvas"));
+        resolve(blob);
+      }, "image/png");
     });
   }
 
   const handleSave = async () => {
-    if (!imageSrc || !croppedAreaPixels) return;
+    if (!imageSrc || !croppedAreaPixels) {
+      alert("Please select and crop an image first");
+      return;
+    }
 
-    const blob = await getCroppedImage(imageSrc, croppedAreaPixels);
-    const arrayBuffer = await blob.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    try {
+      const blob = await getCroppedImage(imageSrc, croppedAreaPixels);
+      if (!blob) throw new Error("Cropped image blob is undefined");
 
+      const arrayBuffer = await blob.arrayBuffer();
+      const uint8 = new Uint8Array(arrayBuffer);
 
-    const savePath = "logo/logo.png";
-    const result = window.api.saveFile(buffer, savePath);
+      const savePath = "public/logo.png"; // adjust path as needed
 
+      const result = await window.api.saveFileToPath(uint8, savePath);
 
-    if (result.success) alert("Saved cropped image to: " + result.path);
-    else alert("Failed to save image: " + result.error);
+      if (result && result.success) {
+        alert("Logo wurde gespeichert: " + result.path);
+      } else {
+        alert("Fehler: " + (result?.error || "Unknown error"));
+      }
+    } catch (error) {
+      alert("Fehler: " + error.message);
+    }
   };
 
 

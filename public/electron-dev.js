@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
+const { pathToFileURL } = require('url');
 const fs = require('fs').promises;
 
 let win;
@@ -10,6 +11,8 @@ function createWindow() {
     height: 1080,
     minWidth: 1200,
     minHeight: 800,
+    contextIsolation: true, // keeps your renderer safe
+    nodeIntegration: false, // should stay false
     icon: path.join(__dirname, "icon.png"),
     title: "Rechnix",
     webPreferences: {
@@ -148,13 +151,20 @@ ipcMain.handle('dialog:saveFile', async () => {
   return result.canceled ? null : result.filePath;
 });
 
-ipcMain.handle('save-file-to-path', async (_, { content, filePath }) => {
+ipcMain.handle('save-file-to-path', async (event, { content, filePath }) => {
   try {
-   
-    fs.writeFileSync(filePath, content);
+    const buffer = Buffer.from(content);
+    await fs.writeFile(filePath, buffer); // asynchronous version
     return { success: true, path: filePath };
   } catch (err) {
     console.error('Error saving file:', err);
     return { success: false, error: err.message };
   }
+});
+//example logo/logo.png
+ipcMain.handle("get-path", async (event, relativePath) => {
+  const { pathToFileURL } = require('url');
+  const { join } = require('path');
+  const fullPath = join(__dirname, relativePath); // absolute path
+  return pathToFileURL(fullPath).href;          // return file:// URL
 });

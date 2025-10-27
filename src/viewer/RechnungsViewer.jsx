@@ -176,8 +176,9 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   function Head({ page, of }) {
     return (
       <>
-        <Box sx={{ width: '60%', minHeight: 0, mb: 2 }}>
-          <Typography level="h2">{unternehmen?.unternehmensname}</Typography>
+        <Box sx={{ width: '100%', minHeight: 0, mb: 2, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+          <Typography level="h2" sx={{ maxWidth: "60%" }}>{unternehmen?.unternehmensname}</Typography>
+          <img src={"/logo.png"} style={{ height: "150px", width: "auto" }}/>
         </Box>
         <Box sx={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", mb: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -203,12 +204,12 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   function Footer() {
     return (
       <Box sx={{ width: "100%", mt: 2 }}>
-        <Typography level="body-xs" sx={{fontSize: "8px"}} fontWeight="bold">{unternehmen?.unternehmensname}</Typography>
-        <Typography level='body-xs' sx={{fontSize: "8px"}}>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
-        <Typography level='body-xs' sx={{fontSize: "8px"}}>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
-        <Typography level='body-xs' sx={{fontSize: "8px"}}>{unternehmen?.bankname}, IBAN: {unternehmen?.bankverbindung}, BIC: {unternehmen?.bic}</Typography>
-        <Typography level='body-xs' sx={{fontSize: "8px"}}>{unternehmen?.handelsregisternummer}, Inhaber: {unternehmen?.inhaber}, USt-ID-NR: {unternehmen?.umsatzsteuerId}, Steuer-Nr: {unternehmen?.steuernr}</Typography>
-        <Typography level='body-xs' sx={{fontSize: "8px"}}>Zu zahlen innerhalb 14 Tagen nach Zustellung ohne Zuschläge</Typography>
+        <Typography level="body-xs" sx={{ fontSize: "8px" }} fontWeight="bold">{unternehmen?.unternehmensname}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "8px" }}>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "8px" }}>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "8px" }}>{unternehmen?.bankname}, IBAN: {unternehmen?.bankverbindung}, BIC: {unternehmen?.bic}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "8px" }}>{unternehmen?.handelsregisternummer}, Inhaber: {unternehmen?.inhaber}, USt-ID-NR: {unternehmen?.umsatzsteuerId}, Steuer-Nr: {unternehmen?.steuernr}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "8px" }}>Zu zahlen innerhalb 14 Tagen nach Zustellung ohne Zuschläge</Typography>
       </Box>
     )
   }
