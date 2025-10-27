@@ -76,53 +76,53 @@ function KundenViewer() {
     const u_R = await get_uRechnungen();
     set_uRechnungen(u_R);
   }
-  function onb(){
+  function onb() {
     navigate("/home/2/-1");
   }
   return (
     <Box>
-        <Headline back={true} onback={onb}>{kunde?.name}</Headline>
-        {anchor && (
+      <Headline back={true} onback={onb}>{kunde?.name}</Headline>
+      {anchor && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: anchor.mouseY,
+            left: anchor.mouseX,
+            bgcolor: "background.surface",
+            border: "1px solid",
+            borderColor: "divider",
+            borderRadius: "4px",
+            boxShadow: 3,
+            zIndex: 1300,
+            p: 1,
+          }}
+          onMouseLeave={handleClose}
+        >
           <Box
-            sx={{
-              position: "absolute",
-              top: anchor.mouseY,
-              left: anchor.mouseX,
-              bgcolor: "background.surface",
-              border: "1px solid",
-              borderColor: "divider",
-              borderRadius: "4px",
-              boxShadow: 3,
-              zIndex: 1300,
-              p: 1,
-            }}
-            onMouseLeave={handleClose}
+            sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
+            onClick={() => { alert("PDF Export"); handleClose(); }}
           >
-            <Box
-              sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
-              onClick={() => { alert("PDF Export"); handleClose(); }}
-            >
-              <IosShareOutlinedIcon fontSize="small" />
-              <Typography level="body-sm" sx={{ ml: 1 }}>Als PDF Exportieren</Typography>
-            </Box>
-            <Box
-              sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
-              onClick={() => { alert("E-Rechnung Export"); handleClose(); }}
-            >
-              <IosShareOutlinedIcon fontSize="small" />
-              <Typography level="body-sm" sx={{ ml: 1 }}>Als E-Rechnung Exportieren</Typography>
-            </Box>
-            <Box
-              sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
-              onClick={() => { change_pstatus(target.item); handleClose(); }}
-            >
-              {target?.payed ? <AccountBalanceWalletOutlinedIcon fontSize="small" /> : <DangerousOutlinedIcon fontSize="small" />}
-              <Typography level="body-sm" sx={{ ml: 1 }}>
-                Als {target?.payed ? "Bezahlt" : "Ausstehend"} kennzeichnen
-              </Typography>
-            </Box>
+            <IosShareOutlinedIcon fontSize="small" />
+            <Typography level="body-sm" sx={{ ml: 1 }}>Als PDF Exportieren</Typography>
           </Box>
-        )}
+          <Box
+            sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
+            onClick={() => { alert("E-Rechnung Export"); handleClose(); }}
+          >
+            <IosShareOutlinedIcon fontSize="small" />
+            <Typography level="body-sm" sx={{ ml: 1 }}>Als E-Rechnung Exportieren</Typography>
+          </Box>
+          <Box
+            sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
+            onClick={() => { change_pstatus(target.item); handleClose(); }}
+          >
+            {target?.payed ? <AccountBalanceWalletOutlinedIcon fontSize="small" /> : <DangerousOutlinedIcon fontSize="small" />}
+            <Typography level="body-sm" sx={{ ml: 1 }}>
+              Als {target?.payed ? "Bezahlt" : "Ausstehend"} kennzeichnen
+            </Typography>
+          </Box>
+        </Box>
+      )}
 
 
       <Box sx={{ width: "100%", height: "calc(100vh - 55px)", display: "flex", overflowY: "auto", flexDirection: "row" }}>
@@ -281,7 +281,12 @@ function KundenViewer() {
                     // Unbezahlte zuerst
                     if (isAUnpaid && !isBUnpaid) return -1;
                     if (!isAUnpaid && isBUnpaid) return 1;
-                    return 0; // beide gleich
+
+                    // Beide gleich, nach Datum absteigend
+                    const dateA = kunde?.rechnungsDatum?.[a] ? new Date(kunde.rechnungsDatum[a]) : new Date(0);
+                    const dateB = kunde?.rechnungsDatum?.[b] ? new Date(kunde.rechnungsDatum[b]) : new Date(0);
+
+                    return dateB - dateA;
                   }).map((item, index) => {
                     const payed = u_Rechnungen?.list
                       .filter((i) => i.id === id)  // compare strings
@@ -291,7 +296,7 @@ function KundenViewer() {
                         component="tr"
                         key={index}
                         onContextMenu={(e) => handleContextMenu(e, item, payed)}
-                        
+
                         sx={{
                           transition: 'background-color 0.2s',
                           '&:hover': {
@@ -299,7 +304,7 @@ function KundenViewer() {
                           },
                           cursor: "pointer"
                         }}
-                        onClick={() => navigate("/rechnung-viewer/" + id + "/" + item)}
+                        onClick={() => navigate("/home/" + 1 + "/" + item)}
                       >
 
                         <Box component="td" sx={{ padding: '12px 16px' }}>

@@ -12,6 +12,7 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import TableContainer from '@mui/material/TableContainer';
 import MaskProvider from '../MaskProvider';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
+import { useNavigate } from 'react-router-dom';
 function RechnungErstellen({ selUser }) {
 
   const [kathpath] = useState('kathegories/kathegories.rechnix');
@@ -106,15 +107,20 @@ function RechnungErstellen({ selUser }) {
       return { ...prev, positionen: updatedMap };
     });
   };
+  const navigate = useNavigate();
   const createRechnung = async () => {
-    const nRechnung = { ...rechnung, items: produkte };
 
+    const nRechnung = { ...rechnung, items: produkte };
+    if (!nRechnung.kundenId) {
+      return;
+    }
 
     const kunde = await getKunde(nRechnung.kundenId);
     const rnummer = await getNewRechnungsnummer();
     kunde.rechnungen.push(rnummer);
     await saveKunde(kunde, nRechnung.kundenId);
     await saveRechnung(nRechnung, rnummer);
+    navigate("/kunden-viewer/" + nRechnung.kundenId);
   }
   const [brutto, setbrutto] = useState(false);
   //bgcolor: 'background.level1',

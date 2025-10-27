@@ -4,126 +4,143 @@ import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import RechnungsViewer from '../../viewer/RechnungsViewer';
 import { handleLoadFile } from '../../Scripts/Filehandler';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
+
 function RechnungsViewerTab({ tabtoOpen }) {
-    const [tabs, setTabs] = useState(["R2025-9-29-7"]);
-    const [value, setvalue] = useState(0);
-    const [unternehmen, setUnternehmen] = useState();
-    useEffect(() => {
-        const itemstring = sessionStorage.getItem("R-Viewer-Tabs");
-        const item = JSON.parse(itemstring);
+  const [tabs, setTabs] = useState([]);
+  const [selectedTab, setSelectedTab] = useState(null);
+  const [unternehmen, setUnternehmen] = useState();
 
-        if (item) {
-            if (tabtoOpen && tabtoOpen != "-1") {
-                item.push(tabtoOpen);
-                sessionStorage.setItem("R-Viewer-Tabs", JSON.stringify(item));
-            }
-            setTabs(item);
-        } else if (tabtoOpen && tabtoOpen != "-1") {
-            sessionStorage.setItem("R-Viewer-Tabs", JSON.stringify([tabtoOpen]));
-            setTabs([tabtoOpen]);
-        }
-        const selected = sessionStorage.getItem("R-Viewer-Selected");
-        console.log(selected);
-        if (selected) {
-            setvalue(Number(selected));
-        }
+  useEffect(() => {
+    // Load tabs from sessionStorage
+    const storedTabs = sessionStorage.getItem("R-Viewer-Tabs");
+    let currentTabs = storedTabs ? JSON.parse(storedTabs) : [];
 
-        const fetch = async () => {
-            const jsonstring = await handleLoadFile("settings/unternehmen.rechnix");
-            const phrased = JSON.parse(jsonstring);
-            if (jsonstring === "{}") {
-                return;
-            }
-            setUnternehmen(phrased);
-        }
-        fetch();
-    }, []);
-    return (
-        <Tabs
-            orientation="horizontal"
-            variant="scrollable"
-            scrollButtons="auto"
+    // Add new tab if valid and not already present
+    if (tabtoOpen && tabtoOpen !== "-1" && !currentTabs.includes(tabtoOpen)) {
+      currentTabs.push(tabtoOpen);
+      sessionStorage.setItem("R-Viewer-Tabs", JSON.stringify(currentTabs));
+    }
+
+    setTabs(currentTabs);
+
+    // Determine selected tab
+    let selected;
+    if (tabtoOpen && tabtoOpen !== "-1") {
+      selected = tabtoOpen;
+    } else {
+      const storedSelected = sessionStorage.getItem("R-Viewer-Selected");
+      selected = storedSelected && currentTabs.includes(storedSelected) ? storedSelected : currentTabs[0] || null;
+    }
+    setSelectedTab(selected);
+
+    // Load company settings
+    const fetchUnternehmen = async () => {
+      const jsonstring = await handleLoadFile("settings/unternehmen.rechnix");
+      if (!jsonstring || jsonstring === "{}") return;
+      setUnternehmen(JSON.parse(jsonstring));
+    }
+    fetchUnternehmen();
+  }, [tabtoOpen]);
+
+  const handleTabChange = (e, newValue) => {
+    setSelectedTab(newValue);
+    sessionStorage.setItem("R-Viewer-Selected", newValue);
+  };
+
+  const handleCloseTab = (tab) => {
+    const newTabs = tabs.filter(t => t !== tab);
+    setTabs(newTabs);
+    sessionStorage.setItem("R-Viewer-Tabs", JSON.stringify(newTabs));
+
+    // Adjust selected tab if the closed one was active
+    if (selectedTab === tab) {
+      setSelectedTab(newTabs[0] || null);
+      sessionStorage.setItem("R-Viewer-Selected", newTabs[0] || "");
+    }
+  };
+
+  return (
+    <Tabs
+      orientation="horizontal"
+      variant="scrollable"
+      scrollButtons="auto"
+      value={selectedTab}
+      onChange={handleTabChange}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        bgcolor: "background.body",
+        "& .MuiTabs-indicator": { bgcolor: "primary.500", height: 3 },
+      }}
+    >
+      <TabList
+        variant="scrollable"
+        scrollButtons="auto"
+        sx={{
+          flexShrink: 0,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+          backgroundColor: "background.body",
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          overflowX: "auto",
+          overflowY: "hidden",
+          whiteSpace: "nowrap",
+          "&::-webkit-scrollbar": { height: 6 },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(0,0,0,0.3)",
+            borderRadius: 3,
+          },
+        }}
+      >
+        {tabs.map((tab) => (
+          <Tab
+            key={tab}
+            value={tab}
             sx={{
-                display: "flex",
-                flexDirection: "column",
-                height: "100vh",
-                bgcolor: "background.body",
-                "& .MuiTabs-indicator": { bgcolor: "primary.500", height: 3 },
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              textTransform: "none",
+              minWidth: 100,
+              px: 2,
+              py: 1,
+              minHeight: "5.1vh",
+              borderRadius: 2,
+              "&:hover": { bgcolor: "neutral.soft" },
+              "&.Mui-selected": { bgcolor: "primary.100", fontWeight: "bold" },
+              flex: "0 0 auto",
             }}
-            value={value}
-            onChange={(e, newV) => {
-                setvalue(newV);
-                sessionStorage.setItem("R-Viewer-Selected", newV);
-            }}
-        >
-            <TabList
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                flexShrink: 0,
-                borderBottom: "1px solid",
-                borderColor: "divider",
-                backgroundColor: "background.body",
-                position: "sticky",
-                top: 0,
-                zIndex: 10,
-                overflowX: "auto",
-                overflowY: "hidden",
-                whiteSpace: "nowrap",
-                "&::-webkit-scrollbar": { height: 6 },
-                "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "rgba(0,0,0,0.3)",
-                  borderRadius: 3,
-                },
-              }}
-            >
-              {tabs.map((item, index) => (
-                <Tab
-                  key={index}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.5,
-                    textTransform: "none",
-                    minWidth: 100,
-                    px: 2,
-                    py: 1,
-                    minHeight: "5.1vh",
-                    borderRadius: 2,
-                    "&:hover": { bgcolor: "neutral.soft" },
-                    "&.Mui-selected": { bgcolor: "primary.100", fontWeight: "bold" },
-                    flex: "0 0 auto",
-                  }}
-                >
-                  <ReceiptLongOutlinedIcon style={{ fontSize: 20 }} />
-                  <Typography sx={{ fontSize: "1rem", flexGrow: 1 }}>{item}</Typography>
-                  <Tooltip title="Schließen">
-                    <IconButton
-                      size="sm"
-                      color="danger"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const newTabs = tabs.filter((_, i) => i !== index);
-                        setTabs(newTabs);
-                        sessionStorage.setItem("R-Viewer-Tabs", JSON.stringify(newTabs));
-                      }}
-                    >
-                      <CancelOutlinedIcon style={{ fontSize: 18 }} />
-                    </IconButton>
-                  </Tooltip>
-                </Tab>
-              ))}
-            </TabList>
-            <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
-                {tabs.map((item, index) => (
-                    <TabPanel sx={{ p: 0 }} value={index}>
-                        <RechnungsViewer rechnung={item} unternehmen={unternehmen}/>
-                    </TabPanel>
-                ))}
-            </Box>
-        </Tabs>
-    )
+          >
+            <ReceiptLongOutlinedIcon style={{ fontSize: 20 }} />
+            <Typography sx={{ fontSize: "1rem", flexGrow: 1 }}>{tab}</Typography>
+            <Tooltip title="Schließen">
+              <IconButton
+                size="sm"
+                color="danger"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCloseTab(tab);
+                }}
+              >
+                <CancelOutlinedIcon style={{ fontSize: 18 }} />
+              </IconButton>
+            </Tooltip>
+          </Tab>
+        ))}
+      </TabList>
+
+      <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
+        {tabs.map((tab) => (
+          <TabPanel key={tab} value={tab} sx={{ p: 0 }}>
+            <RechnungsViewer rechnung={tab} unternehmen={unternehmen} />
+          </TabPanel>
+        ))}
+      </Box>
+    </Tabs>
+  );
 }
 
-export default RechnungsViewerTab
+export default RechnungsViewerTab;

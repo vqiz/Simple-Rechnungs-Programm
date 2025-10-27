@@ -1,10 +1,12 @@
 import { Alert, Avatar, Box, Button, Divider, FormControl, FormLabel, Input, Typography } from '@mui/joy'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Headline from '../Headline'
 import InfoCard from '../InfoCard'
 import FactoryIcon from '@mui/icons-material/Factory';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
-
+import BrokenImageOutlinedIcon from '@mui/icons-material/BrokenImageOutlined';
+import Cropper from "react-easy-crop";
+import { Buffer } from 'buffer';
 const labelstyle = { color: "gray" }
 const boxlinestyle = { display: "flex", width: "auto", flexDirection: "row", gap: 2 }
 function Unternehmen() {
@@ -56,6 +58,76 @@ function Unternehmen() {
     setchanges(false);
     setoldjson(formData);
   }
+
+  const [imageSrc, setImageSrc] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  // Load image from input
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setImageSrc(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  // Get cropped image blob
+  async function getCroppedImage(imageSrc, cropPixels) {
+    const image = new Image();
+    image.src = imageSrc;
+    await new Promise((resolve) => (image.onload = resolve));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = cropPixels.width;
+    canvas.height = cropPixels.height;
+    const ctx = canvas.getContext("2d");
+
+    ctx.drawImage(
+      image,
+      cropPixels.x,
+      cropPixels.y,
+      cropPixels.width,
+      cropPixels.height,
+      0,
+      0,
+      cropPixels.width,
+      cropPixels.height
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), "image/png");
+    });
+  }
+
+  const handleSave = async () => {
+    if (!imageSrc || !croppedAreaPixels) return;
+
+    const blob = await getCroppedImage(imageSrc, croppedAreaPixels);
+    const arrayBuffer = await blob.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+
+    const savePath = "logo/logo.png";
+    const result = window.api.saveFile(buffer, savePath);
+
+
+    if (result.success) alert("Saved cropped image to: " + result.path);
+    else alert("Failed to save image: " + result.error);
+  };
+
+
+
+
+
+
+
+
   return (
     <Box
       sx={{
@@ -249,7 +321,7 @@ function Unternehmen() {
         <Box sx={boxlinestyle}>
           <FormControl sx={{ width: "50%" }}>
             <FormLabel sx={labelstyle}>Handelsregisternummer</FormLabel>
-            
+
             <Input
               placeholder='HRA 12345'
               value={formData.handelsregisternummer}
@@ -284,7 +356,47 @@ function Unternehmen() {
           </FormControl>
         </Box>
       </Box>
-
+      <Typography sx={{ color: "gray", ml: 2 }}>Logo</Typography>
+      <Divider orientation="horizontal" />
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2, mb: 15 }}>
+        <FormControl>
+          <FormLabel>Logo Datei in 64px x 64px</FormLabel>
+          <div style={{ padding: "20px" }}>
+            <input type="file" accept="image/*" onChange={handleFileChange} />
+            <div
+              style={{
+                position: "relative",
+                width: 400,
+                height: 400,
+                marginTop: 20,
+                background: "#333",
+              }}
+            >
+              {imageSrc && (
+                <Cropper
+                  image={imageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1} // 1:1 square
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+              )}
+            </div>
+            <button
+              onClick={handleSave}
+              style={{
+                marginTop: "20px",
+                padding: "10px 20px",
+                fontSize: "16px",
+              }}
+            >
+              Save Cropped Area
+            </button>
+          </div>
+        </FormControl>
+      </Box>
     </Box>
 
   )

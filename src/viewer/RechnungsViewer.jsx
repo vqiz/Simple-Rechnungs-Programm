@@ -1,114 +1,231 @@
+
+import React, { useEffect, useState, useRef } from 'react';
 import { Box, IconButton, Table, Tooltip, Typography } from '@mui/joy';
-import React, { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import Headline from '../components/Headline';
-import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
+import { useNavigate } from 'react-router-dom';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
-import LocalPrintshopOutlinedIcon from '@mui/icons-material/LocalPrintshopOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
+import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
+import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import { getKunde, handleLoadFile } from '../Scripts/Filehandler';
+import html2pdf from 'html2pdf.js';
+
+// A4: 210mm x 297mm
+const A4_WIDTH_MM = 210;
+const A4_HEIGHT_MM = 297;
+const PAGE_PADDING_MM = 15; // padding on all sides
+const TABLE_ROW_HEIGHT_MM = 10; // estimated row height
+const HEADER_HEIGHT_MM = 45; // estimated header height
+const FOOTER_HEIGHT_MM = 35; // estimated footer height
+const ROWS_PER_PAGE = 6;
+
+function formatPrice(value) {
+  return Number(value).toFixed(2) + '€';
+}
+
 function RechnungsViewer({ rechnung, unternehmen }) {
-  const [data, setData] = useState();
-  const [kunde, setkunde] = useState();
+  const [data, setData] = useState(null);
+  const [kunde, setKunde] = useState(null);
+  const navigate = useNavigate();
+  const pdfRef = useRef();
+
   useEffect(() => {
-    const fetchdata = async () => {
+    const fetchData = async () => {
       const jsonstring = await handleLoadFile("rechnungen/" + rechnung);
       const json = JSON.parse(jsonstring);
       setData(json);
-    }
-    fetchdata();
-  }, []);
+    };
+    fetchData();
+  }, [rechnung]);
 
   useEffect(() => {
-    if (!data) {
-      return;
-    }
-    const fetchkunde = async () => {
+    if (!data) return;
+    const fetchKunde = async () => {
       const k = await getKunde(data.kundenId);
-      setkunde(k);
-    }
-    fetchkunde();
+      setKunde(k);
+    };
+    fetchKunde();
   }, [data]);
+
+  // Helper to get invoice date from filename
+  function getInvoiceDate() {
+    const parts = rechnung.split("-");
+    if (parts.length >= 4) {
+      const jahr = parts[0].substring(1);
+      const monat = parts[1];
+      const tag = parts[2];
+      return `${tag}.${monat}.${jahr}`;
+    }
+    return rechnung;
+  }
+
+  // Calculate all positions as array for easier splitting
+  function getPositions() {
+    if (!data?.positionen || !data?.items?.list) return [];
+    return Object.entries(data.positionen).map(([key, amount]) => {
+      const [category, itemName] = key.split("_");
+      const item = data.items.list.find(i => i.name === category);
+      const found = item?.content.find(i => i.name === itemName);
+      const price = found?.price ?? 0;
+      return {
+        key,
+        category,
+        itemName,
+        amount,
+        price,
+        total: amount * price,
+      };
+    });
+  }
+
+  // Split positions into pages based on available rows per page
+  function splitIntoPages(positions, rowsPerPage) {
+    const pages = [];
+    for (let i = 0; i < positions.length; i += rowsPerPage) {
+      pages.push(positions.slice(i, i + rowsPerPage));
+    }
+    return pages;
+  }
+
+  // Calculate running totals for Übertrag and Summe
+  function runningTotals(positions) {
+    const totals = [];
+    let sum = 0;
+    for (let i = 0; i < positions.length; ++i) {
+      sum += positions[i].total;
+      totals.push(sum);
+    }
+    return totals;
+  }
+
+  // PDF Export
+  const handleExportPDF = () => {
+    if (!pdfRef.current) return;
+    const element = pdfRef.current;
+
+    const opt = {
+      margin: [0, 0, 0, 0],
+      filename: `${rechnung}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: [A4_WIDTH_MM, A4_HEIGHT_MM], orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] },
+    };
+
+    html2pdf()
+      .set(opt)
+      .from(element)
+      .toPdf()
+      .get('pdf')
+      .then((pdf) => {
+        const totalPages = pdf.internal.getNumberOfPages();
+        // Delete even-numbered pages starting from the last to avoid shifting
+        for (let i = totalPages; i >= 2; i -= 2) {
+          pdf.deletePage(i);
+        }
+        pdf.save(`${rechnung}.pdf`);
+      });
+  };
+  const handlePrintPDF = () => {
+    if (!pdfRef.current) return;
+    const element = pdfRef.current;
+
+    const opt = {
+      margin: [0, 0, 0, 0],
+      filename: `${rechnung}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: [A4_WIDTH_MM, A4_HEIGHT_MM], orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] },
+    };
+
+    html2pdf()
+      .set(opt)
+      .from(element)
+      .toPdf()
+      .get('pdf')
+      .then((pdf) => {
+        const totalPages = pdf.internal.getNumberOfPages();
+        // Delete even-numbered pages starting from the last to avoid shifting
+        for (let i = totalPages; i >= 2; i -= 2) {
+          pdf.deletePage(i);
+        }
+        pdf.autoPrint();             // print
+        window.open(pdf.output('bloburl'), '_blank');
+      });
+  };
+  // Sidebar button definitions
+  const sidebarButtons = [
+    { icon: <PersonOutlinedIcon />, label: "zum Kunden", click: () => { if (data?.kundenId) navigate("/kunden-viewer/" + data.kundenId); } },
+    { icon: <PictureAsPdfOutlinedIcon />, label: "Als PDF exportieren", click: handleExportPDF },
+    { icon: <PrintOutlinedIcon />, label: "Drucken", click: () => handlePrintPDF() },
+    { icon: <SendOutlinedIcon />, label: "Als E-Rechnung exportieren" },
+    { icon: <DeleteOutlineOutlinedIcon />, label: "Löschen", color: 'danger' },
+  ];
+
+  // Table columns
+  const columns = [
+    { key: 'position', label: 'Position', style: { width: '10%', textAlign: 'center' } },
+    { key: 'bezeichnung', label: 'Bezeichnung', style: { width: '40%', textAlign: 'left' } },
+    { key: 'menge', label: 'Menge', style: { width: '15%', textAlign: 'center' } },
+    { key: 'einzelpreis', label: 'Einzelpreis', style: { width: '15%', textAlign: 'right' } },
+    { key: 'gesamt', label: 'Gesamt', style: { width: '20%', textAlign: 'right' } },
+  ];
+
+  // Head component
   function Head({ page, of }) {
     return (
       <>
-        <Box sx={{ width: 450, minHeight: 45, mb: 14 }}>
+        <Box sx={{ width: '60%', minHeight: 0, mb: 2 }}>
           <Typography level="h2">{unternehmen?.unternehmensname}</Typography>
         </Box>
-        <Box sx={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", mb: 15 }}>
+        <Box sx={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", mb: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography level='body-md'>Herr/Frau</Typography>
-            <Typography level="body-md">{kunde?.name}</Typography>
-            <Typography level="body-md">{kunde?.street} {kunde?.number}</Typography>
-            <Typography level='body-md'><br></br></Typography>
-            <Typography level='body-md'>{kunde?.plz} {kunde?.ort}</Typography>
+            <Typography level='body-xs'>Herr/Frau</Typography>
+            <Typography level="body-xs">{kunde?.name}</Typography>
+            <Typography level="body-xs">{kunde?.street} {kunde?.number}</Typography>
+            <Typography level='body-xs'><br /></Typography>
+            <Typography level='body-xs'>{kunde?.plz} {kunde?.ort}</Typography>
           </Box>
-          <Box sx={{ display: "flex", flexDirection: "column", minWidth: 250 }}>
-            <Typography level='title-md'>Rechnung</Typography>
-            <Typography level='body-md'>Rechnungs-Nr: {rechnung.split("-")[3]}</Typography>
-            <Typography level='body-md'>Kunden-Nr: {data?.kundenId}</Typography>
-            <Typography level='body-md'>  Ausstellungsdatum: {(() => {
-              const parts = rechnung.split("-");
-              if (parts.length >= 4) {
-                const jahr = parts[0].substring(1);
-                const monat = parts[1];
-                const tag = parts[2];
-                return `${tag}.${monat}.${jahr}`;
-              }
-              return rechnung;
-            })()}</Typography>
-            <Typography level='body-md'>Seite {page} von {of} </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", minWidth: 120 }}>
+            <Typography level='title-sm'>Rechnung</Typography>
+            <Typography level='body-xs'>Rechnungs-Nr: {rechnung.split("-")[3]}</Typography>
+            <Typography level='body-xs'>Kunden-Nr: {data?.kundenId}</Typography>
+            <Typography level='body-xs'>Ausstellungsdatum: {getInvoiceDate()}</Typography>
+            <Typography level='body-xs'>Seite {page} von {of}</Typography>
           </Box>
         </Box>
-
       </>
     );
   }
+
+  // Footer component
   function Footer() {
     return (
-      <Box sx={{ width: "100%", mt: 20 }}>
-        <Typography level="body-xs" fontWeight={"bold"}>{unternehmen?.unternehmensname}</Typography>
-        <Typography level='body-xs'>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
-        <Typography level='body-xs'>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
-        <Typography level='body-xs'>{unternehmen?.bankname}, IBAN: {unternehmen?.bankverbindung}, BIC: {unternehmen?.bic}</Typography>
-        <Typography level='body-xs'>{unternehmen?.handelsregisternummer}, Inhaber: {unternehmen?.inhaber},USt-ID-NR: {unternehmen?.umsatzsteuerId}, Steuer-Nr: {unternehmen?.steuernr}</Typography>
+      <Box sx={{ width: "100%", mt: 2 }}>
+        <Typography level="body-xs" sx={{fontSize: "8px"}} fontWeight="bold">{unternehmen?.unternehmensname}</Typography>
+        <Typography level='body-xs' sx={{fontSize: "8px"}}>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
+        <Typography level='body-xs' sx={{fontSize: "8px"}}>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
+        <Typography level='body-xs' sx={{fontSize: "8px"}}>{unternehmen?.bankname}, IBAN: {unternehmen?.bankverbindung}, BIC: {unternehmen?.bic}</Typography>
+        <Typography level='body-xs' sx={{fontSize: "8px"}}>{unternehmen?.handelsregisternummer}, Inhaber: {unternehmen?.inhaber}, USt-ID-NR: {unternehmen?.umsatzsteuerId}, Steuer-Nr: {unternehmen?.steuernr}</Typography>
+        <Typography level='body-xs' sx={{fontSize: "8px"}}>Zu zahlen innerhalb 14 Tagen nach Zustellung ohne Zuschläge</Typography>
       </Box>
-
-
-
     )
   }
 
-  function SummeGesammt() {
-    let i = 0;
-    Array.from(Object.entries(data?.positionen)).map(([key, value]) => {
-      const [category, itemName] = key.split("_");
-      const amount = value;
-      const item = data?.items?.list?.find(i => i.name === category);
-      const price = item?.content.find((i) => i.name == itemName).price;
-      const total = amount * price;
-      i = i + total;
-
-    })
-    return i;
-  }
-  function SummeSlice(s) {
-    let i = 0;
-    Array.from(Object.entries(data?.positionen)).slice(0,s).map(([key, value]) => {
-      const [category, itemName] = key.split("_");
-      const amount = value;
-      const item = data?.items?.list?.find(i => i.name === category);
-      const price = item?.content.find((i) => i.name == itemName).price;
-      const total = amount * price;
-      i = i + total;
-
-    })
-    return i;
+  // Render all pages
+  let pages = [];
+  let runningTotalList = [];
+  if (data) {
+    const positions = getPositions();
+    const rowsPerPage = ROWS_PER_PAGE;
+    pages = splitIntoPages(positions, rowsPerPage);
+    runningTotalList = runningTotals(positions);
   }
 
   return (
-    <Box sx={{ width: "100%", minHeight: "100vh" }}>
+    <Box sx={{ width: "100%", minHeight: "100vh", pb: 6, background: "#f7f7f7" }}>
+      {/* Sidebar Buttons */}
       <Box
         sx={{
           position: "fixed",
@@ -125,32 +242,17 @@ function RechnungsViewer({ rechnung, unternehmen }) {
           paddingY: 2,
           gap: 1.5,
           zIndex: 20,
-          "&:hover": {
-            boxShadow: "0 12px 24px rgba(0,0,0,0.25)",
-            transition: "box-shadow 0.3s ease",
-          },
+          "&:hover": { boxShadow: "0 12px 24px rgba(0,0,0,0.25)", transition: "box-shadow 0.3s ease" },
         }}
       >
-        {[
-          { icon: <PersonOutlinedIcon />, label: "zum Kunden" },
-          { icon: <IosShareOutlinedIcon />, label: "Als PDF exportieren" },
-          { icon: <IosShareOutlinedIcon />, label: "Als E-Rechnung exportieren" },
-          { icon: <LocalPrintshopOutlinedIcon />, label: "Drucken" },
-          { icon: <DeleteOutlineOutlinedIcon />, label: "Löschen", color: 'danger' },
-        ].map((item, index) => (
-          <Tooltip key={index} title={item.label} placement="left">
+        {sidebarButtons.map((item, idx) => (
+          <Tooltip key={idx} title={item.label} placement="left">
             <IconButton
               variant="soft"
               color={item.color}
               size="lg"
-              sx={{
-                borderRadius: "12px",
-                transition: "all 0.2s ease",
-                "&:hover": {
-                  transform: "scale(1.1)",
-
-                },
-              }}
+              onClick={item.click}
+              sx={{ borderRadius: "12px", transition: "all 0.2s ease", "&:hover": { transform: "scale(1.1)" } }}
             >
               {item.icon}
             </IconButton>
@@ -158,103 +260,102 @@ function RechnungsViewer({ rechnung, unternehmen }) {
         ))}
       </Box>
 
-      {
-        data && Array.from({ length: Math.ceil(Object.keys(data?.positionen).length / 6) }).map((_, p) => {
+      {/* Invoice Pages */}
+      {data && (
+        <Box ref={pdfRef}>
+          {pages.map((pageRows, pIdx) => {
+            const pageCount = pages.length;
+            const currentPage = pIdx + 1;
+            const pageStartIndex = pIdx * ROWS_PER_PAGE;
+            // Übertrag is the running total up to the last row of this page
+            const uebertrag = runningTotalList[pageStartIndex + pageRows.length - 1];
+            const prevUebertrag = pageStartIndex === 0 ? 0 : runningTotalList[pageStartIndex - 1];
+            const isLastPage = currentPage === pageCount;
+            const summeGesamt = runningTotalList[runningTotalList.length - 1] || 0;
+            return (
+              <Box
+                key={pIdx}
+                sx={{
+                  width: `${A4_WIDTH_MM}mm`,
+                  minHeight: `${A4_HEIGHT_MM}mm`,
+                  maxWidth: `${A4_WIDTH_MM}mm`,
+                  margin: '20px auto',
+                  background: "#fff",
+                  borderRadius: "6px",
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+                  padding: `${PAGE_PADDING_MM}mm`,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  pageBreakAfter: isLastPage ? 'auto' : 'always',
+                  boxSizing: "border-box",
+                  overflow: "visible"
+                }}
+              >
+                <Head page={currentPage} of={pageCount} />
+                <Table
+                  size='sm'
+                  sx={{
+                    bgcolor: "white",
+                    borderRadius: "10px",
 
-          const maxpages = Math.ceil(Object.keys(data?.positionen).length / 6);
-          const currentpage = p + 1;
-          const positionsArray = Array.from(Object.entries(data?.positionen));
-          const startIndex = p * 6;
-          const endIndex = startIndex + 6;
-          return (
-            <Box
-              sx={{
-                width: 794,
-                height: 1123,
-                border: 'none',
-                boxShadow: '0 8px 16px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.1)',
-                overflow: 'hidden',
-                padding: 6,
-                margin: '20px auto',
-                backgroundColor: '#fff',
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <Head page={currentpage} of={maxpages} />
-              <Table sx={{ bgcolor: "white", borderRadius: "15px", fontWeight: "bold" }}>
-                <thead>
-                  <tr>
-                    <th>Bezeichnung</th>
-                    <th>Menge</th>
-                    <th>Einzelpreiß</th>
-                    <th>Gesammt</th>
-                  </tr>
+                    borderCollapse: 'collapse',
+                    width: '100%',
+                    tableLayout: 'fixed',
 
-                </thead>
-                <tbody>
-                  {data?.positionen &&
-                    positionsArray.slice(startIndex, endIndex).map(([key, value]) => {
-                      const [category, itemName] = key.split("_");
-                      const amount = value;
-                      const item = data?.items?.list?.find(i => i.name === category);
-                      const price = item?.content.find((i) => i.name == itemName).price;
-                      const total = amount * price;
-
-                      return (
-                        <tr key={key}>
-                          <td>{itemName}</td>
-                          <td>{amount}x</td>
-                          <td>{price}€</td>
-                          <td>{total}€</td>
-                        </tr>
-                      );
-                    })
-                  }
-                  {
-                    currentpage == maxpages && (
-                      <tr key={"res"}>
-                        <td>Summe</td>
-                        <td></td>
-                        <td></td>
-                        <td>{SummeGesammt()}€</td>
+                  }}
+                >
+                  <thead>
+                    <tr>
+                      {columns.map(col => (
+                        <th
+                          key={col.key}
+                          style={{
+                            ...col.style,
+                            borderBottom: '2px solid #000',
+                            padding: '3mm 2mm',
+                            fontWeight: 700,
+                            fontSize: '1em',
+                            background: "#f7f7fa"
+                          }}
+                        >
+                          {col.label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageRows.map((row, idx) => (
+                      <tr key={row.key} style={{ borderBottom: '1px solid #e0e0e0', background: idx % 2 === 0 ? "#fff" : "#fafbfc" }}>
+                        <td style={{ ...columns[0].style, padding: '2mm', fontWeight: 500 }}>{pageStartIndex + idx + 1}</td>
+                        <td style={{ ...columns[1].style, padding: '2mm' }}>{row.itemName}</td>
+                        <td style={{ ...columns[2].style, padding: '2mm' }}>{row.amount}x</td>
+                        <td style={{ ...columns[3].style, padding: '2mm' }}>{formatPrice(row.price)}</td>
+                        <td style={{ ...columns[4].style, padding: '2mm' }}>{formatPrice(row.total)}</td>
                       </tr>
-                    )
-                  }
-                  {
-                    currentpage !== maxpages && (
-                      <tr key={"übertrag" + p}>
-                        <td>Übertrag</td>
-                        <td></td>
-                        <td></td>
-                        <td>{SummeSlice(endIndex)}€</td>
-                      </tr>
-                    )
-
-                  }
-                </tbody>
-              </Table>
-              <Footer />
-            </Box>
-
-          )
-
-
-        }
-
-
-
-        )
-      }
-
-
-
-
-
-
+                    ))}
+                    <tr>
+                      <td colSpan={3}></td>
+                      <td style={{ fontWeight: 'bold', padding: '2mm', textAlign: 'right' }}>
+                        {isLastPage ? "Summe" : "Übertrag"}
+                      </td>
+                      <td style={{ fontWeight: 'bold', padding: '2mm', textAlign: 'right' }}>
+                        {isLastPage
+                          ? formatPrice(summeGesamt)
+                          : formatPrice(uebertrag)
+                        }
+                      </td>
+                    </tr>
+                  </tbody>
+                </Table>
+                <Footer />
+              </Box>
+            )
+          })}
+        </Box>
+      )}
     </Box>
-  )
+  );
 }
 
-export default RechnungsViewer
+export default RechnungsViewer;

@@ -147,3 +147,14 @@ ipcMain.handle('dialog:saveFile', async () => {
   const result = await dialog.showSaveDialog({});
   return result.canceled ? null : result.filePath;
 });
+
+ipcMain.handle('save-file-to-path', async (_, { content, filePath }) => {
+  try {
+   
+    fs.writeFileSync(filePath, content);
+    return { success: true, path: filePath };
+  } catch (err) {
+    console.error('Error saving file:', err);
+    return { success: false, error: err.message };
+  }
+});
