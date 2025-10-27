@@ -67,7 +67,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   }
   function Footer() {
     return (
-      <Box sx={{height: "150px", width: "100%", mt: 25}}>
+      <Box sx={{ width: "100%", mt: 20 }}>
         <Typography level="body-xs" fontWeight={"bold"}>{unternehmen?.unternehmensname}</Typography>
         <Typography level='body-xs'>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
         <Typography level='body-xs'>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
@@ -80,7 +80,32 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     )
   }
 
+  function SummeGesammt() {
+    let i = 0;
+    Array.from(Object.entries(data?.positionen)).map(([key, value]) => {
+      const [category, itemName] = key.split("_");
+      const amount = value;
+      const item = data?.items?.list?.find(i => i.name === category);
+      const price = item?.content.find((i) => i.name == itemName).price;
+      const total = amount * price;
+      i = i + total;
 
+    })
+    return i;
+  }
+  function SummeSlice(s) {
+    let i = 0;
+    Array.from(Object.entries(data?.positionen)).slice(0,s).map(([key, value]) => {
+      const [category, itemName] = key.split("_");
+      const amount = value;
+      const item = data?.items?.list?.find(i => i.name === category);
+      const price = item?.content.find((i) => i.name == itemName).price;
+      const total = amount * price;
+      i = i + total;
+
+    })
+    return i;
+  }
 
   return (
     <Box sx={{ width: "100%", minHeight: "100vh" }}>
@@ -133,55 +158,96 @@ function RechnungsViewer({ rechnung, unternehmen }) {
         ))}
       </Box>
 
+      {
+        data && Array.from({ length: Math.ceil(Object.keys(data?.positionen).length / 6) }).map((_, p) => {
 
-      <Box
-        sx={{
-          width: 794,
-          height: 1123,
-          border: 'none',
-          boxShadow: '0 8px 16px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.1)',
-          overflow: 'auto',
-          padding: 6,
-          margin: '20px auto',
-          backgroundColor: '#fff',
-          flexDirection: "column",
-          display: "flex",
-        }}
-      >
-        <Head page={1} of={2} />
-        <Table sx={{ bgcolor: "white", borderRadius: "15px", fontWeight: "bold" }}>
-          <thead>
-            <tr>
-              <th>Position</th>
-              <th>Menge</th>
-              <th>Einzelpreiß</th>
-              <th>Gesammt</th>
-            </tr>
-
-          </thead>
-          <tbody>
-            {data?.positionen &&
-              Array.from(Object.entries(data.positionen)).map(([key, value]) => {
-                const [category, itemName] = key.split("_");
-                const amount = value;
-                const item = data?.items?.list?.find(i => i.name === category);
-                const price = item?.content.find((i) => i.name == itemName).price;
-                const total = amount * price;
-
-                return (
-                  <tr key={key}>
-                    <td>{itemName}</td>
-                    <td>{amount}x</td>
-                    <td>{price}€</td>
-                    <td>{total}€</td>
+          const maxpages = Math.ceil(Object.keys(data?.positionen).length / 6);
+          const currentpage = p + 1;
+          const positionsArray = Array.from(Object.entries(data?.positionen));
+          const startIndex = p * 6;
+          const endIndex = startIndex + 6;
+          return (
+            <Box
+              sx={{
+                width: 794,
+                height: 1123,
+                border: 'none',
+                boxShadow: '0 8px 16px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.1)',
+                overflow: 'hidden',
+                padding: 6,
+                margin: '20px auto',
+                backgroundColor: '#fff',
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Head page={currentpage} of={maxpages} />
+              <Table sx={{ bgcolor: "white", borderRadius: "15px", fontWeight: "bold" }}>
+                <thead>
+                  <tr>
+                    <th>Bezeichnung</th>
+                    <th>Menge</th>
+                    <th>Einzelpreiß</th>
+                    <th>Gesammt</th>
                   </tr>
-                );
-              })
-            }
-          </tbody>
-        </Table>
-        <Footer/>
-      </Box>
+
+                </thead>
+                <tbody>
+                  {data?.positionen &&
+                    positionsArray.slice(startIndex, endIndex).map(([key, value]) => {
+                      const [category, itemName] = key.split("_");
+                      const amount = value;
+                      const item = data?.items?.list?.find(i => i.name === category);
+                      const price = item?.content.find((i) => i.name == itemName).price;
+                      const total = amount * price;
+
+                      return (
+                        <tr key={key}>
+                          <td>{itemName}</td>
+                          <td>{amount}x</td>
+                          <td>{price}€</td>
+                          <td>{total}€</td>
+                        </tr>
+                      );
+                    })
+                  }
+                  {
+                    currentpage == maxpages && (
+                      <tr key={"res"}>
+                        <td>Summe</td>
+                        <td></td>
+                        <td></td>
+                        <td>{SummeGesammt()}€</td>
+                      </tr>
+                    )
+                  }
+                  {
+                    currentpage !== maxpages && (
+                      <tr key={"übertrag" + p}>
+                        <td>Übertrag</td>
+                        <td></td>
+                        <td></td>
+                        <td>{SummeSlice(endIndex)}€</td>
+                      </tr>
+                    )
+
+                  }
+                </tbody>
+              </Table>
+              <Footer />
+            </Box>
+
+          )
+
+
+        }
+
+
+
+        )
+      }
+
 
 
 

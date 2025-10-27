@@ -6,7 +6,7 @@ import RechnungsViewer from '../../viewer/RechnungsViewer';
 import { handleLoadFile } from '../../Scripts/Filehandler';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 function RechnungsViewerTab({ tabtoOpen }) {
-    const [tabs, setTabs] = useState(["R2025-9-29-7", "aaa", "bbb", "ccc", "ddd", "eee", "fff", "hhh", "iii", "jjj"]);
+    const [tabs, setTabs] = useState(["R2025-9-29-7"]);
     const [value, setvalue] = useState(0);
     const [unternehmen, setUnternehmen] = useState();
     useEffect(() => {
