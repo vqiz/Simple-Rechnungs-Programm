@@ -120,7 +120,11 @@ function RechnungErstellen({ selUser }) {
     kunde.rechnungen.push(rnummer);
     await saveKunde(kunde, nRechnung.kundenId);
     await saveRechnung(nRechnung, rnummer);
-    navigate("/kunden-viewer/" + nRechnung.kundenId);
+
+    setTimeout(() => {
+      navigate("/home/" + 1 + "/" + rnummer);
+    }, 20);
+    navigate("/reload", { replace: true });
   }
   const [brutto, setbrutto] = useState(false);
   //bgcolor: 'background.level1',
@@ -628,7 +632,7 @@ function RechnungErstellen({ selUser }) {
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
                 <Typography level="title-lg" fontWeight="xl">Netto</Typography>
-                <Switch onChange={(e) => setbrutto(e.target.checked)} checked={brutto} />
+                <Switch onChange={(e) => setbrutto(!e.target.checked)} checked={!brutto} />
                 <Typography level="title-lg" fontWeight="xl">Brutto</Typography>
               </Box>
             </Box>

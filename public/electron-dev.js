@@ -139,6 +139,16 @@ ipcMain.handle('write-file', async (_, filePath, content) => {
   }
 });
 
+ipcMain.handle('delete-file', async (_, filePath) => {
+  try {
+    await fs.unlink(filePath);
+    return { success: true };
+  } catch (err) {
+    console.error("Fehler beim Löschen der Datei:", err);
+    return { success: false, error: err.message };
+  }
+});
+
 ipcMain.handle('dialog:openFile', async () => {
   const result = await dialog.showOpenDialog({
     properties: ['openFile'],

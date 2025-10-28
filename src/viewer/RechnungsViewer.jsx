@@ -9,6 +9,7 @@ import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import { getKunde, handleLoadFile } from '../Scripts/Filehandler';
 import html2pdf from 'html2pdf.js';
+import ForwardToInboxOutlinedIcon from '@mui/icons-material/ForwardToInboxOutlined';
 
 // A4: 210mm x 297mm
 const A4_WIDTH_MM = 210;
@@ -160,6 +161,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     { icon: <PictureAsPdfOutlinedIcon />, label: "Als PDF exportieren", click: handleExportPDF },
     { icon: <PrintOutlinedIcon />, label: "Drucken", click: () => handlePrintPDF() },
     { icon: <SendOutlinedIcon />, label: "Als E-Rechnung exportieren" },
+    { icon: <ForwardToInboxOutlinedIcon/>, label: "Per Email weiterverschicken"},
     { icon: <DeleteOutlineOutlinedIcon />, label: "Löschen", color: 'danger' },
   ];
 
@@ -177,8 +179,14 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     return (
       <>
         <Box sx={{ width: '100%', minHeight: 0, mb: 2, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-          <Typography level="h2" sx={{ maxWidth: "60%" }}>{unternehmen?.unternehmensname}</Typography>
-          <img src={"/logo.png"} style={{ height: "150px", width: "auto" }}/>
+          <Typography level="h2" sx={{ maxWidth: "60%" }}>{unternehmen?.unternehmensname}</Typography>          
+            <img
+              src={"/logo.png"}
+              alt="Logo"
+              style={{ height: "150px", width: "auto" }}
+              onError={(e) => (e.target.style.display = 'none')}
+            />
+          
         </Box>
         <Box sx={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", mb: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column" }}>

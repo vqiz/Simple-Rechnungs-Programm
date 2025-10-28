@@ -9,4 +9,5 @@ contextBridge.exposeInMainWorld('api', {
   saveFileToPath: (content, filePath) =>
     ipcRenderer.invoke('save-file-to-path', { content, filePath }),
   getpath: (path) => ipcRenderer.invoke("get-path", path),
+  delFile: (path) => ipcRenderer.invoke("delete-file", path),
 });

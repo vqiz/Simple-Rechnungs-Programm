@@ -62,6 +62,7 @@ function Unternehmen() {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [showcrop, setShowCrop] = useState(false);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -125,7 +126,8 @@ function Unternehmen() {
       const result = await window.api.saveFileToPath(uint8, savePath);
 
       if (result && result.success) {
-        alert("Logo wurde gespeichert: " + result.path);
+        alert("Logo wurde gespeichert");
+        setShowCrop(false);
       } else {
         alert("Fehler: " + (result?.error || "Unknown error"));
       }
@@ -372,43 +374,56 @@ function Unternehmen() {
       <Typography sx={{ color: "gray", ml: 2 }}>Logo</Typography>
       <Divider orientation="horizontal" />
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2, mb: 15 }}>
-        <FormControl>
-          <FormLabel>Logo Datei in 64px x 64px</FormLabel>
-          <div style={{ padding: "20px" }}>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-            <div
-              style={{
-                position: "relative",
-                width: 400,
-                height: 400,
-                marginTop: 20,
-                background: "#333",
-              }}
-            >
-              {imageSrc && (
-                <Cropper
-                  image={imageSrc}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={1} // 1:1 square
-                  onCropChange={setCrop}
-                  onZoomChange={setZoom}
-                  onCropComplete={onCropComplete}
-                />
-              )}
-            </div>
-            <button
-              onClick={handleSave}
-              style={{
-                marginTop: "20px",
-                padding: "10px 20px",
-                fontSize: "16px",
-              }}
-            >
-              Save Cropped Area
-            </button>
-          </div>
-        </FormControl>
+        {
+          showcrop ? (
+            <FormControl>
+              <div style={{ padding: "20px" }}>
+                <input type="file" accept="image/*" onChange={handleFileChange} />
+                <div
+                  style={{
+                    position: "relative",
+                    width: 400,
+                    height: 400,
+                    marginTop: 20,
+
+                  }}
+                >
+                  {imageSrc && (
+                    <Cropper
+                      image={imageSrc}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={1} // 1:1 square
+                      onCropChange={setCrop}
+                      onZoomChange={setZoom}
+                      onCropComplete={onCropComplete}
+                    />
+                  )}
+                </div>
+                {
+                  imageSrc && (
+                    <Button
+                      onClick={handleSave}
+                      sx={{ mt: 4 }}
+                    >
+                      Logo speichern
+                    </Button>
+                  )
+                }
+              </div>
+            </FormControl>
+
+          ) : (
+            <>
+            <Button onClick={() => setShowCrop(true)} sx={{width: "10%"}}>Logo Ändern</Button>
+            <Button sx={{width: "10%"}} onClick={() => {
+              window.api.delFile("public/logo.png");
+              alert("Logo wurde entfernt");
+            }} color='danger'>Logo Entfernen</Button>
+            </>
+          )
+        }
+
       </Box>
     </Box>
 
