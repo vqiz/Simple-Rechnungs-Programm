@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
-import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Link, Modal, ModalDialog, Switch, Table, Tooltip, Typography } from '@mui/joy'
+import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Link, Modal, ModalDialog, Switch, Table, Textarea, Tooltip, Typography } from '@mui/joy'
 import InfoCard from '../InfoCard'
 import { getKunde, getNewRechnungsnummer, handleLoadFile, saveKunde, saveRechnung } from '../../Scripts/Filehandler';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
@@ -54,6 +54,7 @@ function RechnungErstellen({ selUser }) {
   const [rechnung, setRechnung] = React.useState({
     kundenId: null,
     positionen: new Map(),
+    comment: "",
     items: null,
   });
   useEffect(() => {
@@ -467,10 +468,11 @@ function RechnungErstellen({ selUser }) {
           sx={{
             flex: 1,
             display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-start",
+
+            alignItems: "center",
             p: 4,
             bgcolor: "neutral.softBg",
+            flexDirection: "column"
           }}
         >
           <Card
@@ -546,7 +548,7 @@ function RechnungErstellen({ selUser }) {
             </Box>
 
             {/* Invoice Items */}
-            <Box sx={{ flex: 1, maxHeight: "70vh", overflowY: "auto", "&::-webkit-scrollbar": { display: "none" } }}>
+            <Box sx={{ flex: 1, maxHeight: "47vh", overflowY: "auto", "&::-webkit-scrollbar": { display: "none" } }}>
               {Array.from(rechnung.positionen.entries()).map(([key, value]) => {
                 const [catName, prodName] = key.split("_");
                 const product = produkte?.list
@@ -595,6 +597,16 @@ function RechnungErstellen({ selUser }) {
               })}
             </Box>
 
+
+            <Typography level="body-md" fontWeight={"bold"}>Kommentar</Typography>
+            <Box sx={{ display: "flex", width: "100%", alignItems: "center", mt: -1 }}>
+              <Divider sx={{ width: "100%" }} />
+            </Box>
+            <FormControl>
+              <FormLabel sx={{ color: "gray", fontWeight: "normal" }}>Optionaler Kommentar</FormLabel>
+              <Textarea value={rechnung.comment} onChange={(e) => setRechnung({ ...rechnung, comment: e.target.value })} placeholder='z.B im Preiß sind 5 Arbeitsstunden inbegriffen.' minRows={3} maxRows={10}>
+              </Textarea>
+            </FormControl>
             {/* Total */}
             <Box
               sx={{
@@ -636,7 +648,10 @@ function RechnungErstellen({ selUser }) {
                 <Typography level="title-lg" fontWeight="xl">Brutto</Typography>
               </Box>
             </Box>
+
           </Card>
+
+
         </Box>
       </Box>
 

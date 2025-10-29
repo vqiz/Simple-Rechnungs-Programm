@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Box, IconButton, Table, Tooltip, Typography } from '@mui/joy';
+import { Box, FormControl, IconButton, Table, Textarea, Tooltip, Typography } from '@mui/joy';
 import { useNavigate } from 'react-router-dom';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
@@ -357,6 +357,12 @@ function RechnungsViewer({ rechnung, unternehmen }) {
                     </tr>
                   </tbody>
                 </Table>
+                {
+                  isLastPage && data.comment && data.comment != "" && (
+
+                    <Typography sx={{ fontSize: "10px" }}>{data.comment}</Typography>
+                  )
+                }
                 <Footer />
               </Box>
             )
