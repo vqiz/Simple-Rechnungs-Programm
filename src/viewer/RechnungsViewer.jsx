@@ -11,6 +11,7 @@ import { getKunde, handleLoadFile } from '../Scripts/Filehandler';
 import html2pdf from 'html2pdf.js';
 import ForwardToInboxOutlinedIcon from '@mui/icons-material/ForwardToInboxOutlined';
 import { Buffer } from 'buffer';
+import { createERechnung } from '../Scripts/ERechnungInterpretter';
 // A4: 210mm x 297mm
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
@@ -195,12 +196,15 @@ function RechnungsViewer({ rechnung, unternehmen }) {
         window.open(pdf.output('bloburl'), '_blank');
       });
   };
+
+
+ 
   // Sidebar button definitions
   const sidebarButtons = [
     { icon: <PersonOutlinedIcon />, label: "zum Kunden", click: () => { if (data?.kundenId) navigate("/kunden-viewer/" + data.kundenId); } },
     { icon: <PictureAsPdfOutlinedIcon />, label: "Als PDF exportieren", click: handleExportPDF },
     { icon: <PrintOutlinedIcon />, label: "Drucken", click: () => handlePrintPDF() },
-    { icon: <SendOutlinedIcon />, label: "Als E-Rechnung exportieren" },
+    { icon: <SendOutlinedIcon />, label: "Als E-Rechnung exportieren", click: () => createERechnung(rechnung, data, kunde,unternehmen) },
     { icon: <ForwardToInboxOutlinedIcon />, label: "Per Email weiterverschicken", click: () => sendEmail() },
     { icon: <DeleteOutlineOutlinedIcon />, label: "Löschen", color: 'danger' },
   ];

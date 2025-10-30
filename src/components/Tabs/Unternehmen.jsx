@@ -1,4 +1,4 @@
-import { Alert, Avatar, Box, Button, Divider, FormControl, FormLabel, Input, Typography } from '@mui/joy'
+import { Alert, Avatar, Box, Button, Divider, FormControl, FormLabel, Input, Switch, Typography } from '@mui/joy'
 import React, { useCallback, useEffect, useState } from 'react'
 import Headline from '../Headline'
 import InfoCard from '../InfoCard'
@@ -30,6 +30,7 @@ function Unternehmen() {
     website: "",
     inhaber: "",
     steuernr: "",
+    mwst: false,
   });
   const [oldjson, setoldjson] = useState();
   const [changes, setchanges] = useState(false);
@@ -371,6 +372,20 @@ function Unternehmen() {
           </FormControl>
         </Box>
       </Box>
+      <Typography sx={{ color: "gray", ml: 2 }}>Gewerbeart</Typography>
+      <Divider orientation="horizontal" />
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
+        <FormControl>
+          <Box sx={{ display: "flex", width: "100%", flexDirection: "row", gap: 2, justifyContent: "center" }}>
+            <Typography sx={labelstyle}>Kleingewerbe</Typography>
+            <Switch checked={formData.mwst} onChange={(e) => setFormData({ ...formData, mwst: e.target.checked })} />
+            <Typography sx={labelstyle}>Gewerbe</Typography>
+          </Box>
+        </FormControl>
+      </Box>
+
+
+
       <Typography sx={{ color: "gray", ml: 2 }}>Logo</Typography>
       <Divider orientation="horizontal" />
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2, mb: 15 }}>
@@ -415,11 +430,11 @@ function Unternehmen() {
 
           ) : (
             <>
-            <Button onClick={() => setShowCrop(true)} sx={{width: "10%"}}>Logo Ändern</Button>
-            <Button sx={{width: "10%"}} onClick={() => {
-              window.api.delFile("public/logo.png");
-              alert("Logo wurde entfernt");
-            }} color='danger'>Logo Entfernen</Button>
+              <Button onClick={() => setShowCrop(true)} sx={{ width: "10%" }}>Logo Ändern</Button>
+              <Button sx={{ width: "10%" }} onClick={() => {
+                window.api.delFile("public/logo.png");
+                alert("Logo wurde entfernt");
+              }} color='danger'>Logo Entfernen</Button>
             </>
           )
         }

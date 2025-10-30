@@ -44,7 +44,7 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
         variant="outlined"
         sx={{
           borderRadius: "md",
-          width: "55vh",
+          width: "63vh",
           maxWidth: "90vw",
         }}
       >
@@ -70,8 +70,9 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
             }}
           >
             <FormControl sx={{ width: "60%" }}>
-              <FormLabel sx={{ color: 'gray' }}>Produktname</FormLabel>
+              <FormLabel sx={{ color: 'gray' }}>Produktname {'(Zeitbasierte Produkte müssen "stunde" enthalten)'}</FormLabel>
               <Input
+              placeholder=""
                 value={produktname}
                 onChange={(e) => {
                   setproduktname(e.target.value);
@@ -80,7 +81,7 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
               />
             </FormControl>
             <FormControl>
-              <FormLabel sx={{ color: 'gray' }}>Netto Betrag in €</FormLabel>
+              <FormLabel sx={{ color: 'gray' }}><br/> Netto Betrag in €</FormLabel>
               <Input
                 onChange={(e) => {
                   const value = e.target.value.replace(',', '.');
@@ -93,7 +94,7 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
               />
             </FormControl>
             <FormControl>
-              <FormLabel sx={{color: "gray"}}>Mehrwertsteuer in %</FormLabel>
+              <FormLabel sx={{color: "gray"}}><br/>Mehrwertsteuer in %</FormLabel>
               <Input type='number' value={mehrWertSteuer} onChange={(e) => setMehrWertSteuer(e.target.value)}/>
             </FormControl>
           </Box>

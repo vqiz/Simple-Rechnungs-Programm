@@ -3,6 +3,7 @@ const path = require('path');
 const { pathToFileURL } = require('url');
 const fs = require('fs').promises;
 const os = require('os');
+const { writeFile } = require('fs');
 let win;
 
 function createWindow() {
@@ -195,4 +196,16 @@ ipcMain.handle("create-pdf-buffer",async (_,pdfData) => {
   const tmpPath = path.join(os.tmpdir(), 'rechnung.pdf');
   await fs.writeFile(tmpPath, buffer);
   return tmpPath;
+});
+ipcMain.handle("save-e-rechnung", async (_, xmlContent, defaultName) => {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+        title: 'E-Rechnung speichern',
+        defaultPath: defaultName,
+        filters: [{ name: 'XML-Dateien', extensions: ['xml'] }],
+    });
+
+    if (canceled) return;
+
+    await fs.writeFile(filePath, xmlContent, 'utf8');  // ✅ use promises
+    console.log(`✅ E-Rechnung saved to ${filePath}`);
 });
