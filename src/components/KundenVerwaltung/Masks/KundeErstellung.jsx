@@ -183,7 +183,7 @@ function KundeErstellung({ submit }) {
                             </FormControl>
                         )}
                         <FormControl>
-                            <FormLabel sx={{ color: "gray" }}>Leitwegid | {"(für öffentliche Aufträge)"}</FormLabel>
+                            <FormLabel sx={{ color: "gray" }}>Leitwegid | {"(für X-Rechnungen)"}</FormLabel>
                             <Input value={formData.leitwegid} onChange={(e) => {
                                 setFormData({
                                     ...formData,

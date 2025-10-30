@@ -10,7 +10,7 @@ import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import { getKunde, handleLoadFile } from '../Scripts/Filehandler';
 import html2pdf from 'html2pdf.js';
 import ForwardToInboxOutlinedIcon from '@mui/icons-material/ForwardToInboxOutlined';
-
+import { Buffer } from 'buffer';
 // A4: 210mm x 297mm
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
@@ -127,6 +127,46 @@ function RechnungsViewer({ rechnung, unternehmen }) {
         pdf.save(`${rechnung}.pdf`);
       });
   };
+  const sendEmail = () => {
+    if (!pdfRef.current) return;
+    const element = pdfRef.current;
+
+    const opt = {
+      margin: [0, 0, 0, 0],
+      filename: `${rechnung}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: [A4_WIDTH_MM, A4_HEIGHT_MM], orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] },
+    };
+
+    html2pdf()
+      .set(opt)
+      .from(element)
+      .toPdf()
+      .get('pdf')
+      .then((pdf) => {
+        const totalPages = pdf.internal.getNumberOfPages();
+        for (let i = totalPages; i >= 2; i -= 2) {
+          pdf.deletePage(i);
+        }
+        const pdfArrayBuffer = pdf.output('arraybuffer');
+        const pdfBase64 = Buffer.from(pdfArrayBuffer).toString('base64');
+
+        window.api.createPdfBuffer(pdfBase64).then((filePath) => {
+          window.api.openMail(
+            filePath,
+            kunde?.email,
+            "Rechnung " + rechnung,
+            "Sehr geehrte/r " + kunde?.name + ", \n" +
+            "anbei finden Sie Ihre Rechnung."
+          );
+        });
+      });
+
+  }
+
+
   const handlePrintPDF = () => {
     if (!pdfRef.current) return;
     const element = pdfRef.current;
@@ -161,7 +201,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     { icon: <PictureAsPdfOutlinedIcon />, label: "Als PDF exportieren", click: handleExportPDF },
     { icon: <PrintOutlinedIcon />, label: "Drucken", click: () => handlePrintPDF() },
     { icon: <SendOutlinedIcon />, label: "Als E-Rechnung exportieren" },
-    { icon: <ForwardToInboxOutlinedIcon/>, label: "Per Email weiterverschicken"},
+    { icon: <ForwardToInboxOutlinedIcon />, label: "Per Email weiterverschicken", click: () => sendEmail() },
     { icon: <DeleteOutlineOutlinedIcon />, label: "Löschen", color: 'danger' },
   ];
 
@@ -179,14 +219,14 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     return (
       <>
         <Box sx={{ width: '100%', minHeight: 0, mb: 2, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-          <Typography level="h2" sx={{ maxWidth: "60%" }}>{unternehmen?.unternehmensname}</Typography>          
-            <img
-              src={"/logo.png"}
-              alt="Logo"
-              style={{ height: "150px", width: "auto" }}
-              onError={(e) => (e.target.style.display = 'none')}
-            />
-          
+          <Typography level="h2" sx={{ maxWidth: "60%" }}>{unternehmen?.unternehmensname}</Typography>
+          <img
+            src={"/logo.png"}
+            alt="Logo"
+            style={{ height: "150px", width: "auto" }}
+            onError={(e) => (e.target.style.display = 'none')}
+          />
+
         </Box>
         <Box sx={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", mb: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column" }}>

@@ -10,4 +10,6 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('save-file-to-path', { content, filePath }),
   getpath: (path) => ipcRenderer.invoke("get-path", path),
   delFile: (path) => ipcRenderer.invoke("delete-file", path),
+  openMail: (path,empfänger,subject,body) => ipcRenderer.invoke("open-mail", path,empfänger,subject,body),
+  createPdfBuffer: (path) => ipcRenderer.invoke("create-pdf-buffer", path),
 });

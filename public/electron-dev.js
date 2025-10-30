@@ -1,8 +1,8 @@
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron');
 const path = require('path');
 const { pathToFileURL } = require('url');
 const fs = require('fs').promises;
-
+const os = require('os');
 let win;
 
 function createWindow() {
@@ -177,4 +177,22 @@ ipcMain.handle("get-path", async (event, relativePath) => {
   const { join } = require('path');
   const fullPath = join(__dirname, relativePath); // absolute path
   return pathToFileURL(fullPath).href;          // return file:// URL
+});
+ipcMain.handle("open-mail", async (_, fileurl, empfänger, sub, b) => {
+  // Öffnet den Datei-Explorer mit markierter Datei
+  shell.showItemInFolder(fileurl);
+
+  // Öffnet das Standard-Mailprogramm mit Betreff und Empfänger
+  const recipient = empfänger;
+  const subject = encodeURIComponent(sub);
+  const body = encodeURIComponent(b);
+
+  shell.openExternal(`mailto:${recipient}?subject=${subject}&body=${body}`);
+});
+ipcMain.handle("create-pdf-buffer",async (_,pdfData) => {
+  // Hole den PDF-Buffer
+  const buffer = Buffer.from(pdfData, 'base64');
+  const tmpPath = path.join(os.tmpdir(), 'rechnung.pdf');
+  await fs.writeFile(tmpPath, buffer);
+  return tmpPath;
 });

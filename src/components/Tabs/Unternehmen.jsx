@@ -354,7 +354,7 @@ function Unternehmen() {
         </Box>
         <Box sx={{ ...boxlinestyle, mb: 5 }}>
           <FormControl sx={{ width: "49%" }}>
-            <FormLabel sx={labelstyle}>Emailadresse</FormLabel>
+            <FormLabel sx={labelstyle}>Emailadresse {"Pflichtfeld"}</FormLabel>
             <Input
               placeholder='z.B. org.example@firma.com'
               value={formData.sonstigeEmail}
