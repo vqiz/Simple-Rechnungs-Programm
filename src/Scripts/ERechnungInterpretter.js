@@ -13,24 +13,36 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
         .ele("cbc:ID").txt(rechnung || "undefined").up()
         .ele("cbc:IssueDate").txt(getInvoiceDate(rechnung)).up()
         .ele("cbc:InvoiceTypeCode").txt("380").up()
-        .ele("cbc:DocumentCurrencyCode").txt("EUR").up()
+        .ele("cbc:DocumentCurrencyCode").txt("EUR").up();
 
+    // Accounting Supplier Party
+    const supplierParty = doc
         .ele("cac:AccountingSupplierParty")
-        .ele("cac:Party")
+        .ele("cac:Party");
+    // Add VAT ID always directly under <cac:Party>
+    if (unternehmen.umsatzsteuerId && unternehmen.umsatzsteuerId.trim() !== "") {
+        supplierParty.ele("cbc:CompanyID", { "schemeID": "DE:UStId" })
+            .txt(unternehmen.umsatzsteuerId.trim())
+            .up();
+    }
+    supplierParty
         .ele("cbc:EndpointID", { "schemeID": "EMail" }).txt(unternehmen.sonstigeEmail).up()
         .ele("cbc:PartyName")
-          .ele("cbc:Name").txt(unternehmen.unternehmensname).up()
+            .ele("cbc:Name").txt(unternehmen.unternehmensname).up()
         .up()
         .ele("cac:PostalAddress")
-          .ele("cbc:StreetName").txt(unternehmen.strasse + " " + unternehmen.hausnummer).up()
-          .ele("cbc:CityName").txt(unternehmen.stadt).up()
-          .ele("cbc:PostalZone").txt(unternehmen.postleitzahl).up()
-          .ele("cbc:CountryID").txt(unternehmen.laenderCode).up()
-        .up()
-        .ele("cbc:CompanyID", { "schemeID": "DE:UStId" }).txt(unternehmen.umsatzsteuerId.replace(/\s+/g,'')).up()
+            .ele("cbc:StreetName").txt(unternehmen.strasse + " " + unternehmen.hausnummer).up()
+            .ele("cbc:CityName").txt(unternehmen.stadt).up()
+            .ele("cbc:PostalZone").txt(unternehmen.postleitzahl).up()
+            .ele("cac:Country")
+                .ele("cbc:IdentificationCode").txt(unternehmen.laenderCode).up()
+            .up()
+        .up();
+
+    supplierParty
         .ele("cac:PartyLegalEntity")
-          .ele("cbc:RegistrationName").txt(unternehmen.unternehmensname).up()
-          .ele("cbc:CompanyID").txt(unternehmen.handelsregisternummer || "").up()
+            .ele("cbc:RegistrationName").txt(unternehmen.unternehmensname).up()
+            .ele("cbc:CompanyID").txt(unternehmen.handelsregisternummer || "").up()
         .up()
         .up()
         .up()
@@ -72,7 +84,7 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
             .ele("cbc:Name").txt(name).up()
             .ele("cac:ClassifiedTaxCategory")
               .ele("cbc:ID").txt("S").up()
-              .ele("cbc:Percent").txt(steuer).up()
+              .ele("cbc:Percent").txt(unternehmen.mwst ? steuer : 0).up()
               .ele("cac:TaxScheme")
                 .ele("cbc:ID").txt("VAT").up()
               .up()
@@ -84,16 +96,29 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
             .up();
     })
 
-    //summen
+        // Payment information
+        const paymentMeans = doc.ele("cac:PaymentMeans");
+        paymentMeans.ele("cbc:PaymentMeansCode").txt("30").up(); // 30 = Banküberweisung
+        paymentMeans.ele("cbc:PaymentDueDate").txt(getInvoiceDatePlusTwoWeeks(rechnung)).up();
+
+        const payeeAccount = paymentMeans.ele("cac:PayeeFinancialAccount");
+        payeeAccount.ele("cbc:ID").txt((unternehmen.bankverbindung || "DE00000000000000000000").replace(/\s+/g, "").replace(/[^A-Za-z0-9]/g, "")).up();
+        payeeAccount.ele("cbc:Name").txt(unternehmen.kontoinhaber).up();
+
+        if (unternehmen.bic) {
+            const branch = payeeAccount.ele("cac:FinancialInstitutionBranch");
+            branch.ele("cbc:ID").txt(unternehmen.bic).up(); // directly under Branch
+            const fi = branch.ele("cac:FinancialInstitution");
+            fi.ele("cbc:ID").txt(unternehmen.bic).up();    // under FinancialInstitution
+            fi.up();
+            branch.up();
+        }
+
+        payeeAccount.up();
+
+    paymentMeans.up(); // close PaymentMeans
+
     doc
-        .ele("cac:PaymentMeans")
-          .ele("cbc:PaymentMeansCode").txt("30").up() // 30 = Banküberweisung
-          .ele("cbc:PaymentDueDate").txt(getInvoiceDatePlusTwoWeeks(rechnung)).up()
-          .ele("cac:PayeeFinancialAccount")
-            .ele("cbc:ID").txt(unternehmen.bankverbindung || "DE00000000000000000000").up()
-            .ele("cbc:Name").txt(unternehmen.kontoinhaber).up()
-          .up()
-        .up()
         .ele("cac:PaymentTerms")
           .ele("cbc:Note").txt("Zahlbar innerhalb von 14 Tagen ohne Abzug.").up()
         .up()
@@ -145,6 +170,7 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
         data.comment
     ){
         doc.ele("cbc:Note").txt(data.comment);
+        
     }
 
     window.api.saveERechnung(doc.end({ prettyPrint: true }), rechnung + ".xml");

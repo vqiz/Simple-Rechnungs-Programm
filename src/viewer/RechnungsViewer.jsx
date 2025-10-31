@@ -198,7 +198,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   };
 
 
- 
+  
   // Sidebar button definitions
   const sidebarButtons = [
     { icon: <PersonOutlinedIcon />, label: "zum Kunden", click: () => { if (data?.kundenId) navigate("/kunden-viewer/" + data.kundenId); } },
