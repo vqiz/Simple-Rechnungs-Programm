@@ -4,6 +4,7 @@ import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import RechnungsViewer from '../../viewer/RechnungsViewer';
 import { handleLoadFile } from '../../Scripts/Filehandler';
+import { handleSaveFile } from '../../Scripts/Filehandler';
 
 function RechnungsViewerTab({ tabtoOpen }) {
   const [tabs, setTabs] = useState([]);
@@ -11,27 +12,33 @@ function RechnungsViewerTab({ tabtoOpen }) {
   const [unternehmen, setUnternehmen] = useState();
 
   useEffect(() => {
-    // Load tabs from sessionStorage
-    const storedTabs = sessionStorage.getItem("R-Viewer-Tabs");
-    let currentTabs = storedTabs ? JSON.parse(storedTabs) : [];
+    const loadTabs = async () => {
+      // Load tabs from file
+      const storedTabsString = await handleLoadFile("fast_accsess/tabs.rechnix");
+      let currentTabs = [];
+      if (storedTabsString && storedTabsString !== "{}") {
+        currentTabs = JSON.parse(storedTabsString);
+      }
 
-    // Add new tab if valid and not already present
-    if (tabtoOpen && tabtoOpen !== "-1" && !currentTabs.includes(tabtoOpen)) {
-      currentTabs.push(tabtoOpen);
-      sessionStorage.setItem("R-Viewer-Tabs", JSON.stringify(currentTabs));
-    }
+      // Add new tab if valid and not already present
+      if (tabtoOpen && tabtoOpen !== "-1" && !currentTabs.includes(tabtoOpen)) {
+        currentTabs.push(tabtoOpen);
+        await handleSaveFile("fast_accsess/tabs.rechnix", JSON.stringify(currentTabs));
+      }
 
-    setTabs(currentTabs);
+      setTabs(currentTabs);
 
-    // Determine selected tab
-    let selected;
-    if (tabtoOpen && tabtoOpen !== "-1") {
-      selected = tabtoOpen;
-    } else {
-      const storedSelected = sessionStorage.getItem("R-Viewer-Selected");
-      selected = storedSelected && currentTabs.includes(storedSelected) ? storedSelected : currentTabs[0] || null;
-    }
-    setSelectedTab(selected);
+      // Determine selected tab
+      let selected;
+      if (tabtoOpen && tabtoOpen !== "-1") {
+        selected = tabtoOpen;
+      } else {
+        selected = currentTabs[0] || null;
+      }
+      setSelectedTab(selected);
+    };
+
+    loadTabs();
 
     // Load company settings
     const fetchUnternehmen = async () => {
@@ -44,18 +51,16 @@ function RechnungsViewerTab({ tabtoOpen }) {
 
   const handleTabChange = (e, newValue) => {
     setSelectedTab(newValue);
-    sessionStorage.setItem("R-Viewer-Selected", newValue);
   };
 
-  const handleCloseTab = (tab) => {
+  const handleCloseTab = async (tab) => {
     const newTabs = tabs.filter(t => t !== tab);
     setTabs(newTabs);
-    sessionStorage.setItem("R-Viewer-Tabs", JSON.stringify(newTabs));
+    await handleSaveFile("fast_accsess/tabs.rechnix", JSON.stringify(newTabs));
 
     // Adjust selected tab if the closed one was active
     if (selectedTab === tab) {
       setSelectedTab(newTabs[0] || null);
-      sessionStorage.setItem("R-Viewer-Selected", newTabs[0] || "");
     }
   };
 

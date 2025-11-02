@@ -86,7 +86,6 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
         .up()
     .up()
     .up()
-
   const taxTotalNode = doc.ele("cac:TaxTotal")
     .ele("cbc:TaxAmount", {currencyID:"EUR"}).txt(getTaxSumAmount(data)).up();
 
@@ -128,7 +127,6 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
     .ele("cbc:PayableAmount",{currencyID:"EUR"}).txt(unternehmen.mwst ? getbrutto(data) : getNetto(data)).up()
   .up()
 
-
   Object.entries(data.positionen).forEach(([key, value], index) => {
         const name = key.split("_")[1];
         const amout = value;
@@ -155,6 +153,7 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
         .up()
 
     })
+
     doc.up()
 
   window.api.saveERechnung(doc.end({ prettyPrint: true }), rechnung + ".xml");

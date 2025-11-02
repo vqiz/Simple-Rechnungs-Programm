@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('api', {
   readFile: (path) => ipcRenderer.invoke('read-file', path),
   writeFile: (path, content) => ipcRenderer.invoke('write-file', path, content),
+  deleteFile: (path) => ipcRenderer.invoke("deleteFile", path),
   openFileDialog: () => ipcRenderer.invoke('dialog:openFile'),
   saveFileDialog: () => ipcRenderer.invoke('dialog:saveFile'),
   listfiles: (path) => ipcRenderer.invoke("list-files",path),
@@ -12,5 +13,5 @@ contextBridge.exposeInMainWorld('api', {
   delFile: (path) => ipcRenderer.invoke("delete-file", path),
   openMail: (path,empfänger,subject,body) => ipcRenderer.invoke("open-mail", path,empfänger,subject,body),
   createPdfBuffer: (path) => ipcRenderer.invoke("create-pdf-buffer", path),
-  saveERechnung: (content) => ipcRenderer.invoke("save-e-rechnung", content),
+  saveERechnung: (content, name) => ipcRenderer.invoke("save-e-rechnung", content, name),
 });

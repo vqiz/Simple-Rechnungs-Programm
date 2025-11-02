@@ -209,3 +209,11 @@ ipcMain.handle("save-e-rechnung", async (_, xmlContent, defaultName) => {
     await fs.writeFile(filePath, xmlContent, 'utf8');  // ✅ use promises
     console.log(`✅ E-Rechnung saved to ${filePath}`);
 });
+ipcMain.handle('deleteFile', async (_,path) => {
+  try {
+    await fs.unlink(path);
+    console.log(`${path} wurde gelöscht`);
+  } catch (err) {
+    console.error(`Fehler beim Löschen von ${path}:`, err);
+  }
+})

@@ -7,11 +7,13 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
-import { getKunde, handleLoadFile } from '../Scripts/Filehandler';
+import { getKunde, handleLoadFile, handleSaveFile } from '../Scripts/Filehandler';
 import html2pdf from 'html2pdf.js';
 import ForwardToInboxOutlinedIcon from '@mui/icons-material/ForwardToInboxOutlined';
 import { Buffer } from 'buffer';
 import { createERechnung } from '../Scripts/ERechnungInterpretter';
+import MaskProvider from '../components/MaskProvider';
+import DeleteConfirmation from '../components/Produktedit/Masks/DeleteConfirmation';
 // A4: 210mm x 297mm
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
@@ -30,7 +32,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   const [kunde, setKunde] = useState(null);
   const navigate = useNavigate();
   const pdfRef = useRef();
-
+  const [delconfirm, setdelconfirm] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
       const jsonstring = await handleLoadFile("rechnungen/" + rechnung);
@@ -198,15 +200,15 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   };
 
 
-  
+
   // Sidebar button definitions
   const sidebarButtons = [
     { icon: <PersonOutlinedIcon />, label: "zum Kunden", click: () => { if (data?.kundenId) navigate("/kunden-viewer/" + data.kundenId); } },
     { icon: <PictureAsPdfOutlinedIcon />, label: "Als PDF exportieren", click: handleExportPDF },
     { icon: <PrintOutlinedIcon />, label: "Drucken", click: () => handlePrintPDF() },
-    { icon: <SendOutlinedIcon />, label: "Als E-Rechnung exportieren", click: () => createERechnung(rechnung, data, kunde,unternehmen) },
+    { icon: <SendOutlinedIcon />, label: "Als E-Rechnung exportieren", click: () => createERechnung(rechnung, data, kunde, unternehmen) },
     { icon: <ForwardToInboxOutlinedIcon />, label: "Per Email weiterverschicken", click: () => sendEmail() },
-    { icon: <DeleteOutlineOutlinedIcon />, label: "Löschen", color: 'danger' },
+    { icon: <DeleteOutlineOutlinedIcon />, label: "Löschen", color: 'danger', click: () => setdelconfirm(true) },
   ];
 
   // Table columns
@@ -265,7 +267,27 @@ function RechnungsViewer({ rechnung, unternehmen }) {
       </Box>
     )
   }
+  const deleteRechnung = async (none) =>  {
+    const ur = await handleLoadFile("fast_accsess/u_Rechnungen.db");
+    const urJson = JSON.parse(ur);
+    urJson.list = urJson.list.filter((i) => i.rechnung !== rechnung);
+    await handleSaveFile("fast_accsess/u_Rechnungen.db",JSON.stringify(urJson));
+    
+    
+    const temp = await handleLoadFile("fast_accsess/tabs.rechnix");
+    let tempjson = JSON.parse(temp);
+    tempjson = tempjson.filter((i) => i !== rechnung);
+    await handleSaveFile("fast_accsess/tabs.rechnix", JSON.stringify(tempjson));
 
+    kunde.rechnungen = kunde.rechnungen.filter((i) => i !== rechnung);
+    await handleSaveFile("kunden/" + kunde.id + ".person", JSON.stringify(kunde));
+
+
+
+
+    window.api.deleteFile("rechnungen/" + rechnung);
+    navigate("/kunden-viewer/" + data.kundenId);
+  }
   // Render all pages
   let pages = [];
   let runningTotalList = [];
@@ -276,6 +298,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     runningTotalList = runningTotals(positions);
   }
 
+  
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", pb: 6, background: "#f7f7f7" }}>
       {/* Sidebar Buttons */}
@@ -312,6 +335,19 @@ function RechnungsViewer({ rechnung, unternehmen }) {
           </Tooltip>
         ))}
       </Box>
+      {
+        delconfirm != null  && (
+          <MaskProvider>
+            <DeleteConfirmation title={"Rechnung löschen ?"} buttontitle={"Löschen"}
+              description={"Wenn sie die Rechung löschen kann sie nichtmehr wiederhergestellt werden!"}
+              disable={setdelconfirm}
+              confirmfunction={deleteRechnung}
+              parameter={null}
+            />
+          </MaskProvider>
+        )
+      }
+
 
       {/* Invoice Pages */}
       {data && (
