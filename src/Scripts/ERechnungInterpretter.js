@@ -1,180 +1,163 @@
 import { create } from "xmlbuilder2";
 
 export function createERechnung(rechnung, data, kunde, unternehmen) {
-
-    const doc = create({ version: "1.0", encoding: "UTF-8" })
-        .ele("Invoice", {
-            xmlns: "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2",
-            "xmlns:cac": "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2",
-            "xmlns:cbc": "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2",
-        })
-        .ele("cbc:CustomizationID").txt("urn:cen.eu:en16931:2017").up()
-        .ele("cbc:ProfileID").txt("urn:fdc:peppol.eu:2017:poacc:billing:01:1.0").up()
-        .ele("cbc:ID").txt(rechnung || "undefined").up()
-        .ele("cbc:IssueDate").txt(getInvoiceDate(rechnung)).up()
-        .ele("cbc:InvoiceTypeCode").txt("380").up()
-        .ele("cbc:DocumentCurrencyCode").txt("EUR").up();
-
-    // Accounting Supplier Party
-    const supplierParty = doc
-        .ele("cac:AccountingSupplierParty")
-        .ele("cac:Party");
-    // Add VAT ID always directly under <cac:Party>
-    if (unternehmen.umsatzsteuerId && unternehmen.umsatzsteuerId.trim() !== "") {
-        supplierParty.ele("cbc:CompanyID", { "schemeID": "DE:UStId" })
-            .txt(unternehmen.umsatzsteuerId.trim())
-            .up();
-    }
-    supplierParty
-        .ele("cbc:EndpointID", { "schemeID": "EMail" }).txt(unternehmen.sonstigeEmail).up()
-        .ele("cbc:PartyName")
+  const doc = create({ version: "1.0", encoding: "UTF-8" })
+  .ele("Invoice", {
+    "xmlns":"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2",
+    "xmlns:cac":"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2",
+    "xmlns:cbc":"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2",
+    "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance",
+    "xsi:schemaLocation":"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2 UBL-Invoice-2.1.xsd",
+  })
+  .ele("cbc:CustomizationID").txt("urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:" + rechnung).up()
+  .ele("cbc:ProfileID").txt("urn:fdc:peppol.eu:2017:poacc:billing:01:1.0").up()
+  .ele("cbc:ID").txt(rechnung).up()
+  .ele("cbc:IssueDate").txt(getInvoiceDate(rechnung)).up()
+  //änderung!
+  .ele("cbc:DueDate").txt(getInvoiceDatePlusTwoWeeks(rechnung)).up()
+  //folgtOriginal
+  .ele("cbc:InvoiceTypeCode").txt("380").up()
+  .ele("cbc:DocumentCurrencyCode").txt("EUR").up()
+  .ele("cbc:BuyerReference").txt(kunde.id).up()
+  .ele("cac:AccountingSupplierParty")
+    .ele("cac:Party")
+        .ele("cac:PartyName")
             .ele("cbc:Name").txt(unternehmen.unternehmensname).up()
         .up()
         .ele("cac:PostalAddress")
             .ele("cbc:StreetName").txt(unternehmen.strasse + " " + unternehmen.hausnummer).up()
             .ele("cbc:CityName").txt(unternehmen.stadt).up()
             .ele("cbc:PostalZone").txt(unternehmen.postleitzahl).up()
+            .ele("cbc:CountrySubentity").txt(unternehmen.bundesland).up()
             .ele("cac:Country")
                 .ele("cbc:IdentificationCode").txt(unternehmen.laenderCode).up()
             .up()
-        .up();
-
-    supplierParty
+        .up()
         .ele("cac:PartyLegalEntity")
             .ele("cbc:RegistrationName").txt(unternehmen.unternehmensname).up()
-            .ele("cbc:CompanyID").txt(unternehmen.handelsregisternummer || "").up()
+            .ele("cbc:CompanyID",{schemeID:"HRA"}).txt(unternehmen.handelsregisternummer).up()
         .up()
+        .ele("cac:Contact")
+            .ele("cbc:Name").txt(unternehmen.inhaber).up()
+            .ele("cbc:Telephone").txt(unternehmen.kontaktTelefon).up()
+            .ele("cbc:ElectronicMail").txt(unternehmen.kontaktEmail).up()
         .up()
-        .up()
+    .up()
+  .up()
 
-        .ele("cac:AccountingCustomerParty")
-        .ele("cac:Party")
-        .ele("cbc:EndpointID", { "schemeID": "EMail" }).txt(kunde.email).up()
+
+
+  //keufer
+  .ele("cac:AccountingCustomerParty")
+    .ele("cac:Party")    
         .ele("cac:PartyName")
-        .ele("cbc:Name").txt(kunde.name).up()
+            .ele("cbc:Name").txt(kunde.name).up()
+            
         .up()
-        .ele("cac:PostalAddress")
-        .ele("cbc:StreetName").txt(kunde.street + (kunde.number ? " " + kunde.number : "")).up()
+    .ele("cac:PostalAddress")
+        .ele("cbc:StreetName").txt(kunde.street + " " + kunde.number).up()
         .ele("cbc:CityName").txt(kunde.ort).up()
         .ele("cbc:PostalZone").txt(kunde.plz).up()
-        .ele("cbc:CountryID").txt("DE").up()
+        .ele("cbc:CountrySubentity").txt(kunde.bundesland).up()
+        .ele("cac:Country")
+            .ele("cbc:IdentificationCode").txt(kunde.landcode).up()
+        .up()     
+    .up()
+    .ele("cac:PartyLegalEntity")
+        .ele("cbc:RegistrationName").txt(kunde.name).up()
+        .ele("cbc:CompanyID").txt(kunde.umstid).up()
+    .up()
+    .ele("cac:Contact")
+        .ele("cbc:Name").txt(kunde.istfirma ? kunde.ansprechpartner : kunde.name).up()
+        .ele("cbc:Telephone").txt(kunde.tel).up()
+        .ele("cbc:ElectronicMail").txt(kunde.email).up()
+    .up()
+  .up()
+  .up()
+  .ele("cac:PaymentMeans")
+    .ele("cbc:PaymentMeansCode").txt("31").up()
+    .ele("cbc:PaymentID").txt(rechnung).up()
+    .ele("cac:PayeeFinancialAccount")
+        .ele("cbc:ID").txt(unternehmen.bankverbindung).up()
+        //Änderung
+        .ele("cbc:Name").txt(unternehmen.kontoinhaber).up()
+        .ele("cac:FinancialInstitutionBranch")
+            .ele("cbc:ID").txt(unternehmen.bic).up()
         .up()
-        .ele("cbc:BuyerReference").txt(kunde.leitwegid && kunde.leitwegid.trim() !== "" ? kunde.leitwegid : "none").up()
-        .ele("cac:PartyLegalEntity")
-          .ele("cbc:RegistrationName").txt(kunde.name).up()
-        .up()
-        .up()
-        .up()
+    .up()
+    .up()
 
-        .ele("cbc:DueDate").txt(getInvoiceDatePlusTwoWeeks(rechnung)).up();
+  const taxTotalNode = doc.ele("cac:TaxTotal")
+    .ele("cbc:TaxAmount", {currencyID:"EUR"}).txt(getTaxSumAmount(data)).up();
 
-    //Loop Positions 
-    Object.entries(data.positionen).forEach(([key, value], index) => {
-        const name = key.split("_")[1];
-        const posnummer = index + 1;
-        const amout = value;
-        const kath = data.items.list.find((i) => i.name === key.split("_")[0]);
-        const price = kath.content.find((i) => i.name === name).price;
-        const steuer = kath.content.find((i) => i.name === name).steuer;
-        doc.ele("cac:InvoiceLine")
-            .ele("cbc:ID").txt(posnummer).up()
-            .ele("cbc:InvoicedQuantity", { "unitCode": name.toLocaleLowerCase().includes("stunde") ? "HUR" : "EA" }).txt(amout).up()
-            .ele("cbc:LineExtensionAmount", { "currencyID": "EUR" }).txt(Number(amout * price).toFixed(2)).up()
-            .ele("cac:Item")
-            .ele("cbc:Name").txt(name).up()
-            .ele("cac:ClassifiedTaxCategory")
-              .ele("cbc:ID").txt("S").up()
-              .ele("cbc:Percent").txt(unternehmen.mwst ? steuer : 0).up()
-              .ele("cac:TaxScheme")
-                .ele("cbc:ID").txt("VAT").up()
-              .up()
-            .up()
-            .up()
-            .ele("cac:Price")
-            .ele("cbc:PriceAmount", { "currencyID": "EUR" }).txt(price).up()
-            .up()
-            .up();
-    })
-
-        // Payment information
-        const paymentMeans = doc.ele("cac:PaymentMeans");
-        paymentMeans.ele("cbc:PaymentMeansCode").txt("30").up(); // 30 = Banküberweisung
-        paymentMeans.ele("cbc:PaymentDueDate").txt(getInvoiceDatePlusTwoWeeks(rechnung)).up();
-
-        const payeeAccount = paymentMeans.ele("cac:PayeeFinancialAccount");
-        payeeAccount.ele("cbc:ID").txt((unternehmen.bankverbindung || "DE00000000000000000000").replace(/\s+/g, "").replace(/[^A-Za-z0-9]/g, "")).up();
-        payeeAccount.ele("cbc:Name").txt(unternehmen.kontoinhaber).up();
-
-        if (unternehmen.bic) {
-            const branch = payeeAccount.ele("cac:FinancialInstitutionBranch");
-            branch.ele("cbc:ID").txt(unternehmen.bic).up(); // directly under Branch
-            const fi = branch.ele("cac:FinancialInstitution");
-            fi.ele("cbc:ID").txt(unternehmen.bic).up();    // under FinancialInstitution
-            fi.up();
-            branch.up();
-        }
-
-        payeeAccount.up();
-
-    paymentMeans.up(); // close PaymentMeans
-
-    doc
-        .ele("cac:PaymentTerms")
-          .ele("cbc:Note").txt("Zahlbar innerhalb von 14 Tagen ohne Abzug.").up()
-        .up()
-        .ele("cac:LegalMonetaryTotal")
-        .ele("cbc:LineExtensionAmount", { "currencyID": "EUR" }).txt(getNetto(data)).up()
-        .ele("cbc:TaxExclusiveAmount", { "currencyID": "EUR" }).txt(getNetto(data)).up()
-        .ele("cbc:TaxInclusiveAmount", { "currencyID": "EUR" }).txt(unternehmen.mwst ? getbrutto(data) : getNetto(data)).up()
-        .ele("cbc:PayableAmount", { "currencyID": "EUR" }).txt(unternehmen.mwst ? getbrutto(data) : getNetto(data)).up()
-        .up()
-
-    const taxTotal = doc
-        .ele("cac:TaxTotal")
-        .ele("cbc:TaxAmount", { "currencyID": "EUR" })
-        .txt(unternehmen.mwst ? getTaxAmount(data) : "0.00")
-        .up();
-
-    if (unternehmen.mwst) {
-        getSteuersätze(data).map((steuersatz) => {
-            taxTotal
-                .ele("cac:TaxSubtotal")
-                .ele("cbc:TaxableAmount", { "currencyID": "EUR" }).txt(getTaxableAmountbySteuersatz(data, steuersatz)).up()
-                .ele("cbc:TaxAmount", { "currencyID": "EUR" }).txt(getTaxamountbySatz(data, steuersatz)).up()
-                .ele("cac:TaxCategory")
-                  .ele("cbc:ID").txt("S").up()
-                  .ele("cbc:Percent").txt(steuersatz).up()
-                  .ele("cac:TaxScheme")
+  if (unternehmen.mwst){
+    getSteuersätze(data).map((item) => {
+    taxTotalNode
+        .ele("cac:TaxSubtotal")
+            .ele("cbc:TaxableAmount", {currencyID:"EUR"}).txt(getTaxableAmountbySteuersatz(data, item)).up()
+            .ele("cbc:TaxAmount", {currencyID:"EUR"}).txt(getTaxamountbySatz(data, item)).up()
+            .ele("cac:TaxCategory")
+                .ele("cbc:ID").txt(item > 0 ? "S" : "E").up()
+                .ele("cbc:Percent").txt(item).up()
+                .ele("cac:TaxScheme")
                     .ele("cbc:ID").txt("VAT").up()
-                  .up()
                 .up()
-              .up();
-        });
-    } else {
-        taxTotal
-            .ele("cac:TaxSubtotal")
-              .ele("cbc:TaxableAmount", { "currencyID": "EUR" }).txt(getNetto(data)).up()
-              .ele("cbc:TaxAmount", { "currencyID": "EUR" }).txt("0.00").up()
-              .ele("cac:TaxCategory")
+            .up()
+        .up()
+  })
+  }else {
+        taxTotalNode
+        .ele("cac:TaxSubtotal")
+            .ele("cbc:TaxableAmount", {currencyID:"EUR"}).txt(getNetto(data)).up()
+            .ele("cbc:TaxAmount", {currencyID:"EUR"}).txt("0").up()
+            .ele("cac:TaxCategory")
                 .ele("cbc:ID").txt("E").up()
                 .ele("cbc:Percent").txt(0).up()
                 .ele("cac:TaxScheme")
-                  .ele("cbc:ID").txt("VAT").up()
+                    .ele("cbc:ID").txt("VAT").up()
                 .up()
-              .up()
-            .up();
-    }
+            .up()
+        .up()
+  }
+  taxTotalNode.up()
 
-    taxTotal.up();
-    if (
-        data.comment
-    ){
-        doc.ele("cbc:Note").txt(data.comment);
-        
-    }
+  doc.ele("cac:LegalMonetaryTotal")
+    .ele("cbc:LineExtensionAmount", {currencyID:"EUR"}).txt(getNetto(data)).up()
+    .ele("cbc:TaxExclusiveAmount", {currencyID:"EUR"}).txt(getNetto(data)).up()
+    .ele("cbc:TaxInclusiveAmount", {currencyID:"EUR"}).txt(unternehmen.mwst ? getbrutto(data) : getNetto(data)).up()
+    .ele("cbc:PayableAmount",{currencyID:"EUR"}).txt(unternehmen.mwst ? getbrutto(data) : getNetto(data)).up()
+  .up()
 
-    window.api.saveERechnung(doc.end({ prettyPrint: true }), rechnung + ".xml");
 
+  Object.entries(data.positionen).forEach(([key, value], index) => {
+        const name = key.split("_")[1];
+        const amout = value;
+        const kath = data.items.list.find((i) => i.name === key.split("_")[0]);
+        const price = kath.content.find((i) => i.name === name).price;
+        doc.ele("cac:InvoiceLine")
+            .ele("cbc:ID").txt(index + 1).up()
+            .ele("cbc:InvoicedQuantity", {unitCode: !name.toLowerCase().includes("stunde") ? "C62" : "HUR"}).txt(amout).up()
+            .ele("cbc:LineExtensionAmount", {currencyID:"EUR"}).txt(Number(price).toFixed(2)).up()
+            .ele("cac:Item")
+                .ele("cbc:Name").txt(name).up()
+                .ele("cac:ClassifiedTaxCategory")
+                    .ele("cbc:ID").txt(unternehmen.mwst ? "S" : "E").up()
+                    .ele("cbc:Percent").txt(unternehmen.mwst ? kath.content.find((i) => i.name === name).steuer : "0").up()
+                    .ele("cac:TaxScheme")
+                        .ele("cbc:ID").txt("VAT").up()
+                    .up()
+                .up()
+            .up()
+            .ele("cac:Price")
+                .ele("cbc:PriceAmount", {currencyID:"EUR"}).txt(Number(price).toFixed(2)).up()
+                .ele("cbc:BaseQuantity", {unitCode: !name.toLowerCase().includes("stunde") ? "C62" : "HUR"}).txt("1").up()
+            .up()
+        .up()
+
+    })
+    doc.up()
+
+  window.api.saveERechnung(doc.end({ prettyPrint: true }), rechnung + ".xml");
 }
 
 function getTaxamountbySatz(data, satz) {

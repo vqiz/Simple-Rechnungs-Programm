@@ -2,6 +2,11 @@ import { encrypt, Key } from "./Cryptor";
 import { handleLoadFile, handleSaveFile } from "./Filehandler";
 
 export const kundeErstellen = async (name, istfirma, street, number, plz, ort, landcode, email, telefon, ansprechpartner, leitwegid) => {
+    const folderdata = await window.api.listfiles("kunden/");
+    let id = generateCode();
+    while (folderdata.includes(id + ".person")) {
+        id = generateCode();
+    }
     const json = {
         "name": name,
         "istfirma": istfirma,
@@ -16,12 +21,9 @@ export const kundeErstellen = async (name, istfirma, street, number, plz, ort, l
         "leitwegid": leitwegid,
         "erstellt": new Date().getTime(),
         "rechnungen": [],
+        "id": id,
     }
-    const folderdata = await window.api.listfiles("kunden/");
-    let id = generateCode();
-    while (folderdata.includes(id + ".person")) {
-        id = generateCode();
-    }
+
     await handleSaveFile("kunden/" + id + ".person", JSON.stringify(json));
     const readedjson = await handleLoadFile("fast_accsess/kunden.db");
     let data;

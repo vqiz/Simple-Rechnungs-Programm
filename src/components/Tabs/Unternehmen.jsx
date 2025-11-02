@@ -31,6 +31,7 @@ function Unternehmen() {
     inhaber: "",
     steuernr: "",
     mwst: false,
+    bundesland: "",
   });
   const [oldjson, setoldjson] = useState();
   const [changes, setchanges] = useState(false);
@@ -229,7 +230,7 @@ function Unternehmen() {
             />
           </FormControl>
           <FormControl sx={{ width: "27.5%" }}>
-            <FormLabel sx={labelstyle}>Umsatzsteuer-ID {"(Pflichtfeld)"}</FormLabel>
+            <FormLabel sx={labelstyle}>Umsatzsteuer-ID {""}</FormLabel>
             <Input
               placeholder='z.B. DE123456789'
               value={formData.umsatzsteuerId}
@@ -252,6 +253,14 @@ function Unternehmen() {
               placeholder='z.B. Max Mustermann'
               value={formData.inhaber}
               onChange={e => setFormData({ ...formData, inhaber: e.target.value })}
+            />
+          </FormControl>
+          <FormControl sx={{ width: "31%" }}>
+            <FormLabel sx={labelstyle}>Bundesland {"(Pflichtfeld)"}</FormLabel>
+            <Input
+              placeholder='z.B. Bayern'
+              value={formData.bundesland}
+              onChange={e => setFormData({ ...formData, bundesland: e.target.value })}
             />
           </FormControl>
         </Box>
@@ -336,7 +345,7 @@ function Unternehmen() {
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
         <Box sx={boxlinestyle}>
           <FormControl sx={{ width: "50%" }}>
-            <FormLabel sx={labelstyle}>Handelsregisternummer</FormLabel>
+            <FormLabel sx={labelstyle}>Handelsregisternummer {"(Pflichtfeld)"}</FormLabel>
 
             <Input
               placeholder='HRA 12345'

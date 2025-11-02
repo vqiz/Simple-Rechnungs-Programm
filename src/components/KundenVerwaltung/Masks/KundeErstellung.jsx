@@ -17,6 +17,8 @@ function KundeErstellung({ submit }) {
         tel: "",
         ansprechüartner: "",
         leitwegid: "",
+        bundesland: "",
+        umstid: "",
     });
     const navigate = useNavigate();
     async function create() {
@@ -55,8 +57,8 @@ function KundeErstellung({ submit }) {
                         <Typography level='h3' mb={1}>
                             Kunde erstellen
                         </Typography>
-                        <IconButton onClick={() => {submit();}} sx={{mt: -1}}>
-                            <CloseOutlinedIcon/>
+                        <IconButton onClick={() => { submit(); }} sx={{ mt: -1 }}>
+                            <CloseOutlinedIcon />
                         </IconButton>
                     </Box>
                     <Divider orientation="horizontal" />
@@ -154,6 +156,15 @@ function KundeErstellung({ submit }) {
                             }} placeholder='z.B. DE' />
                         </FormControl>
                         <FormControl>
+                            <FormLabel sx={{ color: "gray" }}>Bundesland</FormLabel>
+                            <Input value={formData.bundesland} onChange={(e) => {
+                                setFormData({
+                                    ...formData,
+                                    bundesland: e.target.value,
+                                });
+                            }} placeholder='z.B. Bayern' />
+                        </FormControl>
+                        <FormControl>
                             <FormLabel sx={{ color: "gray" }}>{formData.istfirma ? "Email des Unternehmens" : "Email Adresse"}</FormLabel>
                             <Input value={formData.email} onChange={(e) => {
                                 setFormData({
@@ -172,6 +183,7 @@ function KundeErstellung({ submit }) {
                             }} placeholder='z.B. +4915151136187' />
                         </FormControl>
                         {formData.istfirma && (
+                            <>
                             <FormControl>
                                 <FormLabel sx={{ color: "gray" }}>Ansprechpartner | {"(freilassen falls nicht vorhanden)"}</FormLabel>
                                 <Input value={formData.ansprechüartner} onChange={(e) => {
@@ -181,6 +193,16 @@ function KundeErstellung({ submit }) {
                                     });
                                 }} placeholder='z.B. Mia Leitner' />
                             </FormControl>
+                            <FormControl>
+                                <FormLabel sx={{ color: "gray" }}>Umsatzsteuer-Id | {"(Pflicht für X-Rechnung)"}</FormLabel>
+                                <Input value={formData.umstid} onChange={(e) => {
+                                    setFormData({
+                                        ...formData,
+                                        umstid: e.target.value,
+                                    });
+                                }} placeholder='z.B. Mia Leitner' />
+                            </FormControl>
+                            </>
                         )}
                         <FormControl>
                             <FormLabel sx={{ color: "gray" }}>Leitwegid | {"(für X-Rechnungen)"}</FormLabel>
