@@ -11,7 +11,7 @@ import { getKunde, handleLoadFile, handleSaveFile } from '../Scripts/Filehandler
 import html2pdf from 'html2pdf.js';
 import ForwardToInboxOutlinedIcon from '@mui/icons-material/ForwardToInboxOutlined';
 import { Buffer } from 'buffer';
-import { createERechnung } from '../Scripts/ERechnungInterpretter';
+import { createERechnung, getbrutto, getTaxAmount, getTaxSumAmount } from '../Scripts/ERechnungInterpretter';
 import MaskProvider from '../components/MaskProvider';
 import DeleteConfirmation from '../components/Produktedit/Masks/DeleteConfirmation';
 // A4: 210mm x 297mm
@@ -33,6 +33,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   const navigate = useNavigate();
   const pdfRef = useRef();
   const [delconfirm, setdelconfirm] = useState(null);
+
   useEffect(() => {
     const fetchData = async () => {
       const jsonstring = await handleLoadFile("rechnungen/" + rechnung);
@@ -267,13 +268,13 @@ function RechnungsViewer({ rechnung, unternehmen }) {
       </Box>
     )
   }
-  const deleteRechnung = async (none) =>  {
+  const deleteRechnung = async (none) => {
     const ur = await handleLoadFile("fast_accsess/u_Rechnungen.db");
     const urJson = JSON.parse(ur);
     urJson.list = urJson.list.filter((i) => i.rechnung !== rechnung);
-    await handleSaveFile("fast_accsess/u_Rechnungen.db",JSON.stringify(urJson));
-    
-    
+    await handleSaveFile("fast_accsess/u_Rechnungen.db", JSON.stringify(urJson));
+
+
     const temp = await handleLoadFile("fast_accsess/tabs.rechnix");
     let tempjson = JSON.parse(temp);
     tempjson = tempjson.filter((i) => i !== rechnung);
@@ -298,7 +299,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     runningTotalList = runningTotals(positions);
   }
 
-  
+
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", pb: 6, background: "#f7f7f7" }}>
       {/* Sidebar Buttons */}
@@ -336,7 +337,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
         ))}
       </Box>
       {
-        delconfirm != null  && (
+        delconfirm != null && (
           <MaskProvider>
             <DeleteConfirmation title={"Rechnung löschen ?"} buttontitle={"Löschen"}
               description={"Wenn sie die Rechung löschen kann sie nichtmehr wiederhergestellt werden!"}
@@ -424,17 +425,39 @@ function RechnungsViewer({ rechnung, unternehmen }) {
                       </tr>
                     ))}
                     <tr>
-                      <td colSpan={3}></td>
-                      <td style={{ fontWeight: 'bold', padding: '2mm', textAlign: 'right' }}>
-                        {isLastPage ? "Summe" : "Übertrag"}
+                      <td colSpan={2}></td>
+                      <td style={{ ...columns[2].style, padding: '2mm' }}>
+                        {isLastPage ? unternehmen.mwst ? "Netto" : "Summe" : "Übertrag"}
                       </td>
-                      <td style={{ fontWeight: 'bold', padding: '2mm', textAlign: 'right' }}>
+                      <td colSpan={1}></td>
+                      <td style={{ padding: '2mm', textAlign: 'right' }}>
                         {isLastPage
                           ? formatPrice(summeGesamt)
                           : formatPrice(uebertrag)
                         }
                       </td>
                     </tr>
+                    {
+
+                      isLastPage && unternehmen.mwst && (
+                        <tr>
+                          <td colSpan={2}></td>
+                          <td style={{ ...columns[2].style, padding: '2mm' }}>zzgl. USt.</td>
+                          <td colSpan={1}></td>
+                          <td style={{ ...columns[4].style, padding: '2mm' }}>{getTaxAmount(data)}€</td>
+                        </tr>
+                      )
+                    }
+                    {
+                      isLastPage && unternehmen.mwst && (
+                        <tr>
+                          <td colSpan={2}></td>
+                          <td style={{ ...columns[2].style, padding: '2mm', fontWeight: "bold" }}>Brutto</td>
+                          <td colSpan={1}></td>
+                          <td style={{ ...columns[4].style, padding: '2mm', fontWeight: "bold"  }}>{getbrutto(data)}€</td>
+                        </tr>                      
+                      )
+                    }
                   </tbody>
                 </Table>
                 {

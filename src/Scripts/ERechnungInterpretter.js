@@ -87,7 +87,7 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
     .up()
     .up()
   const taxTotalNode = doc.ele("cac:TaxTotal")
-    .ele("cbc:TaxAmount", {currencyID:"EUR"}).txt(getTaxSumAmount(data)).up();
+    .ele("cbc:TaxAmount", {currencyID:"EUR"}).txt(getTaxAmount(data)).up();
 
   if (unternehmen.mwst){
     getSteuersätze(data).map((item) => {
@@ -207,7 +207,7 @@ function getSteuersätze(data) {
 
 
 
-function getbrutto(data) {
+export function getbrutto(data) {
     let i = 0;
     Object.entries(data.positionen).forEach(([key, value], index) => {
         const name = key.split("_")[1];
@@ -234,7 +234,7 @@ function getNetto(data) {
     return Number(i).toFixed(2);
 }
 
-function getTaxSumAmount(data) {
+ function getTaxSumAmount(data) {
     let i = 0;
     Object.entries(data.positionen).forEach(([key, value], index) => {
         const name = key.split("_")[1];
@@ -249,7 +249,7 @@ function getTaxSumAmount(data) {
 }
 
 
-function getTaxAmount(data) {
+export function getTaxAmount(data) {
     let i = 0;
     Object.entries(data.positionen).forEach(([key, value], index) => {
         const name = key.split("_")[1];

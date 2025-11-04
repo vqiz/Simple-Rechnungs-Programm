@@ -26,11 +26,15 @@ import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalance
 import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
 import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import MaskProvider from '../components/MaskProvider';
+import KundenEditor from '../components/KundenVerwaltung/Masks/KundenEditor';
 
 function KundenViewer() {
   const { id } = useParams();
   const [kunde, setkunde] = useState();
   const [u_Rechnungen, set_uRechnungen] = useState();
+  const [editkunde, setEditKunde] = useState();
+
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -51,14 +55,15 @@ function KundenViewer() {
   const handleClose = () => {
     setAnchor(null);
   };
-  useEffect(() => {
-    const fetch = async () => {
-      const fkunde = await getKunde(Number(id));
-      setkunde(fkunde);
+  const fetch = async () => {
+    const fkunde = await getKunde(Number(id));
+    setkunde(fkunde);
 
-      const u_R = await get_uRechnungen();
-      set_uRechnungen(u_R);
-    }
+    const u_R = await get_uRechnungen();
+    set_uRechnungen(u_R);
+  }
+  useEffect(() => {
+
     fetch();
   }, []);
 
@@ -79,9 +84,20 @@ function KundenViewer() {
   function onb() {
     navigate("/home/2/-1");
   }
+  function oneditclose() {
+    setEditKunde(false);
+    fetch();
+  }
   return (
     <Box>
       <Headline back={true} onback={onb}>{kunde?.name}</Headline>
+      {
+        editkunde && (
+          <MaskProvider>
+            <KundenEditor id={id} close={oneditclose} />
+          </MaskProvider>
+        )
+      }
       {anchor && (
         <Box
           sx={{
@@ -98,20 +114,6 @@ function KundenViewer() {
           }}
           onMouseLeave={handleClose}
         >
-          <Box
-            sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
-            onClick={() => { alert("PDF Export"); handleClose(); }}
-          >
-            <IosShareOutlinedIcon fontSize="small" />
-            <Typography level="body-sm" sx={{ ml: 1 }}>Als PDF Exportieren</Typography>
-          </Box>
-          <Box
-            sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
-            onClick={() => { alert("E-Rechnung Export"); handleClose(); }}
-          >
-            <IosShareOutlinedIcon fontSize="small" />
-            <Typography level="body-sm" sx={{ ml: 1 }}>Als E-Rechnung Exportieren</Typography>
-          </Box>
           <Box
             sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
             onClick={() => { change_pstatus(target.item); handleClose(); }}
@@ -256,7 +258,7 @@ function KundenViewer() {
               </MenuButton>
               <Menu>
                 <MenuItem onClick={() => navigate("/home/0/" + id)}><AddCircleOutlineOutlinedIcon />Rechnung hinzufügen</MenuItem>
-                <MenuItem><EditOutlinedIcon />Kunden bearbeiten</MenuItem>
+                <MenuItem onClick={() => setEditKunde(true)}><EditOutlinedIcon />Kunden bearbeiten</MenuItem>
               </Menu>
             </Dropdown>
 
