@@ -18,6 +18,8 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useParams } from 'react-router-dom'
 import ListPart from '../components/ListPart'
 import RechnungsViewerTab from '../components/Tabs/RechnungsViewerTab'
+import LieferantenVerwaltung from '../components/Tabs/LieferantenVerwaltung'
+
 function Home() {
   const { selected, selectedUserRechnung } = useParams();
   useEffect(() => {
@@ -130,6 +132,7 @@ function Home() {
 
 
         <ListPart title={"Buchaltung"}>
+          <Box onClick={() => setvalue(5)}>
           <ListItem>
             <Typography
               level='body-xs'
@@ -139,11 +142,12 @@ function Home() {
               Lieferantenrechnungen
             </Typography>
           </ListItem>
+          </Box>
           <ListItem>
             <Typography
               level='body-xs'
               startDecorator={<AccountBalanceWalletIcon />}
-              sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
+              sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 6 ? "primary.plainColor" : "" }}
             >
               Export
             </Typography>
@@ -166,7 +170,7 @@ function Home() {
               <Typography
                 level='body-xs'
                 startDecorator={<SettingsOutlinedIcon />}
-                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 7 ? "primary.plainColor" : "" }}
               >
                 Einstellungen
               </Typography>
@@ -189,6 +193,9 @@ function Home() {
       </TabPanel>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={4}>
         <Unternehmen />
+      </TabPanel>
+      <TabPanel sx={{ p: 0, overflowY: "auto" }} value={5}>
+        <LieferantenVerwaltung />
       </TabPanel>
     </Tabs>
   )

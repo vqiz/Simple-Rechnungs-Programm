@@ -104,11 +104,3 @@ ipcMain.handle('dialog:saveFile', async () => {
   const result = await dialog.showSaveDialog({});
   return result.canceled ? null : result.filePath;
 });
-ipcMain.handle('deleteFile', async (path) => {
-  try {
-    await fs.unlink(path);
-    console.log(`${path} wurde gelöscht`);
-  } catch (err) {
-    console.error(`Fehler beim Löschen von ${path}:`, err);
-  }
-})

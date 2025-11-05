@@ -11,6 +11,7 @@ import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import debounce from 'lodash/debounce';
 import { useNavigate } from 'react-router-dom';
+import AvatarTabeUtil from '../AvatarTabeUtil';
 
 function KundenVerwaltung() {
     const [createkunde, setcreatekunde] = useState(false);
@@ -147,29 +148,7 @@ function KundenVerwaltung() {
                                         }}
                                         onClick={() => navigate("/kunden-viewer/" + id)}
                                     >
-                                        <Box component="td" sx={{ padding: '12px 16px' }}>
-                                            <Box sx={{
-                                                display: "flex", alignContent: "center", flexDirection: "row",
-                                            }}>
-                                                {
-                                                    istfirma ? (
-                                                        <Avatar size="lg">
-                                                            <FactoryOutlinedIcon />
-                                                        </Avatar>
-
-                                                    ) : (
-                                                        <Avatar size="lg">
-                                                            <AccountCircleOutlinedIcon />
-                                                        </Avatar>
-
-                                                    )
-                                                }
-                                                <Box sx={{ display: "flex", flexDirection: "column", ml: 1,cursor: "pointer" }}>
-                                                    <Typography level="body-md" sx={{cursor: "pointer",userSelect: "none"}}>{name}</Typography>
-                                                    <Typography sx={{ color: "darkgray", cursor: "pointer",userSelect: "none" }} level="body-sm">{email}</Typography>
-                                                </Box>
-                                            </Box>
-                                        </Box>
+                                        <AvatarTabeUtil email={email} name={name} istfirma={istfirma}/>
                                         <Box component="td" sx={{ padding: '12px 16px' }}>
                                             {
                                                 istfirma ? (
