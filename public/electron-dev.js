@@ -44,17 +44,6 @@ function createWindow() {
       ]
     },
     {
-      label: 'Bearbeiten', // Edit
-      submenu: [
-        { label: "zurück", role: 'undo' },
-        { label: "vorwärts", role: 'redo' },
-        { type: 'separator' },
-        { label: "Ausschneiden", role: 'cut' },
-        { label: "Copieren", role: 'copy' },
-        { label: "Einfügen", role: 'paste' }
-      ]
-    },
-    {
       label: "Sicherung",
       submenu: [
         { type: 'separator' },
@@ -190,7 +179,7 @@ ipcMain.handle("open-mail", async (_, fileurl, empfänger, sub, b) => {
 
   shell.openExternal(`mailto:${recipient}?subject=${subject}&body=${body}`);
 });
-ipcMain.handle("create-pdf-buffer",async (_,pdfData) => {
+ipcMain.handle("create-pdf-buffer", async (_, pdfData) => {
   // Hole den PDF-Buffer
   const buffer = Buffer.from(pdfData, 'base64');
   const tmpPath = path.join(os.tmpdir(), 'rechnung.pdf');
@@ -198,18 +187,48 @@ ipcMain.handle("create-pdf-buffer",async (_,pdfData) => {
   return tmpPath;
 });
 ipcMain.handle("save-e-rechnung", async (_, xmlContent, defaultName) => {
-    const { canceled, filePath } = await dialog.showSaveDialog({
-        title: 'E-Rechnung speichern',
-        defaultPath: defaultName,
-        filters: [{ name: 'XML-Dateien', extensions: ['xml'] }],
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: 'E-Rechnung speichern',
+    defaultPath: defaultName,
+    filters: [{ name: 'XML-Dateien', extensions: ['xml'] }],
+  });
+
+  if (canceled) return;
+
+  await fs.writeFile(filePath, xmlContent, 'utf8');  // ✅ use promises
+  console.log(`✅ E-Rechnung saved to ${filePath}`);
+});
+
+ipcMain.handle('copy-file-to-path', async (_, destinationPath) => {
+  try {
+    // 1️⃣ Ask the user to pick an existing file
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      title: 'Select a file to copy',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Allowed Files', extensions: ['pdf', 'xml'] }
+      ]
     });
 
-    if (canceled) return;
+    if (canceled || filePaths.length === 0) {
+      return { success: false, canceled: true };
+    }
 
-    await fs.writeFile(filePath, xmlContent, 'utf8');  // ✅ use promises
-    console.log(`✅ E-Rechnung saved to ${filePath}`);
+    const sourcePath = filePaths[0];
+
+    // 2️⃣ Copy the file to the destination path
+    await fs.copyFile(sourcePath, destinationPath);
+
+    console.log(`✅ File copied from ${sourcePath} to ${destinationPath}`);
+    return { success: true, source: sourcePath, destination: destinationPath };
+  } catch (error) {
+    console.error('❌ Failed to copy file:', error);
+    return { success: false, error: error.message };
+  }
 });
-ipcMain.handle('deleteFile', async (_,path) => {
+
+
+ipcMain.handle('deleteFile', async (_, path) => {
   try {
     await fs.unlink(path);
     console.log(`${path} wurde gelöscht`);

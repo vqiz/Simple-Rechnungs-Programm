@@ -14,4 +14,5 @@ contextBridge.exposeInMainWorld('api', {
   openMail: (path,empfänger,subject,body) => ipcRenderer.invoke("open-mail", path,empfänger,subject,body),
   createPdfBuffer: (path) => ipcRenderer.invoke("create-pdf-buffer", path),
   saveERechnung: (content, name) => ipcRenderer.invoke("save-e-rechnung", content, name),
+  copyFile: (path) => ipcRenderer.invoke("copy-file-to-path", path),
 });

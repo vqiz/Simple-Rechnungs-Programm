@@ -79,7 +79,8 @@ function KundenVerwaltung() {
                 gap: 2,
                 p: 0,
                 position: 'relative',
-                overflowY: "auto"
+                overflowY: "auto",
+      
             }}
         >
             <Headline>Kundenverwaltung</Headline>
@@ -117,10 +118,11 @@ function KundenVerwaltung() {
                     maxWidth: "100%",
                     mb: 5,
                     mx: "auto",
-                    width: "100%"
+                    width: "100%",
+                    
                 }}
             >
-                <Table sx={{ borderRadius: "15px" }}>
+                <Table sx={{ borderRadius: "15px", maxWidth: "98%" }}>
                     <thead>
                         <tr>
                             <th>Kunden und Rechnungen</th>

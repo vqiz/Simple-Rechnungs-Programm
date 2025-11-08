@@ -165,17 +165,18 @@ function Home() {
               </Typography>
             </Box>
           </ListItem>
-          <ListItem>
-            <Box onClick={() => setvalue(5)}>
-              <Typography
-                level='body-xs'
-                startDecorator={<SettingsOutlinedIcon />}
-                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 7 ? "primary.plainColor" : "" }}
-              >
-                Einstellungen
-              </Typography>
-            </Box>
-          </ListItem>
+          {//<ListItem>
+            //<Box onClick={() => setvalue(5)}>
+              //<Typography
+               // level='body-xs'
+               // startDecorator={<SettingsOutlinedIcon />}
+               // sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 7 ? "primary.plainColor" : "" }}
+              //>
+              //</Box>  Einstellungen
+             //</ListItem> </Typography>
+            //</TabList></Box>
+          //</ListItem>
+          }
         </ListPart>
 
       </TabList>
