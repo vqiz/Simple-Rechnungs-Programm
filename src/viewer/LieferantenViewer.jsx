@@ -1,4 +1,4 @@
-import { Avatar, Box, Dropdown, Input, ListItem, Menu, MenuButton, MenuItem, Table, Typography } from '@mui/joy'
+import { Avatar, Box, Chip, Dropdown, Input, ListItem, Menu, MenuButton, MenuItem, Table, Typography } from '@mui/joy'
 import React, { useEffect, useState } from 'react'
 import Headline from '../components/Headline'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -53,7 +53,7 @@ function LieferantenViewer() {
 
         // "" that it becomes a string
         let code = generateCode();
-        const folderdata  = await window.api.listfiles("lieferantenrechnungen/")
+        const folderdata = await window.api.listfiles("lieferantenrechnungen/")
         while (folderdata.includes(code + "")) {
             //new code so an unused gets generated
             code = generateCode();
@@ -62,14 +62,34 @@ function LieferantenViewer() {
         const result = await window.api.copyFile("lieferantenrechnungen/" + code);
         console.log(result);
         if (result.success) {
+            let type = "PDF";
+            //define data type
+            const content = await handleLoadFile(result.destination);
+            if (content.includes("</Invoice>")) {
+                type = "X-Rechnung";
+            }
             const item = {
                 name: result.name,
                 id: code,
+                "type": type,
             }
             data.rechnungen.push(item);
             await handleSaveFile("lieferanten/" + id, JSON.stringify(data));
             fetch();
         }
+    }
+    useEffect(() => {
+        const handler = debounce(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+        handler();
+        return () => {
+            handler.cancel();
+        };
+    }, [searchTerm]);
+    const openFile = (item) => {
+        sessionStorage.setItem(item.id, JSON.stringify(item));
+        navigate("/view-file/" + item.id + "/" + id);
     }
     return (
         <Box>
@@ -189,9 +209,44 @@ function LieferantenViewer() {
                             <tr>
                                 <th>Rechnung</th>
                                 <th>Art</th>
-
                             </tr>
                         </thead>
+                        <tbody>
+                            {
+                                data?.rechnungen.slice().reverse().filter((item) => item.name.includes(debouncedSearchTerm)).map((item) => {
+                                    return (
+                                        <Box
+                                            component={"tr"}
+                                            key={item.id} sx={{
+                                                transition: 'background-color 0.2s',
+                                                '&:hover': {
+                                                    bgcolor: 'neutral.plainHoverBg',
+                                                },
+                                                cursor: "pointer"
+
+                                            }}
+                                            onClick={() => openFile(item)}
+                                        >
+                                            <Box component="td" sx={{ padding: '12px 16px' }}>
+                                                <Box sx={{
+                                                    display: "flex", alignContent: "center", flexDirection: "row",
+                                                }}>
+                                                    <ReceiptLongOutlinedIcon />
+                                                    <Box sx={{ display: "flex", flexDirection: "column", ml: 1, cursor: "pointer" }}>
+                                                        <Typography level="body-md" sx={{ cursor: "pointer", userSelect: "none" }}>{item.name}</Typography>
+                                                        <Typography sx={{ color: "darkgray", cursor: "pointer", userSelect: "none" }} level="body-sm">{ }</Typography>
+                                                    </Box>
+                                                </Box>
+                                            </Box>
+                                            <td><Chip>{item.type}</Chip></td>
+                                        </Box>
+                                    )
+
+
+
+                                })
+                            }
+                        </tbody>
                     </Table>
                 </Box>
             </Box>
