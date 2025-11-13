@@ -58,7 +58,7 @@ function KundenViewer() {
   const fetch = async () => {
     const fkunde = await getKunde(Number(id));
     setkunde(fkunde);
-
+    
     const u_R = await get_uRechnungen();
     set_uRechnungen(u_R);
   }

@@ -237,7 +237,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
         </Box>
         <Box sx={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", mb: 2 }}>
           <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography level='body-xs'>Herr/Frau</Typography>
+            <Typography level='body-xs'>{!kunde?.istfirma && (<>Herr/Frau</>)}</Typography>
             <Typography level="body-xs">{kunde?.name}</Typography>
             <Typography level="body-xs">{kunde?.street} {kunde?.number}</Typography>
             <Typography level='body-xs'><br /></Typography>

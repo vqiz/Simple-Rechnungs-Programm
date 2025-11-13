@@ -73,7 +73,7 @@ export const saveRechnung = async (json, nummer) => {
 }
 export const get_uRechnungen = async () => {
   const path = "fast_accsess/u_Rechnungen.db";
-  const jsonstring = await handleLoadFile(path);
+  let jsonstring = await handleLoadFile(path);
   if (jsonstring === "{}") {
     jsonstring = `{"list": []}`
   }

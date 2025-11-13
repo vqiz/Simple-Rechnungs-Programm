@@ -215,12 +215,12 @@ ipcMain.handle('copy-file-to-path', async (_, destinationPath) => {
     }
 
     const sourcePath = filePaths[0];
-
+    const originalName = path.basename(sourcePath);
     // 2️⃣ Copy the file to the destination path
     await fs.copyFile(sourcePath, destinationPath);
 
     console.log(`✅ File copied from ${sourcePath} to ${destinationPath}`);
-    return { success: true, source: sourcePath, destination: destinationPath };
+    return { success: true, source: sourcePath, destination: destinationPath, name: originalName };
   } catch (error) {
     console.error('❌ Failed to copy file:', error);
     return { success: false, error: error.message };

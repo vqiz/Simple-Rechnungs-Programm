@@ -2,7 +2,7 @@ import { Avatar, Box, Dropdown, Input, ListItem, Menu, MenuButton, MenuItem, Tab
 import React, { useEffect, useState } from 'react'
 import Headline from '../components/Headline'
 import { useNavigate, useParams } from 'react-router-dom'
-import { handleLoadFile } from '../Scripts/Filehandler';
+import { handleLoadFile, handleSaveFile } from '../Scripts/Filehandler';
 import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
@@ -28,6 +28,7 @@ import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import MaskProvider from '../components/MaskProvider';
 import KundenEditor from '../components/KundenVerwaltung/Masks/KundenEditor';
+import { generateCode } from '../Scripts/KundenDatenBank';
 function LieferantenViewer() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -35,19 +36,40 @@ function LieferantenViewer() {
     function onb() {
         navigate("/home/5/-1");
     }
+    const fetch = async () => {
+        const string = await handleLoadFile("lieferanten/" + id);
+        const json = JSON.parse(string);
+        setData(json);
+    }
     useEffect(() => {
-        const fetch = async () => {
-            const string = await handleLoadFile("lieferanten/" + id);
-            const json = JSON.parse(string);
-            setData(json);
-        }
         fetch();
     }, []);
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
     const addNewFile = async () => {
-        window.api.copyFile("lieferantenrechnungen/");
+        //the folder gets created like this
+        await handleLoadFile("lieferantenrechnungen/dump.rechnix");
+
+        // "" that it becomes a string
+        let code = generateCode();
+        const folderdata  = await window.api.listfiles("lieferantenrechnungen/")
+        while (folderdata.includes(code + "")) {
+            //new code so an unused gets generated
+            code = generateCode();
+        }
+
+        const result = await window.api.copyFile("lieferantenrechnungen/" + code);
+        console.log(result);
+        if (result.success) {
+            const item = {
+                name: result.name,
+                id: code,
+            }
+            data.rechnungen.push(item);
+            await handleSaveFile("lieferanten/" + id, JSON.stringify(data));
+            fetch();
+        }
     }
     return (
         <Box>
