@@ -1,10 +1,11 @@
+import { Box } from '@mui/joy'
 import React from 'react'
 
 function FilePdfViewer() {
   return (
-    <div>
+    <Box>
       
-    </div>
+    </Box>
   )
 }
 

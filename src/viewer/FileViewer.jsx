@@ -14,6 +14,7 @@ function FileViewer() {
         //getting file data from session storage
         const storage = sessionStorage.getItem(item);
         const json = JSON.parse(storage);
+
         setData(json);
     }, [])
     const navBack = () => {
@@ -27,7 +28,7 @@ function FileViewer() {
                     data?.type === "PDF" ? (
                         <FilePdfViewer/>
                     ) : (
-                        <FileXRechnungViewer/>
+                        <FileXRechnungViewer d={data}/>
                     )
                 }
             </Box>

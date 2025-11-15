@@ -213,7 +213,7 @@ function LieferantenViewer() {
                         </thead>
                         <tbody>
                             {
-                                data?.rechnungen.slice().reverse().filter((item) => item.name.includes(debouncedSearchTerm)).map((item) => {
+                                data?.rechnungen?.slice()?.reverse().filter((item) => item.name.includes(debouncedSearchTerm)).map((item) => {
                                     return (
                                         <Box
                                             component={"tr"}
