@@ -10,7 +10,7 @@ const HEADER_HEIGHT_MM = 45; // estimated header height
 const FOOTER_HEIGHT_MM = 35; // estimated footer height
 const ROWS_PER_PAGE = 6;
 function FileXRechnungViewer({ d }) {
-    const [invoiceRoot,setInvoiceRoot] = useState();
+    const [invoiceRoot, setInvoiceRoot] = useState();
     const [verkeufername, setVerkäufername] = useState();
     const [kundenname, setKundenName] = useState();
     const [kundenstreet, setKundenStreet] = useState();
@@ -151,7 +151,7 @@ function FileXRechnungViewer({ d }) {
     // Footer component
     function Footer() {
         return (
-            <Box sx={{ width: "100%", mt: 2, mb: 5 }}>
+            <Box sx={{ width: "100%", mt: 5, mb: 2 }}>
                 <Typography level="body-xs" sx={{ fontSize: "8px" }} fontWeight="bold">Dies ist nur eine Visualisierung der WICHTIGSTEN DATEN aus der X-Rechnung <br /> Es wird nicht für die Richtigkeit und vollständigkeit der Daten gehaftet</Typography>
                 <Typography level="body-xs" sx={{ fontSize: "8px" }} fontWeight="bold">{verkeufername}</Typography>
                 <Typography level='body-xs' sx={{ fontSize: "8px" }}>{verkeuferstreet}, {verkeuferplz} {verkeufercity}</Typography>
@@ -172,12 +172,12 @@ function FileXRechnungViewer({ d }) {
 
 
     return (
-        <Box sx={{ width: "100%", minHeight: "100vh", pb: 6, background: "#f7f7f7" }}>
+        <Box sx={{ width: "100%", pb: 6, background: "#f7f7f7", overflowY: "auto" }}>
             <Box
                 sx={{
                     width: `${A4_WIDTH_MM}mm`,
-                    minHeight: `${A4_HEIGHT_MM}mm`,
                     maxWidth: `${A4_WIDTH_MM}mm`,
+                    minHeight: `${A4_HEIGHT_MM}mm`,
                     margin: '20px auto',
                     background: "#fff",
                     borderRadius: "6px",
@@ -185,10 +185,10 @@ function FileXRechnungViewer({ d }) {
                     padding: `${PAGE_PADDING_MM}mm`,
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "space-between",
+                    justifyContent: "flex-start", // changed from "space-between"
                     boxSizing: "border-box",
                     overflow: "visible",
-                    mb: 50
+                    // removed fixed height / minHeight
                 }}
             >
                 <Head />
@@ -224,7 +224,50 @@ function FileXRechnungViewer({ d }) {
                         </tr>
                     </thead>
                     <tbody>
+                        {
+                            invoiceRoot && invoiceRoot["cac:InvoiceLine"].map((item, index) => {
+                                console.log(item["cbc:InvoicedQuantity"])
+                                return (
+                                    <Box component={"tr"} sx={{ height: "50px" }} key={index}>
+                                        <td style={{ ...columns[0].style, padding: '2mm', fontWeight: 500 }}>{index}</td>
+                                        <td style={{ ...columns[1].style, padding: '2mm' }}>{item["cac:Item"]["cbc:Name"]}</td>
+                                        <td style={{ ...columns[2].style, padding: '2mm' }}>{item["cbc:InvoicedQuantity"]["#"]}</td>
+                                        <td style={{ ...columns[3].style, padding: '2mm' }}>{item["cac:Price"]["cbc:PriceAmount"]["#"]}€</td>
+                                        <td style={{ ...columns[4].style, padding: '2mm' }}>{item["cbc:LineExtensionAmount"]["#"]}€</td>
+                                    </Box>
+                                );
 
+
+
+                            })
+                        }
+                        {
+                            invoiceRoot && (
+                                <Box component={"tr"} sx={{ height: "50px" }}>
+                                    <td></td>
+                                    <td style={{ ...columns[1].style, padding: '2mm' }}>Mwst.</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td style={{ ...columns[4].style, padding: '2mm' }}>{
+                                        Number(invoiceRoot["cac:LegalMonetaryTotal"]["cbc:TaxInclusiveAmount"]["#"]) -
+                                        Number(invoiceRoot["cac:LegalMonetaryTotal"]["cbc:TaxExclusiveAmount"]["#"])
+                                    }€</td>
+                                </Box>
+                            )
+                        }
+                        {
+                            invoiceRoot && (
+                                <Box component={"tr"} sx={{ height: "50px" }}>
+                                    <td></td>
+                                    <td style={{ ...columns[1].style, padding: '2mm', fontWeight: "bold" }}>Summe</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td style={{ ...columns[4].style, padding: '2mm' }}>{
+                                        Number(invoiceRoot["cac:LegalMonetaryTotal"]["cbc:TaxInclusiveAmount"]["#"])
+                                    }€</td>
+                                </Box>
+                            )
+                        }
                     </tbody>
                 </Table>
                 <Footer />

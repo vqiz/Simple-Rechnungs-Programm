@@ -135,7 +135,7 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
         doc.ele("cac:InvoiceLine")
             .ele("cbc:ID").txt(index + 1).up()
             .ele("cbc:InvoicedQuantity", {unitCode: !name.toLowerCase().includes("stunde") ? "C62" : "HUR"}).txt(amout).up()
-            .ele("cbc:LineExtensionAmount", {currencyID:"EUR"}).txt(Number(price).toFixed(2)).up()
+            .ele("cbc:LineExtensionAmount", {currencyID:"EUR"}).txt(Number(price * amout).toFixed(2)).up()
             .ele("cac:Item")
                 .ele("cbc:Name").txt(name).up()
                 .ele("cac:ClassifiedTaxCategory")
