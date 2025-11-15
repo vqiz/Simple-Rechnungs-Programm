@@ -26,7 +26,7 @@ function FileViewer() {
             <Box sx={{ width: "100%", height: "calc(100vh - 55px)", display: "flex", overflowY: "auto", flexDirection: "row" }}>
                 {
                     data?.type === "PDF" ? (
-                        <FilePdfViewer/>
+                        <FilePdfViewer data={data}/>
                     ) : (
                         <FileXRechnungViewer d={data}/>
                     )

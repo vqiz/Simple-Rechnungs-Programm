@@ -15,4 +15,5 @@ contextBridge.exposeInMainWorld('api', {
   createPdfBuffer: (path) => ipcRenderer.invoke("create-pdf-buffer", path),
   saveERechnung: (content, name) => ipcRenderer.invoke("save-e-rechnung", content, name),
   copyFile: (path) => ipcRenderer.invoke("copy-file-to-path", path),
+  getFullpath: (path) => ipcRenderer.invoke("getFullPath", path),
 });

@@ -29,6 +29,7 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import MaskProvider from '../components/MaskProvider';
 import KundenEditor from '../components/KundenVerwaltung/Masks/KundenEditor';
 import { generateCode } from '../Scripts/KundenDatenBank';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 function LieferantenViewer() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -200,6 +201,7 @@ function LieferantenViewer() {
                             <Menu>
                                 <MenuItem onClick={() => addNewFile()}><AddCircleOutlineOutlinedIcon />Datei Hinzufügen</MenuItem>
                                 <MenuItem><EditOutlinedIcon />Lieferant bearbeiten</MenuItem>
+                                <MenuItem  color='danger'><DeleteOutlineOutlinedIcon/>Lieferant Löschen</MenuItem>
                             </Menu>
                         </Dropdown>
 

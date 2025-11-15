@@ -35,15 +35,6 @@ function createWindow() {
 
     },
     {
-      label: 'Datei', // File
-      submenu: [
-        { label: 'Neu', click: () => console.log('Neu clicked') },
-        { label: 'Öffnen', click: () => console.log('Öffnen clicked') },
-        { type: 'separator' },
-        { label: 'Beenden', role: 'quit' }
-      ]
-    },
-    {
       label: "Sicherung",
       submenu: [
         { type: 'separator' },
@@ -236,3 +227,14 @@ ipcMain.handle('deleteFile', async (_, path) => {
     console.error(`Fehler beim Löschen von ${path}:`, err);
   }
 })
+ipcMain.handle("getFullPath", async (_, p) => {
+  let appPath = app.getAppPath();
+
+  // falls public am Ende steht → entferne es
+  if (appPath.endsWith("public")) {
+    appPath = path.dirname(appPath);
+  }
+  const fullPath = path.join(appPath, p);
+  const data = await fs.readFile(fullPath);
+  return data;
+});
