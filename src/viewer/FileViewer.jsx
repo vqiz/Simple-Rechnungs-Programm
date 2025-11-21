@@ -5,6 +5,7 @@ import Headline from '../components/Headline';
 import FilePdfViewer from './FilePdfViewer';
 import FileXRechnungViewer from './FileXRechnungViewer';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { handleLoadFile, handleSaveFile } from '../Scripts/Filehandler';
 function FileViewer() {
     //kundenid for navigation back
     const { item, kundenid } = useParams();
@@ -21,8 +22,17 @@ function FileViewer() {
         navigate("/lieferanten-viewer/" + kundenid);
     }
     const sidebarButtons = [
-        { icon: <DeleteOutlineOutlinedIcon />, label: "Löschen", color: 'danger', click: () => { } },
+        { icon: <DeleteOutlineOutlinedIcon />, label: "Löschen", color: 'danger', click: () => del() },
     ];
+    async function del(){
+        const phrase = await handleLoadFile("lieferanten/" + kundenid);
+        const json = JSON.parse(phrase);
+        console.log("acac", json);
+        json.rechnungen = json.rechnungen.filter((i) => Number(i.id) != Number(data.id));
+        await handleSaveFile("lieferanten/" + kundenid, JSON.stringify(json));
+        await window.api.delFile("lieferantenrechnungen/" + data.id);
+        navBack();
+    }
     return (
         <Box>
             <Headline onback={navBack} back={true}>{data?.name}</Headline>
