@@ -259,12 +259,19 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   function Footer() {
     return (
       <Box sx={{ width: "100%", mt: 2 }}>
+        
         <Typography level="body-xs" sx={{ fontSize: "8px" }} fontWeight="bold">{unternehmen?.unternehmensname}</Typography>
         <Typography level='body-xs' sx={{ fontSize: "8px" }}>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
         <Typography level='body-xs' sx={{ fontSize: "8px" }}>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
         <Typography level='body-xs' sx={{ fontSize: "8px" }}>{unternehmen?.bankname}, IBAN: {unternehmen?.bankverbindung}, BIC: {unternehmen?.bic}</Typography>
         <Typography level='body-xs' sx={{ fontSize: "8px" }}>{unternehmen?.handelsregisternummer}, Inhaber: {unternehmen?.inhaber}, USt-ID-NR: {unternehmen?.umsatzsteuerId}, Steuer-Nr: {unternehmen?.steuernr}</Typography>
-        <Typography level='body-xs' sx={{ fontSize: "8px" }}>Zu zahlen innerhalb 14 Tagen nach Zustellung ohne Zuschläge</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "8px" }}>Zu zahlen innerhalb 14 Tagen nach Zustellung ohne Abzüge</Typography>
+        {
+          !unternehmen.mwst && (
+            <Typography level='body-xs' sx={{fontSize: "8px"}}>Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.</Typography>
+          )
+        }
+        
       </Box>
     )
   }

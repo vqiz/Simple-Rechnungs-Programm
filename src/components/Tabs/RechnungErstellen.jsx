@@ -32,7 +32,22 @@ function RechnungErstellen({ selUser }) {
   const [editCount, seteditCount] = useState(false);
   const [count, setCount] = useState(0);
   const [targetEditCount, setTargetEditCount] = useState();
+  //unternehmen
+  const [oldjson, setoldjson] = useState();
 
+  useEffect(() => {
+    const fetch = async () => {
+      const jsonstring = await handleLoadFile("settings/unternehmen.rechnix");
+      const phrased = JSON.parse(jsonstring);
+      if (jsonstring === "{}") {
+        return;
+      }
+  
+      setoldjson(phrased);
+    }
+    fetch();
+
+  }, []);
   useEffect(() => {
     const readdata = async () => {
       const readjson = await handleLoadFile("fast_accsess/kunden.db");
@@ -633,7 +648,7 @@ function RechnungErstellen({ selUser }) {
                       produkte?.list
                         ?.find((c) => c.name === catName)
                         ?.content.find((p) => p.name === prodName)?.steuer || 19;
-                    if (brutto) {
+                    if (brutto || !oldjson?.mwst) {
                       return sum + value * productPrice;
                     } else {
                       return sum + value * productPrice * (1 + steuer / 100);
