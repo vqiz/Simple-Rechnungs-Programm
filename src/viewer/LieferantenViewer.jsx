@@ -30,10 +30,12 @@ import MaskProvider from '../components/MaskProvider';
 import KundenEditor from '../components/KundenVerwaltung/Masks/KundenEditor';
 import { generateCode } from '../Scripts/KundenDatenBank';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import LieferantenEditor from '../components/LieferantenVerwaltung/LieferantenEditor';
 function LieferantenViewer() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [data, setData] = useState();
+    const [edit, setEdit] = useState();
     function onb() {
         navigate("/home/5/-1");
     }
@@ -92,10 +94,26 @@ function LieferantenViewer() {
         sessionStorage.setItem(item.id, JSON.stringify(item));
         navigate("/view-file/" + item.id + "/" + id);
     }
+    function c(){
+        setEdit(false);
+        fetch();
+    }
     return (
         <Box>
             <Headline back={true} onback={onb}>{id}</Headline>
             <Box sx={{ width: "100%", height: "calc(100vh - 55px)", display: "flex", overflowY: "auto", flexDirection: "row" }}>
+
+
+                { /* Form to edit */}
+                {
+                    edit && (
+                        <MaskProvider>
+                            <LieferantenEditor close={c} id={id}/>
+                        </MaskProvider>
+                    )
+                }
+
+
                 <Box
                     sx={{
                         height: "100%",
@@ -200,8 +218,7 @@ function LieferantenViewer() {
                             </MenuButton>
                             <Menu>
                                 <MenuItem onClick={() => addNewFile()}><AddCircleOutlineOutlinedIcon />Datei Hinzufügen</MenuItem>
-                                <MenuItem><EditOutlinedIcon />Lieferant bearbeiten</MenuItem>
-                                <MenuItem  color='danger'><DeleteOutlineOutlinedIcon/>Lieferant Löschen</MenuItem>
+                                <MenuItem onClick={() => setEdit(true)}><EditOutlinedIcon />Lieferant bearbeiten</MenuItem>
                             </Menu>
                         </Dropdown>
 
