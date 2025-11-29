@@ -19,6 +19,7 @@ import { useParams } from 'react-router-dom'
 import ListPart from '../components/ListPart'
 import RechnungsViewerTab from '../components/Tabs/RechnungsViewerTab'
 import LieferantenVerwaltung from '../components/Tabs/LieferantenVerwaltung'
+import Dashboard from '../components/Tabs/Dashboard'
 
 function Home() {
   const { selected, selectedUserRechnung } = useParams();
@@ -71,7 +72,7 @@ function Home() {
         <Box sx={{ width: "100%", display: "flex", justifyContent: "center", mb: 2 }}><Divider sx={{ width: "90%" }} orientation="horizontal" /></Box>
         <ListPart title={"Allgemein"}>
           <ListItem>
-            <Box>
+            <Box onClick={() => setvalue(-1)}>
               <Typography
                 level="body-xs"
                 startDecorator={<DashboardIcon />}
@@ -133,15 +134,15 @@ function Home() {
 
         <ListPart title={"Buchaltung"}>
           <Box onClick={() => setvalue(5)}>
-          <ListItem>
-            <Typography
-              level='body-xs'
-              startDecorator={<AssuredWorkloadIcon />}
-              sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
-            >
-              Lieferantenrechnungen
-            </Typography>
-          </ListItem>
+            <ListItem>
+              <Typography
+                level='body-xs'
+                startDecorator={<AssuredWorkloadIcon />}
+                sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 5 ? "primary.plainColor" : "" }}
+              >
+                Lieferantenrechnungen
+              </Typography>
+            </ListItem>
           </Box>
           <ListItem>
             <Typography
@@ -167,15 +168,15 @@ function Home() {
           </ListItem>
           {//<ListItem>
             //<Box onClick={() => setvalue(5)}>
-              //<Typography
-               // level='body-xs'
-               // startDecorator={<SettingsOutlinedIcon />}
-               // sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 7 ? "primary.plainColor" : "" }}
-              //>
-              //</Box>  Einstellungen
-             //</ListItem> </Typography>
+            //<Typography
+            // level='body-xs'
+            // startDecorator={<SettingsOutlinedIcon />}
+            // sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 7 ? "primary.plainColor" : "" }}
+            //>
+            //</Box>  Einstellungen
+            //</ListItem> </Typography>
             //</TabList></Box>
-          //</ListItem>
+            //</ListItem>
           }
         </ListPart>
 
@@ -197,6 +198,9 @@ function Home() {
       </TabPanel>
       <TabPanel sx={{ p: 0, overflowY: "auto" }} value={5}>
         <LieferantenVerwaltung />
+      </TabPanel>
+      <TabPanel sx={{ p: 0, overflowY: "auto" }} value={-1}>
+        <Dashboard />
       </TabPanel>
     </Tabs>
   )

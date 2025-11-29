@@ -7,7 +7,7 @@ function Headline({ children, back, onback }) {
       sx={{
         width: '100%',
         minHeight: '55px',
-        bgcolor: '#ffffff',
+     
         display: 'flex',
         alignItems: 'center',
         borderBottom: '1px solid #ddd',
