@@ -260,16 +260,16 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     return (
       <Box sx={{ width: "100%", mt: 2 }}>
         
-        <Typography level="body-xs" sx={{ fontSize: "12px" }} fontWeight="bold">{unternehmen?.unternehmensname}</Typography>
-        <Typography level='body-xs' sx={{ fontSize: "12px" }}>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
-        <Typography level='body-xs' sx={{ fontSize: "12px" }}>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
-        <Typography level='body-xs' sx={{ fontSize: "12px" }}>{unternehmen?.bankname}, IBAN: {unternehmen?.bankverbindung}</Typography>
-        <Typography level='body-xs' sx={{fontSize: "12px"}}>KontoInhaber: {unternehmen.kontoinhaber}, BIC: {unternehmen?.bic}</Typography>
-        <Typography level='body-xs' sx={{ fontSize: "12px" }}>{unternehmen?.handelsregisternummer}, Inhaber: {unternehmen?.inhaber}, USt-ID-NR: {unternehmen?.umsatzsteuerId}, Steuer-Nr: {unternehmen?.steuernr}</Typography>
-        <Typography level='body-xs' sx={{ fontSize: "12px" }}>Zu zahlen innerhalb 14 Tagen nach Zustellung ohne Abzüge</Typography>
+        <Typography level="body-xs" sx={{ fontSize: "10px" }} fontWeight="bold">{unternehmen?.unternehmensname}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "10px" }}>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "10px" }}>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "10px" }}>{unternehmen?.bankname}, IBAN: {unternehmen?.bankverbindung}</Typography>
+        <Typography level='body-xs' sx={{fontSize: "10px"}}>KontoInhaber: {unternehmen.kontoinhaber}, BIC: {unternehmen?.bic}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "10px" }}>{unternehmen?.handelsregisternummer}, Inhaber: {unternehmen?.inhaber}, USt-ID-NR: {unternehmen?.umsatzsteuerId}, Steuer-Nr: {unternehmen?.steuernr}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "10px" }}>Zu zahlen innerhalb 14 Tagen nach Zustellung ohne Abzüge</Typography>
         {
           !unternehmen.mwst && (
-            <Typography level='body-xs' sx={{fontSize: "12px"}}>Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.</Typography>
+            <Typography level='body-xs' sx={{fontSize: "10px"}}>Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.</Typography>
           )
         }
         
@@ -471,7 +471,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
                 {
                   isLastPage && data.comment && data.comment != "" && (
 
-                    <Typography sx={{ fontSize: "10px" }}>{data.comment}</Typography>
+                    <Typography sx={{ fontSize: "12px" }}>{data.comment}</Typography>
                   )
                 }
                 <Footer />

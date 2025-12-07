@@ -30,7 +30,7 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
     kath.content.push({
       name: produktname,
       price: price,
-      steuer: mehrWertSteuer,
+      steuer: price > 0 ? mehrWertSteuer : 0,
     });
 
     await handleSaveFile(kathpath, JSON.stringify(json));

@@ -39,7 +39,7 @@ export const kundeErstellen = async (name, istfirma, street, number, plz, ort, l
 
 }
 export function generateCode() {
-    return Math.floor(Math.random() * 1e12)
+    return Math.floor(Math.random() * 1e6)
         .toString()
         .padStart(12, "0");
 }
