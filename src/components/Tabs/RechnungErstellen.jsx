@@ -598,10 +598,13 @@ function RechnungErstellen({ selUser }) {
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                       <Typography fontWeight="md" color="primary">
                         {
-                          brutto
+                          
+
+                          brutto || !oldjson?.mwst
                             ? (value * price).toFixed(2) + "€"   // Brutto = before Steuer
                             : (value * price * (1 + steuer / 100)).toFixed(2) + "€"  // Netto = after Steuer
                         }
+                        
                       </Typography>
                       <IconButton color="danger" onClick={() => removePosition(key)}>
                         <RemoveCircleOutlineOutlinedIcon />
