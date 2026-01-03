@@ -69,27 +69,41 @@ app.on('window-all-closed', () => {
 });
 
 
-ipcMain.handle("list-files", async (_, filePath) => {
+// Helper to get persistent path
+const getUserDataPath = (relativePath) => {
+  const userDataPath = app.getPath('userData');
+  return path.join(userDataPath, relativePath);
+};
+
+ipcMain.handle("list-files", async (_, relativePath) => {
   try {
+    const filePath = getUserDataPath(relativePath);
+
+    // Ensure directory exists before listing
+    if (!fs.existsSync(filePath)) {
+      await fsPromises.mkdir(filePath, { recursive: true });
+    }
+
     const files = await fsPromises.readdir(filePath, { withFileTypes: true });
     return files.map(entry => ({
       name: entry.name,
       isDirectory: entry.isDirectory(),
     }));
   } catch (err) {
-    console.error(`Error reading directory "${filePath}":`, err);
+    console.error(`Error reading directory "${relativePath}":`, err);
     return [];
   }
 });
 
-ipcMain.handle('read-file', async (_, filePath) => {
+ipcMain.handle('read-file', async (_, relativePath) => {
+  const filePath = getUserDataPath(relativePath);
+
   try {
     const content = await fsPromises.readFile(filePath, 'utf-8');
     return content;
   } catch (err) {
     if (err.code === 'ENOENT') {
       const dir = path.dirname(filePath);
-
 
       try {
         await fsPromises.mkdir(dir, { recursive: true });
@@ -98,9 +112,9 @@ ipcMain.handle('read-file', async (_, filePath) => {
         return null;
       }
 
-
-      await fsPromises.writeFile(filePath, "{}", 'utf-8');
-      return "{}";
+      const emptyContent = "{}";
+      await fsPromises.writeFile(filePath, emptyContent, 'utf-8');
+      return emptyContent;
     }
 
     console.error("Fehler beim Lesen der Datei:", err);
@@ -108,8 +122,15 @@ ipcMain.handle('read-file', async (_, filePath) => {
   }
 });
 
-ipcMain.handle('write-file', async (_, filePath, content) => {
+ipcMain.handle('write-file', async (_, relativePath, content) => {
   try {
+    const filePath = getUserDataPath(relativePath);
+    const dir = path.dirname(filePath);
+
+    if (!fs.existsSync(dir)) {
+      await fsPromises.mkdir(dir, { recursive: true });
+    }
+
     await fsPromises.writeFile(filePath, content, 'utf-8');
     return 'success';
   } catch (err) {

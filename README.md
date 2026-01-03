@@ -45,4 +45,4 @@ npm run dev
 
 ---
 
-*Made with ❤️ for the gastronomy sector.*
+*Made with ❤️ for the gastronomy sector and small businesses.*

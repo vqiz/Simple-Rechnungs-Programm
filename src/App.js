@@ -1,6 +1,6 @@
 import { Box, Input } from "@mui/joy";
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import Login  from "./pages/Login.jsx";
+import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import Login from "./pages/Login.jsx";
 
 import "./App.css";
 import Home from "./pages/Home.jsx";
@@ -18,9 +18,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/home/:selected/:selectedUserRechnung" element={<Home />} />
-        <Route path="/kunden-viewer/:id" element={<KundenViewer />}/>
-        <Route path="/lieferanten-viewer/:id" element={<LieferantenViewer/>}/>
-        <Route path="/view-file/:item/:kundenid" element={<FileViewer/>}/>
+        <Route path="/kunden-viewer/:id" element={<KundenViewer />} />
+        <Route path="/lieferanten-viewer/:id" element={<LieferantenViewer />} />
+        <Route path="/view-file/:item/:kundenid" element={<FileViewer />} />
       </Routes>
     </Router>
   );
