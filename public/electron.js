@@ -1,22 +1,18 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
-const fs = require('fs').promises;
+const fs = require('fs');
+const fsPromises = require('fs').promises;
 
 
 function createWindow() {
   console.log("Creating window...");
 
-  const indexPath = path.join(__dirname, 'index.html');
-
-  if (!fs.existsSync(indexPath)) {
-    console.error("❌ build/index.html NOT FOUND at:", indexPath);
-    app.quit();
-    return;
-  }
+  // Check if we are in production (packaged) or development
+  const isDev = !app.isPackaged;
 
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     minWidth: 1200,
     minHeight: 800,
     icon: path.join(__dirname, "icon.png"),
@@ -24,15 +20,42 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      preload: path.join(__dirname, 'preload.js'), // ← Wichtig!
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
   app.dock.setIcon(path.join(__dirname, "icon.png"));
-  win.loadFile(indexPath)
-    .then(() => console.log("Window loaded"))
-    .catch(err => {
-      console.error("Failed to load index.html:", err);
+
+  if (isDev) {
+    console.log("Running in Development Mode: Loading http://localhost:3000");
+    win.loadURL('http://localhost:3000').catch(e => {
+      console.error("Failed to load localhost:3000. Is the React server running? (npm start)");
+      // Fallback or show error
     });
+    // Open DevTools in dev mode
+    win.webContents.openDevTools();
+  } else {
+    // Production: Load from build directory
+    // public/electron.js is usually in root/public/electron.js
+    // build is in root/build
+    // So relative path from __dirname (root/public) to build is ../build
+    const buildPath = path.join(__dirname, '../build/index.html');
+    console.log("Running in Production Mode: Loading", buildPath);
+
+    if (fs.existsSync(buildPath)) {
+      win.loadFile(buildPath);
+    } else {
+      console.error("Build not found at:", buildPath);
+      // Try current directory as fallback (some builds flatten structure)
+      const localPath = path.join(__dirname, 'index.html');
+      if (fs.existsSync(localPath)) {
+        win.loadFile(localPath);
+      }
+    }
+  }
+
+  win.webContents.on('did-fail-load', () => {
+    console.error("Failed to load content.");
+  });
 }
 
 app.whenReady().then(() => {
@@ -48,7 +71,7 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle("list-files", async (_, filePath) => {
   try {
-    const files = await fs.readdir(filePath, { withFileTypes: true });
+    const files = await fsPromises.readdir(filePath, { withFileTypes: true });
     return files.map(entry => ({
       name: entry.name,
       isDirectory: entry.isDirectory(),
@@ -61,7 +84,7 @@ ipcMain.handle("list-files", async (_, filePath) => {
 
 ipcMain.handle('read-file', async (_, filePath) => {
   try {
-    const content = await fs.readFile(filePath, 'utf-8');
+    const content = await fsPromises.readFile(filePath, 'utf-8');
     return content;
   } catch (err) {
     if (err.code === 'ENOENT') {
@@ -69,14 +92,14 @@ ipcMain.handle('read-file', async (_, filePath) => {
 
 
       try {
-        await fs.mkdir(dir, { recursive: true });
+        await fsPromises.mkdir(dir, { recursive: true });
       } catch (mkdirErr) {
         console.error("Fehler beim Erstellen des Ordners:", mkdirErr);
         return null;
       }
 
 
-      await fs.writeFile(filePath, "{}", 'utf-8');
+      await fsPromises.writeFile(filePath, "{}", 'utf-8');
       return "{}";
     }
 
@@ -87,7 +110,7 @@ ipcMain.handle('read-file', async (_, filePath) => {
 
 ipcMain.handle('write-file', async (_, filePath, content) => {
   try {
-    await fs.writeFile(filePath, content, 'utf-8');
+    await fsPromises.writeFile(filePath, content, 'utf-8');
     return 'success';
   } catch (err) {
     console.error("Fehler beim Schreiben:", err);

@@ -1,33 +1,48 @@
-# 🧾 Rechnungs-Tool für Gaststätten etc.
+# 🧾 Rechnix - Smart Invoicing for Gastronomy
 
-Ein einfaches Desktop-Tool zur Erstellung von Rechnungen – speziell entwickelt für kleine Gaststätten.  
-Gebaut mit **React** (Frontend) und **Electron** (Desktop-Integration).
+> [!WARNING]
+> **🚧 WORK IN PROGRESS / UNFINISHED PROJECT**
+> This project is currently under active development and is **not yet ready for production use**. Features may be incomplete, and breaking changes can occur at any time. Use with caution!
 
-## 🚀 Funktionen
+Rechnix is a modern, simple desktop tool designed specifically for small restaurants and gastronomy businesses to create and manage invoices effortlessly.
 
-- Rechnungen schnell und unkompliziert erstellen
-- Speicherung als PDF
-- Produktverwaltung
-- Lokale Nutzung ohne Internetverbindung
-- Einfaches, benutzerfreundliches Interface
-- E - Rechnung nach Gesetzlichem Standart basiert auf EN 16931
-## 🛠️ Tech-Stack
+Built with **React** (Frontend) and **Electron** (Desktop Integration).
 
-- **React** – UI mit Komponentenlogik
-- **Electron** – Desktop-Anwendung mit Zugriff auf das Dateisystem
-- **HTML/CSS** – Layout und Gestaltung
+---
 
-## 🏁 Installation
+## ✨ Key Features
+
+- **⚡ Fast Invoicing**: Create professional invoices in seconds.
+- **💾 PDF Export**: Automatically save invoices as PDF files.
+- **📦 Product Management**: Manage your menu and products easily.
+- **📶 Offline First**: Works completely offline – no internet required.
+- **🎨 Modern UI**: Clean and intuitive interface for stressful shifts.
+- **⚖️ E-Invoicing**: Compliant with **EN 16931** standards.
+
+## 🛠️ Tech Stack
+
+- **⚛️ React**: Powerful UI components.
+- **🖥️ Electron**: Native desktop experience.
+- **💅 MUI Joy UI**: Beautiful and accessible design system.
+
+## 🚀 Getting Started
+
+To try out the project in its current state:
 
 ```bash
-# Repository klonen
-git clone https://github.com/dein-benutzername/rechnungs-tool.git
+# Clone the repository
+git clone https://github.com/your-username/rechnix.git
 
-# In das Projektverzeichnis wechseln
-cd rechnungs-tool
+# Navigate to project directory
+cd rechnix
 
-# Abhängigkeiten installieren
+# Install dependencies
 npm install
 
-# Anwendung im Entwicklungsmodus starten
+# Start in development mode
 npm run dev
+```
+
+---
+
+*Made with ❤️ for the gastronomy sector.*
