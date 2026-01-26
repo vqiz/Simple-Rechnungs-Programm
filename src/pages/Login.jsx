@@ -1,116 +1,81 @@
-import {
-  Box,
-  Input,
-  Modal,
-  ModalClose,
-  ModalDialog,
-  Typography,
-  Card,
-  Button
-} from '@mui/joy';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { Key } from '../Scripts/Cryptor';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+
 function Login() {
   const [passwordinput, setpasswordinput] = useState("");
+  const [alert, setAlert] = useState(false);
   const navigate = useNavigate();
-  const [alert, setalert] = useState(false);
 
-  function submit() {
-    if (passwordinput === "login") {
+  function submit(e) {
+    if (e) e.preventDefault();
+
+    if (passwordinput === "login") { // Simple password check from original code
       Key.set("login");
-      navigate("/home/0/-1");
+      navigate("/"); // Navigate to new Dashboard
     } else {
       console.log("falsches passwort");
-      setalert(true);
+      setAlert(true);
     }
   }
 
   return (
-    <>
-      <header>
-        <title>Rechnix</title>
-      </header>
+    <div className="swiss-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--swiss-gray-50)', height: '100vh', width: '100vw' }}>
+      <div className="swiss-card" style={{ width: '100%', maxWidth: '400px', padding: '40px' }}>
+        <div style={{ textAlign: 'center', mb: '32px' }}>
+          <h1 style={{ fontSize: '24px', marginBottom: '8px' }}>Rechnix</h1>
+          <p style={{ color: 'var(--swiss-gray-500)', fontSize: '14px' }}>Bitte melden Sie sich an</p>
+        </div>
 
-      <Box
-        sx={{
-          width: "100%",
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          bgcolor: "neutral.100",
-          p: 2,
-        }}
-      >
         {alert && (
-          <Modal open onClose={() => setalert(false)}>
-            <ModalDialog variant="soft">
-              <ModalClose />
-              <Typography startDecorator={<WarningAmberIcon/>} level="h5" fontWeight="lg">
-                Falsches Passwort
-              </Typography>
-              <Typography level="body-md">
-                Bitte versuchen Sie es erneut.
-              </Typography>
-            </ModalDialog>
-          </Modal>
+          <div style={{
+            backgroundColor: '#ff3b3015',
+            color: '#ff3b30',
+            padding: '12px',
+            borderRadius: '6px',
+            fontSize: '14px',
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            <WarningAmberIcon style={{ marginRight: '8px', fontSize: '20px' }} />
+            Falsches Passwort
+          </div>
         )}
 
-        <Card
-          variant="outlined"
-          sx={{
-            p: 3,
-            width: "100%",
-            maxWidth: 400,
-            boxShadow: "lg",
-            borderRadius: "lg",
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
-          <Box sx={{ textAlign: "center", mb: 1 }}>
-            <Typography level="h4" fontWeight="lg">
-              Rechnix
-            </Typography>
-            <Typography level="body-sm" color="neutral">
-              Bitte Passwort eingeben
-            </Typography>
-          </Box>
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              submit();
-            }}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "1.25rem",
-            }}
-          >
-            <Input
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '13px', fontWeight: 500 }}>Passwort</label>
+            <input
               type="password"
-              placeholder="Passwort"
-              variant="soft"
               value={passwordinput}
-              onChange={(e) => setpasswordinput(e.target.value)}
-              sx={{ width: "100%" }}
+              onChange={(e) => { setpasswordinput(e.target.value); setAlert(false); }}
+              placeholder="Passwort eingeben"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: '1px solid var(--swiss-gray-200)',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--swiss-accent)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--swiss-gray-200)'}
             />
-            <Button
-              type="submit"
-              color="primary"
-              variant="solid"
-              sx={{ py: 1.5 }}
-            >
-              Einloggen
-            </Button>
-          </form>
-        </Card>
-      </Box>
-    </>
+          </div>
+
+          <button
+            type="submit"
+            className="swiss-btn swiss-btn-primary"
+            style={{ width: '100%', marginTop: '8px' }}
+          >
+            Anmelden
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }
 

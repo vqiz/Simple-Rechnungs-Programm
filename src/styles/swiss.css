@@ -1,0 +1,124 @@
+/* Swiss Design System Variables */
+:root {
+  /* Colors - High Contrast */
+  --swiss-black: #111111;
+  --swiss-white: #ffffff;
+  --swiss-gray-50: #f9f9fa;
+  --swiss-gray-100: #f2f2f5;
+  --swiss-gray-200: #e5e5ea;
+  --swiss-gray-500: #86868b;
+  --swiss-gray-900: #1d1d1f;
+  
+  --swiss-accent: #0071e3; /* Classic clean blue */
+  --swiss-accent-hover: #0077ed;
+  
+  --swiss-danger: #ff3b30;
+  --swiss-success: #34c759;
+  --swiss-warning: #ffcc00;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  
+  /* Spacing (8pt Grid) */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-8: 64px;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --header-height: 60px;
+  
+  /* Borders */
+  --border-light: 1px solid var(--swiss-gray-200);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background-color: var(--swiss-gray-50);
+  color: var(--swiss-black);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+p {
+  line-height: 1.5;
+  color: var(--swiss-gray-900);
+}
+
+/* Utilities */
+.swiss-container {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.swiss-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  background-color: var(--swiss-white);
+}
+
+.swiss-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  height: 40px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+}
+
+.swiss-btn-primary {
+  background-color: var(--swiss-black);
+  color: var(--swiss-white);
+}
+
+.swiss-btn-primary:hover {
+  background-color: #333;
+}
+
+.swiss-btn-ghost {
+  background-color: transparent;
+  color: var(--swiss-black);
+}
+
+.swiss-btn-ghost:hover {
+  background-color: var(--swiss-gray-100);
+}
+
+/* Grid Layouts */
+.swiss-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+.swiss-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-3); }
+.swiss-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+
+/* Card */
+.swiss-card {
+  padding: var(--space-3);
+  background: var(--swiss-white);
+  border: var(--border-light);
+  border-radius: 12px;
+}
