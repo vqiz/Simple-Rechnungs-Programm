@@ -37,8 +37,16 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   useEffect(() => {
     const fetchData = async () => {
       const jsonstring = await handleLoadFile("rechnungen/" + rechnung);
-      const json = JSON.parse(jsonstring);
-      setData(json);
+      if (!jsonstring || jsonstring.trim() === "") {
+        console.error("Rechnungsdatei leer oder nicht gefunden:", rechnung);
+        return;
+      }
+      try {
+        const json = JSON.parse(jsonstring);
+        setData(json);
+      } catch (err) {
+        console.error("Fehler beim Parsen der Rechnung:", err);
+      }
     };
     fetchData();
   }, [rechnung]);
@@ -221,6 +229,20 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     { key: 'gesamt', label: 'Gesamt', style: { width: '20%', textAlign: 'right' } },
   ];
 
+  // Load Logo Path
+  const [logoPath, setLogoPath] = useState("/logo.png");
+  useEffect(() => {
+    const loadLogo = async () => {
+      try {
+        const path = await window.api.getFullpath("logo.png");
+        setLogoPath("file://" + path);
+      } catch (e) {
+        console.error("Failed to load logo path", e);
+      }
+    };
+    loadLogo();
+  }, []);
+
   // Head component
   function Head({ page, of }) {
     return (
@@ -228,7 +250,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
         <Box sx={{ width: '100%', minHeight: 0, mb: 2, display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
           <Typography level="h2" sx={{ maxWidth: "60%" }}>{unternehmen?.unternehmensname}</Typography>
           <img
-            src={"/logo.png"}
+            src={logoPath}
             alt="Logo"
             style={{ height: "150px", width: "auto" }}
             onError={(e) => (e.target.style.display = 'none')}
@@ -259,20 +281,20 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   function Footer() {
     return (
       <Box sx={{ width: "100%", mt: 2 }}>
-        
+
         <Typography level="body-xs" sx={{ fontSize: "10px" }} fontWeight="bold">{unternehmen?.unternehmensname}</Typography>
         <Typography level='body-xs' sx={{ fontSize: "10px" }}>{unternehmen?.strasse} {unternehmen?.hausnummer}, {unternehmen?.postleitzahl} {unternehmen?.stadt}</Typography>
         <Typography level='body-xs' sx={{ fontSize: "10px" }}>Tel: {unternehmen?.sonstigeTelefonnummer}, Email: {unternehmen?.sonstigeEmail}, {unternehmen?.website}</Typography>
         <Typography level='body-xs' sx={{ fontSize: "10px" }}>{unternehmen?.bankname}, IBAN: {unternehmen?.bankverbindung}</Typography>
-        <Typography level='body-xs' sx={{fontSize: "10px"}}>KontoInhaber: {unternehmen.kontoinhaber}, BIC: {unternehmen?.bic}</Typography>
+        <Typography level='body-xs' sx={{ fontSize: "10px" }}>KontoInhaber: {unternehmen.kontoinhaber}, BIC: {unternehmen?.bic}</Typography>
         <Typography level='body-xs' sx={{ fontSize: "10px" }}>{unternehmen?.handelsregisternummer}, Inhaber: {unternehmen?.inhaber}, USt-ID-NR: {unternehmen?.umsatzsteuerId}, Steuer-Nr: {unternehmen?.steuernr}</Typography>
         <Typography level='body-xs' sx={{ fontSize: "10px" }}>Zu zahlen innerhalb 14 Tagen nach Zustellung ohne Abzüge</Typography>
         {
           !unternehmen.mwst && (
-            <Typography level='body-xs' sx={{fontSize: "10px"}}>Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.</Typography>
+            <Typography level='body-xs' sx={{ fontSize: "10px" }}>Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.</Typography>
           )
         }
-        
+
       </Box>
     )
   }
@@ -300,13 +322,20 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   // Render all pages
   let pages = [];
   let runningTotalList = [];
-  if (data) {
+  if (data && unternehmen) {
     const positions = getPositions();
     const rowsPerPage = ROWS_PER_PAGE;
     pages = splitIntoPages(positions, rowsPerPage);
     runningTotalList = runningTotals(positions);
   }
 
+  if (!data || !unternehmen) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Typography>Rechnung wird geladen...</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: "100%", minHeight: "100vh", pb: 6, background: "#f7f7f7" }}>
@@ -367,7 +396,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
             const pageStartIndex = pIdx * ROWS_PER_PAGE;
             // Übertrag is the running total up to the last row of this page
             const uebertrag = runningTotalList[pageStartIndex + pageRows.length - 1];
-            const prevUebertrag = pageStartIndex === 0 ? 0 : runningTotalList[pageStartIndex - 1];
+            // const prevUebertrag = pageStartIndex === 0 ? 0 : runningTotalList[pageStartIndex - 1]; // unused
             const isLastPage = currentPage === pageCount;
             const summeGesamt = runningTotalList[runningTotalList.length - 1] || 0;
             return (
@@ -462,8 +491,8 @@ function RechnungsViewer({ rechnung, unternehmen }) {
                           <td colSpan={2}></td>
                           <td style={{ ...columns[2].style, padding: '2mm', fontWeight: "bold" }}>Brutto</td>
                           <td colSpan={1}></td>
-                          <td style={{ ...columns[4].style, padding: '2mm', fontWeight: "bold"  }}>{getbrutto(data)}€</td>
-                        </tr>                      
+                          <td style={{ ...columns[4].style, padding: '2mm', fontWeight: "bold" }}>{getbrutto(data)}€</td>
+                        </tr>
                       )
                     }
                   </tbody>

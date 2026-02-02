@@ -4,7 +4,10 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
+
 import SettingsIcon from '@mui/icons-material/Settings';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 const SidebarItem = ({ icon: Icon, label, path, active, onClick }) => {
     return (
@@ -37,6 +40,8 @@ const Sidebar = () => {
         { label: 'Rechnungen', icon: ReceiptIcon, path: '/invoices' },
         { label: 'Kunden', icon: PeopleIcon, path: '/clients' },
         { label: 'Produkte', icon: InventoryIcon, path: '/products' },
+        { label: 'Ausgaben', icon: AccountBalanceWalletIcon, path: '/expenses' },
+        { label: 'Statistiken', icon: AssessmentIcon, path: '/statistics' },
         { label: 'Einstellungen', icon: SettingsIcon, path: '/settings' },
     ];
 

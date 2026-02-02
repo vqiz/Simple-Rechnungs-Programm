@@ -1,12 +1,18 @@
 import { Box, IconButton, Tab, TabList, TabPanel, Tabs, Tooltip, Typography } from '@mui/joy'
 import React, { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import RechnungsViewer from '../../viewer/RechnungsViewer';
 import { handleLoadFile } from '../../Scripts/Filehandler';
 import { handleSaveFile } from '../../Scripts/Filehandler';
 
+
+
 function RechnungsViewerTab({ tabtoOpen }) {
+  const { id } = useParams();
+  const targetTab = tabtoOpen || id;
+
   const [tabs, setTabs] = useState([]);
   const [selectedTab, setSelectedTab] = useState(null);
   const [unternehmen, setUnternehmen] = useState();
@@ -21,8 +27,8 @@ function RechnungsViewerTab({ tabtoOpen }) {
       }
 
       // Add new tab if valid and not already present
-      if (tabtoOpen && tabtoOpen !== "-1" && !currentTabs.includes(tabtoOpen)) {
-        currentTabs.push(tabtoOpen);
+      if (targetTab && targetTab !== "-1" && !currentTabs.includes(targetTab)) {
+        currentTabs.push(targetTab);
         await handleSaveFile("fast_accsess/tabs.rechnix", JSON.stringify(currentTabs));
       }
 
@@ -30,8 +36,8 @@ function RechnungsViewerTab({ tabtoOpen }) {
 
       // Determine selected tab
       let selected;
-      if (tabtoOpen && tabtoOpen !== "-1") {
-        selected = tabtoOpen;
+      if (targetTab && targetTab !== "-1") {
+        selected = targetTab;
       } else {
         selected = currentTabs[0] || null;
       }
@@ -47,7 +53,7 @@ function RechnungsViewerTab({ tabtoOpen }) {
       setUnternehmen(JSON.parse(jsonstring));
     }
     fetchUnternehmen();
-  }, [tabtoOpen]);
+  }, [targetTab]);
 
   const handleTabChange = (e, newValue) => {
     setSelectedTab(newValue);

@@ -56,9 +56,9 @@ function KundenViewer() {
     setAnchor(null);
   };
   const fetch = async () => {
-    const fkunde = await getKunde(Number(id));
+    const fkunde = await getKunde(id);
     setkunde(fkunde);
-    
+
     const u_R = await get_uRechnungen();
     set_uRechnungen(u_R);
   }
@@ -82,7 +82,7 @@ function KundenViewer() {
     set_uRechnungen(u_R);
   }
   function onb() {
-    navigate("/home/2/-1");
+    navigate("/clients");
   }
   function oneditclose() {
     setEditKunde(false);
@@ -257,7 +257,7 @@ function KundenViewer() {
                 Bearbeiten
               </MenuButton>
               <Menu>
-                <MenuItem onClick={() => navigate("/home/0/" + id)}><AddCircleOutlineOutlinedIcon />Rechnung hinzufügen</MenuItem>
+                <MenuItem onClick={() => navigate("/invoices/create/" + id)}><AddCircleOutlineOutlinedIcon />Rechnung hinzufügen</MenuItem>
                 <MenuItem onClick={() => setEditKunde(true)}><EditOutlinedIcon />Kunden bearbeiten</MenuItem>
               </Menu>
             </Dropdown>
@@ -273,7 +273,7 @@ function KundenViewer() {
             </thead>
             <tbody>
               {
-                kunde?.rechnungen
+                (kunde?.rechnungen || [])
                   .filter((i) => i.includes(debouncedSearchTerm))
                   .slice().reverse() // Kopie
                   .sort((a, b) => {
@@ -306,7 +306,7 @@ function KundenViewer() {
                           },
                           cursor: "pointer"
                         }}
-                        onClick={() => navigate("/home/" + 1 + "/" + item)}
+                        onClick={() => navigate("/invoices/" + item)}
                       >
 
                         <Box component="td" sx={{ padding: '12px 16px' }}>

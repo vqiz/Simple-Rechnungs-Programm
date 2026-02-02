@@ -123,9 +123,10 @@ function Unternehmen() {
       const arrayBuffer = await blob.arrayBuffer();
       const uint8 = new Uint8Array(arrayBuffer);
 
-      const savePath = "public/logo.png"; // adjust path as needed
+      const savePath = "logo.png"; // Stored in userData, not public
 
-      const result = await window.api.saveFileToPath(uint8, savePath);
+      const fullPath = await window.api.getFullpath(savePath);
+      const result = await window.api.saveFileToPath(uint8, fullPath);
 
       if (result && result.success) {
         alert("Logo wurde gespeichert");
@@ -441,7 +442,7 @@ function Unternehmen() {
             <>
               <Button onClick={() => setShowCrop(true)} sx={{ width: "10%" }}>Logo Ändern</Button>
               <Button sx={{ width: "10%" }} onClick={() => {
-                window.api.delFile("public/logo.png");
+                window.api.delFile("logo.png");
                 alert("Logo wurde entfernt");
               }} color='danger'>Logo Entfernen</Button>
             </>

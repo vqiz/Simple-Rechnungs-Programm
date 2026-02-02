@@ -15,7 +15,7 @@ function KundeErstellung({ submit }) {
         laenderCode: "",
         email: "",
         tel: "",
-        ansprechüartner: "",
+        ansprechpartner: "",
         leitwegid: "",
         bundesland: "",
         umstid: "",
@@ -35,7 +35,7 @@ function KundeErstellung({ submit }) {
             formData.laenderCode,
             formData.email,
             formData.tel,
-            formData.ansprechüartner,
+            formData.ansprechpartner,
             formData.leitwegid,
         );
         navigate("/kunden-viewer/" + id);
@@ -184,24 +184,24 @@ function KundeErstellung({ submit }) {
                         </FormControl>
                         {formData.istfirma && (
                             <>
-                            <FormControl>
-                                <FormLabel sx={{ color: "gray" }}>Ansprechpartner | {"(freilassen falls nicht vorhanden)"}</FormLabel>
-                                <Input value={formData.ansprechüartner} onChange={(e) => {
-                                    setFormData({
-                                        ...formData,
-                                        ansprechüartner: e.target.value,
-                                    });
-                                }} placeholder='z.B. Mia Leitner' />
-                            </FormControl>
-                            <FormControl>
-                                <FormLabel sx={{ color: "gray" }}>Umsatzsteuer-Id | {"(Pflicht für X-Rechnung)"}</FormLabel>
-                                <Input value={formData.umstid} onChange={(e) => {
-                                    setFormData({
-                                        ...formData,
-                                        umstid: e.target.value,
-                                    });
-                                }} placeholder='z.B. Mia Leitner' />
-                            </FormControl>
+                                <FormControl>
+                                    <FormLabel sx={{ color: "gray" }}>Ansprechpartner | {"(freilassen falls nicht vorhanden)"}</FormLabel>
+                                    <Input value={formData.ansprechpartner} onChange={(e) => {
+                                        setFormData({
+                                            ...formData,
+                                            ansprechpartner: e.target.value,
+                                        });
+                                    }} placeholder='z.B. Mia Leitner' />
+                                </FormControl>
+                                <FormControl>
+                                    <FormLabel sx={{ color: "gray" }}>Umsatzsteuer-Id | {"(Pflicht für X-Rechnung)"}</FormLabel>
+                                    <Input value={formData.umstid} onChange={(e) => {
+                                        setFormData({
+                                            ...formData,
+                                            umstid: e.target.value,
+                                        });
+                                    }} placeholder='z.B. Mia Leitner' />
+                                </FormControl>
                             </>
                         )}
                         <FormControl>

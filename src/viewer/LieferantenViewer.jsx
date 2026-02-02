@@ -37,7 +37,7 @@ function LieferantenViewer() {
     const [data, setData] = useState();
     const [edit, setEdit] = useState();
     function onb() {
-        navigate("/home/5/-1");
+        navigate("/suppliers");
     }
     const fetch = async () => {
         const string = await handleLoadFile("lieferanten/" + id);
@@ -94,7 +94,7 @@ function LieferantenViewer() {
         sessionStorage.setItem(item.id, JSON.stringify(item));
         navigate("/view-file/" + item.id + "/" + id);
     }
-    function c(){
+    function c() {
         setEdit(false);
         fetch();
     }
@@ -108,7 +108,7 @@ function LieferantenViewer() {
                 {
                     edit && (
                         <MaskProvider>
-                            <LieferantenEditor close={c} id={id}/>
+                            <LieferantenEditor close={c} id={id} />
                         </MaskProvider>
                     )
                 }

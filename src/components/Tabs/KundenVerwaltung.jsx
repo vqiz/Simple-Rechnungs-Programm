@@ -7,6 +7,8 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import MaskProvider from '../MaskProvider';
 import KundeErstellung from '../KundenVerwaltung/Masks/KundeErstellung';
 import { handleLoadFile } from '../../Scripts/Filehandler';
+import { rebuildKundenDB } from '../../Scripts/KundenDatenBank';
+import SyncIcon from '@mui/icons-material/Sync';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import debounce from 'lodash/debounce';
@@ -80,7 +82,7 @@ function KundenVerwaltung() {
                 p: 0,
                 position: 'relative',
                 overflowY: "auto",
-      
+
             }}
         >
             <Headline>Kundenverwaltung</Headline>
@@ -111,6 +113,10 @@ function KundenVerwaltung() {
                     />
                 </Box>
                 <Button onClick={() => setcreatekunde(true)} startDecorator={<AddCircleOutlineOutlinedIcon />} sx={{ mt: -1.8 }}>Kunde erstellen</Button>
+                <Button onClick={async () => {
+                    const list = await rebuildKundenDB();
+                    setdata({ list });
+                }} startDecorator={<SyncIcon />} sx={{ mt: -1.8 }} variant="soft">Index Neu laden</Button>
             </Box>
             <Box
                 sx={{
@@ -119,7 +125,7 @@ function KundenVerwaltung() {
                     mb: 5,
                     mx: "auto",
                     width: "100%",
-                    
+
                 }}
             >
                 <Table sx={{ borderRadius: "15px", maxWidth: "98%" }}>
@@ -150,7 +156,7 @@ function KundenVerwaltung() {
                                         }}
                                         onClick={() => navigate("/kunden-viewer/" + id)}
                                     >
-                                        <AvatarTabeUtil email={email} name={name} istfirma={istfirma}/>
+                                        <AvatarTabeUtil email={email} name={name} istfirma={istfirma} />
                                         <Box component="td" sx={{ padding: '12px 16px' }}>
                                             {
                                                 istfirma ? (

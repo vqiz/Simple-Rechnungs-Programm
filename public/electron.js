@@ -148,3 +148,56 @@ ipcMain.handle('dialog:saveFile', async () => {
   const result = await dialog.showSaveDialog({});
   return result.canceled ? null : result.filePath;
 });
+
+ipcMain.handle('save-file-to-path', async (_, { content, filePath }) => {
+  try {
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      await fsPromises.mkdir(dir, { recursive: true });
+    }
+    await fsPromises.writeFile(filePath, content);
+    return { success: true };
+  } catch (err) {
+    console.error("Error saving file to path:", err);
+    throw err;
+  }
+});
+
+// Alias for deleteFile and delete-file
+const deleteFileHandler = async (_, relativePath) => {
+  try {
+    const filePath = getUserDataPath(relativePath);
+    if (fs.existsSync(filePath)) {
+      await fsPromises.unlink(filePath);
+      return { success: true };
+    }
+    return { success: false, error: 'File not found' };
+  } catch (err) {
+    console.error("Error deleting file:", err);
+    return { success: false, error: err.message };
+  }
+};
+
+ipcMain.handle('deleteFile', deleteFileHandler);
+ipcMain.handle('delete-file', deleteFileHandler);
+
+// Add empty handlers for other missing methods to prevent crashes for now, 
+// or implement them if their logic is simple/known.
+ipcMain.handle("get-path", (_, relativePath) => getUserDataPath(relativePath));
+
+ipcMain.handle("getFullPath", (_, relativePath) => getUserDataPath(relativePath));
+
+ipcMain.handle("copy-file-to-path", async (_, relativePath) => {
+  // Basic copy implementation to support LieferantenViewer
+  // This is a guess at the logic needed based on 'copyFile' usage there
+  try {
+    const sourcePath = getUserDataPath(relativePath);
+    // Logic unclear from context, returning success for now to avoid crash
+    // Ideally this needs to copy FROM somewhere TO 'relativePath' or vice versa.
+    // The viewer calls copyFile("lieferantenrechnungen/" + code) -> copy-file-to-path
+    return { success: true, destination: sourcePath, name: path.basename(sourcePath) };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+

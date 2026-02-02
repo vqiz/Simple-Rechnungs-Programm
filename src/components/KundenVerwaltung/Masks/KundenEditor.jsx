@@ -16,7 +16,7 @@ function KundenEditor({ id, close }) {
         landcode: "",
         email: "",
         tel: "",
-        ansprechüartner: "",
+        ansprechpartner: "",
         leitwegid: "",
         bundesland: "",
         umstid: "",
@@ -25,6 +25,10 @@ function KundenEditor({ id, close }) {
         const fetch = async () => {
             const stringdata = await handleLoadFile("kunden/" + id + ".person");
             const data = JSON.parse(stringdata);
+            if (data.ansprechüartner) {
+                data.ansprechpartner = data.ansprechüartner;
+                delete data.ansprechüartner;
+            }
             setFormData(data);
         };
         fetch();
@@ -40,7 +44,7 @@ function KundenEditor({ id, close }) {
         // Load and update the fast access database
         const string = await handleLoadFile("fast_accsess/kunden.db");
         const json = JSON.parse(string);
-        console.log("ID!",currentId);
+        console.log("ID!", currentId);
         // Remove any old entry with the same ID
         json.list = json.list.filter((i) => i.id !== currentId);
 
@@ -51,11 +55,11 @@ function KundenEditor({ id, close }) {
             istfirma: updatedData.istfirma,
             email: updatedData.email,
         };
-        
+
         // Add updated item and save back
         console.log(JSON.stringify(json));
         json.list.push(item);
-       
+
         await handleSaveFile("fast_accsess/kunden.db", JSON.stringify(json));
 
         close();
@@ -204,10 +208,10 @@ function KundenEditor({ id, close }) {
                             <>
                                 <FormControl>
                                     <FormLabel sx={{ color: "gray" }}>Ansprechpartner | {"(freilassen falls nicht vorhanden)"}</FormLabel>
-                                    <Input value={formData.ansprechüartner} onChange={(e) => {
+                                    <Input value={formData.ansprechpartner} onChange={(e) => {
                                         setFormData({
                                             ...formData,
-                                            ansprechüartner: e.target.value,
+                                            ansprechpartner: e.target.value,
                                         });
                                     }} placeholder='z.B. Mia Leitner' />
                                 </FormControl>

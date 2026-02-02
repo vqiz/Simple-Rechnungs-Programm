@@ -1,6 +1,37 @@
 import { encrypt, Key } from "./Cryptor";
 import { handleLoadFile, handleSaveFile } from "./Filehandler";
 
+export const rebuildKundenDB = async () => {
+    try {
+        const folderdata = await window.api.listfiles("kunden/");
+        const list = [];
+
+        for (const file of folderdata) {
+            if (file.endsWith(".person")) {
+                try {
+                    const content = await handleLoadFile("kunden/" + file);
+                    const k = JSON.parse(content);
+                    list.push({
+                        name: k.name,
+                        id: k.id,
+                        istfirma: k.istfirma,
+                        email: k.email
+                    });
+                } catch (e) {
+                    console.error("Error reading " + file, e);
+                }
+            }
+        }
+
+        const dbContent = { list: list };
+        await handleSaveFile("fast_accsess/kunden.db", JSON.stringify(dbContent));
+        return list;
+    } catch (err) {
+        console.error("Failed to rebuild DB", err);
+        return [];
+    }
+}
+
 export const kundeErstellen = async (name, istfirma, street, number, plz, ort, landcode, email, telefon, ansprechpartner, leitwegid) => {
     const folderdata = await window.api.listfiles("kunden/");
     let id = generateCode();

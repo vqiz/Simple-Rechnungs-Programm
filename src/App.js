@@ -12,6 +12,8 @@ import Unternehmen from './components/Tabs/Unternehmen';
 import RechnungsViewerTab from './components/Tabs/RechnungsViewerTab';
 import RechnungErstellen from './components/Tabs/RechnungErstellen';
 import LieferantenVerwaltung from './components/Tabs/LieferantenVerwaltung';
+import AusgabenVerwaltung from './components/Tabs/AusgabenVerwaltung';
+import Statistiken from './components/Tabs/Statistiken';
 
 // Keep old viewers for specific item views (might need adjustment to work within Layout or standalone)
 import KundenViewer from "./viewer/KundenViewer.jsx";
@@ -39,8 +41,20 @@ function App() {
             </Layout>
           } />
 
+          {/* Specific Invoice */}
+          <Route path="/invoices/:id" element={
+            <Layout>
+              <RechnungsViewerTab />
+            </Layout>
+          } />
+
           {/* Invoice Creation - Optional new route or sub-route */}
           <Route path="/invoices/create" element={
+            <Layout>
+              <RechnungErstellen />
+            </Layout>
+          } />
+          <Route path="/invoices/create/:userId" element={
             <Layout>
               <RechnungErstellen />
             </Layout>
@@ -71,6 +85,20 @@ function App() {
           <Route path="/suppliers" element={
             <Layout>
               <LieferantenVerwaltung />
+            </Layout>
+          } />
+
+          {/* Expenses */}
+          <Route path="/expenses" element={
+            <Layout>
+              <AusgabenVerwaltung />
+            </Layout>
+          } />
+
+          {/* Statistics */}
+          <Route path="/statistics" element={
+            <Layout>
+              <Statistiken />
             </Layout>
           } />
 

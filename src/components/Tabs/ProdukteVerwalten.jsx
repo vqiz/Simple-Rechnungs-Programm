@@ -1,289 +1,221 @@
-import {
-    Accordion,
-    accordionClasses,
-    AccordionDetails,
-    accordionDetailsClasses,
-    AccordionGroup,
-    AccordionSummary,
-    accordionSummaryClasses,
-    Box,
-    Button,
-    Card,
-    Typography,
-    useTheme
-} from '@mui/joy';
 import React, { useEffect, useState } from 'react';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-
-import CreateProduktKathegorie from '../Produktedit/Masks/CreateProduktKathegorie';
-import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
-import KathAccordationDetail from '../Produktedit/KathAccordationDetail';
-import DeleteConfirmation from '../Produktedit/Masks/DeleteConfirmation';
-import CreateProdukt from '../Produktedit/Masks/CreateProdukt';
-import SingleLineinput from '../Produktedit/Masks/SingleLineinput';
+import { Box, Typography, Button, Input, Table, IconButton, Chip, Dropdown, Menu, MenuButton, MenuItem, ListItemDecorator } from '@mui/joy';
 import Headline from '../Headline';
 import InfoCard from '../InfoCard';
+import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 import MaskProvider from '../MaskProvider';
+import CreateProdukt from '../Produktedit/Masks/CreateProdukt';
+import CreateProduktKathegorie from '../Produktedit/Masks/CreateProduktKathegorie';
+import DeleteConfirmation from '../Produktedit/Masks/DeleteConfirmation';
+import SingleLineinput from '../Produktedit/Masks/SingleLineinput';
 
-const ProdukteVerwalten = () => {
-    const [kathpath] = useState('kathegories/kathegories.rechnix');
-    const [data, setData] = useState();
+import SearchIcon from '@mui/icons-material/Search';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import EuroSymbolOutlinedIcon from '@mui/icons-material/EuroSymbolOutlined';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
-    // Modals & Overlays
-    const [createCategory, setCreateCategory] = useState(false);
-    const [deleteCategoryConfirmation, setDeleteCategoryConfirmation] = useState(null);
+const KATH_PATH = 'kathegories/kathegories.rechnix';
 
-    const [createProdukt, setCreateProdukt] = useState(null);
-    const [produktDeleteConfirm, setProduktDeleteConfirm] = useState(null);
-    const [produktDeletionItem, setProduktDeletionItem] = useState(null);
+export default function ProdukteVerwalten() {
+    const [categories, setCategories] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
 
-    const [produktEditTitle, setProduktEditTitle] = useState(null);
-    const [produktEditTitleKath, setProduktEditTitleKath] = useState(null);
+    // Modals
+    const [isCreateProductStart, setIsCreateProductStart] = useState(false);
+    const [isCreateCategoryStart, setIsCreateCategoryStart] = useState(false);
 
-    const [produktEditPrice, setProduktEditPrice] = useState(null);
-    const [produktEditPriceKath, setProduktEditPriceKath] = useState(null);
+    // Edit / Delete States
+    const [deleteProductConfirm, setDeleteProductConfirm] = useState(null); // { product, categoryName }
+    const [editField, setEditField] = useState(null); // { product, categoryName, field: 'name'|'price'|'steuer', value }
 
-    const [produktEditSteuer,setProduktEditSteuer] = useState(null);
-    const [produktEditSteuerKath,setProduktEditSteuerKath] = useState(null);
-    const readdata = async () => {
-        const jsonString = await handleLoadFile(kathpath);
-        const json = JSON.parse(jsonString);
-        setData(json);
+    const fetchData = async () => {
+        try {
+            const jsonString = await handleLoadFile(KATH_PATH);
+            const json = JSON.parse(jsonString);
+            const list = json.list || [];
+
+            setCategories(list);
+
+            // Flatten products
+            const allProducts = [];
+            list.forEach(cat => {
+                if (cat.content) {
+                    cat.content.forEach(prod => {
+                        allProducts.push({
+                            ...prod,
+                            categoryName: cat.name
+                        });
+                    });
+                }
+            });
+            setProducts(allProducts);
+        } catch (e) {
+            console.error(e);
+        }
     };
 
-    const deleteKathegorie = async (name) => {
-        const jsonString = await handleLoadFile(kathpath);
-        const json = JSON.parse(jsonString);
-
-        json.list = json.list.filter((i) => i.name !== name);
-
-        await handleSaveFile(kathpath, JSON.stringify(json));
-        setDeleteCategoryConfirmation(null);
-        readdata();
-    };
-
-    const deleteProdukt = async () => {
-        const jsonString = await handleLoadFile(kathpath);
-        const json = JSON.parse(jsonString);
-
-        const kath = json.list.find((i) => i.name === produktDeleteConfirm.name);
-        kath.content = kath.content.filter((i) => i.name !== produktDeletionItem.name);
-
-        await handleSaveFile(kathpath, JSON.stringify(json));
-        setProduktDeleteConfirm(null);
-        setProduktDeletionItem(null);
-        readdata();
-    };
-    
-    const editProduktField = async (kathState, produktState, field, value, resetKath, resetProdukt) => {
-        const jsonString = await handleLoadFile(kathpath);
-        const json = JSON.parse(jsonString);
-        const kath = json.list.find((i) => i.name === kathState.name);
-        const item = kath.content.find((i) => i.name === produktState.name);
-        item[field] = value;
-        await handleSaveFile(kathpath, JSON.stringify(json));
-        resetProdukt(null);
-        resetKath(null);
-        readdata();
-    };
-
-    const editProdukttitle = async (value) => {
-        await editProduktField(produktEditTitleKath, produktEditTitle, "name", value, setProduktEditTitleKath, setProduktEditTitle);
-    };
-    const editProduktPrice = async (value) => {
-        await editProduktField(produktEditPriceKath, produktEditPrice, "price", value, setProduktEditPriceKath, setProduktEditPrice);
-    }
-    const editProduktSteuer = async (value) => {
-        await editProduktField(produktEditSteuerKath, produktEditSteuer, "steuer", value, setProduktEditSteuerKath, setProduktEditSteuer);
-    }
     useEffect(() => {
-        readdata();
+        fetchData();
     }, []);
-    const theme = useTheme();
 
+    const handleDeleteProduct = async () => {
+        if (!deleteProductConfirm) return;
+        const { product, categoryName } = deleteProductConfirm;
+
+        const jsonString = await handleLoadFile(KATH_PATH);
+        const json = JSON.parse(jsonString);
+
+        const cat = json.list.find(c => c.name === categoryName);
+        if (cat) {
+            cat.content = cat.content.filter(p => p.name !== product.name);
+            await handleSaveFile(KATH_PATH, JSON.stringify(json));
+            setDeleteProductConfirm(null);
+            fetchData();
+        }
+    };
+
+    const handleEditProduct = async (val) => {
+        if (!editField) return;
+        const { product, categoryName, field } = editField;
+
+        const jsonString = await handleLoadFile(KATH_PATH);
+        const json = JSON.parse(jsonString);
+
+        const cat = json.list.find(c => c.name === categoryName);
+        if (cat) {
+            const prod = cat.content.find(p => p.name === product.name);
+            if (prod) {
+                prod[field] = val; // value comes from SingleLineinput
+                await handleSaveFile(KATH_PATH, JSON.stringify(json));
+                setEditField(null);
+                fetchData();
+            }
+        }
+    };
+
+    const filteredProducts = products.filter(p =>
+        p.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.categoryName?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
-        <Box
-            sx={{
-                height: '100vh',
-                maxHeight: "100vh",
-                overflowY: 'auto',
-                display: 'block',
-                flexDirection: 'column',
-                gap: 2,
-                p: 0,
-                position: 'relative',
+        <Box sx={{ height: '100vh', overflowY: "auto", display: 'flex', flexDirection: 'column', pb: 5 }}>
+            <Headline>Produkte Verwalten</Headline>
+            <Box sx={{ p: 2 }}>
+                <InfoCard headline="Inventar">Konfigurieren Sie hier Ihre Produkte und Dienstleistungen für die Rechnungserstellung.</InfoCard>
+            </Box>
 
-            }}
-        >
-            {
-                produktEditSteuer != null && (
-                    <MaskProvider>
-                        <SingleLineinput title={"Mehrwertsteuer bearbeiten"} 
-                        onClose={() => {
-                            setProduktEditSteuer(null);
-                            setProduktEditSteuerKath(null);
-                        }}
-                        val={produktEditSteuer.steuer}
-                        inputtype={"number"}
-                        onSave={editProduktSteuer}/>
-                    </MaskProvider>
-                )
-            }
-            {
-                produktEditPrice != null && (
-                    <MaskProvider>
-                        <SingleLineinput
-                            title={"Preiß bearbeiten"}
-                            onClose={() => {
-                                setProduktEditPrice(null);
-                                setProduktEditPriceKath(null);
-                            }}
-                            val={produktEditPrice.price}
-                            inputtype={"number"}
-                            onSave={editProduktPrice}
-                        />
-                    </MaskProvider>
-                )
+            <Box sx={{ px: 2, pb: 2, display: 'flex', gap: 2, justifyContent: 'space-between', alignItems: 'center' }}>
+                <Input
+                    startDecorator={<SearchIcon />}
+                    placeholder="Suchen..."
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    sx={{ width: '300px' }}
+                />
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button variant="outlined" onClick={() => setIsCreateCategoryStart(true)}>Kategorie erstellen</Button>
+                    <Button startDecorator={<AddCircleOutlineOutlinedIcon />} onClick={() => setIsCreateProductStart(true)}>Produkt erstellen</Button>
+                </Box>
+            </Box>
 
-            }
-            {produktEditTitle && (
-                <MaskProvider>
-                    <SingleLineinput
-                        title="Produktnamen bearbeiten"
-                        onClose={() => {
-                            setProduktEditTitle(null);
-                            setProduktEditTitleKath(null);
-                        }}
-                        val={produktEditTitle.name}
-                        onSave={editProdukttitle}
-                    />
-                </MaskProvider>
-            )}
+            <Box sx={{ px: 2 }}>
+                <Table hoverRow sx={{ borderRadius: "15px", bgcolor: 'background.surface' }}>
+                    <thead>
+                        <tr>
+                            <th style={{ width: '30%' }}>Produktname</th>
+                            <th style={{ width: '20%' }}>Kategorie</th>
+                            <th style={{ width: '15%', textAlign: 'right' }}>Netto (€)</th>
+                            <th style={{ width: '15%', textAlign: 'right' }}>Steuer (%)</th>
+                            <th style={{ width: '10%', textAlign: 'right' }}>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredProducts.map((p, idx) => (
+                            <tr key={`${p.categoryName}-${p.name}-${idx}`}>
+                                <td><Typography fontWeight="bold">{p.name}</Typography></td>
+                                <td><Chip size="sm" variant="soft">{p.categoryName}</Chip></td>
+                                <td style={{ textAlign: 'right' }}>{parseFloat(p.price).toFixed(2)} €</td>
+                                <td style={{ textAlign: 'right' }}>{p.steuer} %</td>
+                                <td style={{ textAlign: 'right' }}>
+                                    <Dropdown>
+                                        <MenuButton slots={{ root: IconButton }} slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}>
+                                            <MoreVertIcon />
+                                        </MenuButton>
+                                        <Menu placement="bottom-end">
+                                            <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'name', value: p.name })}>
+                                                <ListItemDecorator><EditOutlinedIcon /></ListItemDecorator> Titel bearbeiten
+                                            </MenuItem>
+                                            <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'price', value: p.price })}>
+                                                <ListItemDecorator><EuroSymbolOutlinedIcon /></ListItemDecorator> Preis bearbeiten
+                                            </MenuItem>
+                                            <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'steuer', value: p.steuer })}>
+                                                <ListItemDecorator><AccountBalanceIcon /></ListItemDecorator> Steuer bearbeiten
+                                            </MenuItem>
+                                            <MenuItem color="danger" onClick={() => setDeleteProductConfirm({ product: p, categoryName: p.categoryName })}>
+                                                <ListItemDecorator><DeleteOutlineOutlinedIcon /></ListItemDecorator> Löschen
+                                            </MenuItem>
+                                        </Menu>
+                                    </Dropdown>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </Box>
 
-            {produktDeleteConfirm && (
-                <MaskProvider>
-                    <DeleteConfirmation
-                        title="Produkt Löschen"
-                        confirmfunction={deleteProdukt}
-                        disable={setProduktDeleteConfirm}
-                        buttontitle="Löschen"
-                        description={`Sind sie sicher das Produkt ${produktDeleteConfirm.name} löschen wollen ?`}
-                        parameter={null}
-                    />
-                </MaskProvider>
-            )}
-
-            {createProdukt && (
+            {/* Create Product Modal */}
+            {isCreateProductStart && (
                 <MaskProvider>
                     <CreateProdukt
-                        kathpath={kathpath}
-                        update={readdata}
-                        kathname={createProdukt.name}
-                        disable={setCreateProdukt}
+                        kathpath={KATH_PATH}
+                        disable={setIsCreateProductStart}
+                        update={fetchData}
                     />
                 </MaskProvider>
             )}
 
-            {createCategory && (
+            {/* Create Category Modal */}
+            {isCreateCategoryStart && (
                 <MaskProvider>
                     <CreateProduktKathegorie
-                        setcreate={setCreateCategory}
-                        path={kathpath}
-                        update={readdata}
+                        path={KATH_PATH}
+                        setcreate={setIsCreateCategoryStart}
+                        update={fetchData}
                     />
                 </MaskProvider>
             )}
 
-            {deleteCategoryConfirmation && (
+            {/* Edit Field Modal */}
+            {editField && (
+                <MaskProvider>
+                    <SingleLineinput
+                        title={editField.field === 'name' ? "Titel bearbeiten" : editField.field === 'price' ? "Preis bearbeiten" : "Steuer bearbeiten"}
+                        val={editField.value}
+                        inputtype={editField.field === 'name' ? "text" : "number"}
+                        onClose={() => setEditField(null)}
+                        onSave={handleEditProduct}
+                    />
+                </MaskProvider>
+            )}
+
+            {/* Delete Confirmation */}
+            {deleteProductConfirm && (
                 <MaskProvider>
                     <DeleteConfirmation
-                        title="Kategorie Löschen"
-                        confirmfunction={deleteKathegorie}
-                        disable={setDeleteCategoryConfirmation}
+                        title="Produkt löschen"
+                        description={`Möchten Sie das Produkt "${deleteProductConfirm.product.name}" wirklich löschen?`}
                         buttontitle="Löschen"
-                        description={`Sind sie sicher das die die Kategorie ${deleteCategoryConfirmation.name} mit allen Produkten löschen wollen ?`}
-                        parameter={deleteCategoryConfirmation.name}
+                        confirmfunction={handleDeleteProduct}
+                        disable={setDeleteProductConfirm}
                     />
                 </MaskProvider>
             )}
 
-            <Headline>Produkte Verwalten</Headline>
-
-            <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', p: 2 }}>
-                <InfoCard
-                    headline={"Information"}
-                >
-                    Hier werden Produkte und Kategorien für die Schnellauswahl beim Erstellen der
-                    Rechnung konfiguriert
-                </InfoCard>
-                <Box sx={{ justifyContent: 'space-between', display: 'flex', mt: 2 }}>
-                    <Typography>Kategorien</Typography>
-                    <Button onClick={() => setCreateCategory(true)}>Kategorie Erstellen</Button>
-                </Box>
-
-                <AccordionGroup
-                    variant="outlined"
-                    size="lg"
-                    transition="0.3s"
-                    sx={() => ({
-                        mt: 3,
-                        borderRadius: '12px',
-                        overflow: 'hidden',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                        [`& .${accordionSummaryClasses.root}`]: {
-                            bgcolor: theme.vars.palette.background.surface,
-                            fontWeight: 600,
-                            fontSize: '1rem',
-                            color: theme.vars.palette.text.primary,
-                            padding: '0.75rem 1rem',
-                            transition: 'background-color 0.2s',
-                            '&:hover': {
-                                bgcolor: theme.vars.palette.primary.softHover,
-                            },
-                        },
-                        [`& .${accordionSummaryClasses.expandIcon}`]: {
-                            color: theme.vars.palette.primary.main,
-                        },
-                        [`& .${accordionDetailsClasses.content}`]: {
-                            bgcolor: theme.vars.palette.background.body,
-                            padding: '1rem 1.5rem',
-                            borderTop: `1px solid ${theme.vars.palette.divider}`,
-                        },
-                        [`& .${accordionSummaryClasses.root} + .${accordionDetailsClasses.root}`]: {
-                            marginTop: 0, // Remove margin between summary and details
-                        },
-                        [`& .${accordionClasses.root}`]: {
-                            margin: 0, // Remove default margin between Accordions
-                            borderBottom: `1px solid ${theme.vars.palette.divider}`, // optional separator
-                        }
-                    })}
-                >
-                    {data?.list?.map((item) => (
-                        <Accordion  key={item.name} sx={{ borderBottom: `1px solid ${theme.vars.palette.divider}` }}>
-                            <AccordionSummary>{item.name}</AccordionSummary>
-                            <AccordionDetails>
-                                <KathAccordationDetail
-                                    setitem={setProduktDeletionItem}
-                                    setproduktdeleteconfirm={setProduktDeleteConfirm}
-                                    setcreatep={setCreateProdukt}
-                                    item={item}
-                                    path={kathpath}
-                                    setconfirmation={setDeleteCategoryConfirmation}
-                                    settitleedititem={setProduktEditTitle}
-                                    settitleitemkath={setProduktEditTitleKath}
-                                    setpriceedit={setProduktEditPrice}
-                                    setpriceeditkath={setProduktEditPriceKath}
-                                    setsteueredit={setProduktEditSteuer}
-                                    setsteuereditkath={setProduktEditSteuerKath}
-                                />
-                            </AccordionDetails>
-                        </Accordion>
-                    ))}
-                </AccordionGroup>
-            </Box>
         </Box>
     );
-};
-
-export default ProdukteVerwalten;
+}

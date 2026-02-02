@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 // Scripts
 import { get_uRechnungen, handleLoadFile } from '../Scripts/Filehandler';
 import { getNetto } from '../Scripts/ERechnungInterpretter';
+import { checkRecurringExpenses } from '../Scripts/AusgabenHandler';
 
 // Icons (using MUI icons as they are already installed)
 import EuroIcon from '@mui/icons-material/Euro';
@@ -42,6 +43,9 @@ const Dashboard = () => {
 
     useEffect(() => {
         const loadData = async () => {
+            // Check for recurring expenses
+            await checkRecurringExpenses();
+
             // Load invoices
             try {
                 const data = await get_uRechnungen();

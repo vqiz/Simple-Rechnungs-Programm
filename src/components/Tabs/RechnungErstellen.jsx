@@ -12,8 +12,10 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import TableContainer from '@mui/material/TableContainer';
 import MaskProvider from '../MaskProvider';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 function RechnungErstellen({ selUser }) {
+  const { userId } = useParams();
+  const targetUser = selUser || userId;
 
   const [kathpath] = useState('kathegories/kathegories.rechnix');
   const [kunden, setkunden] = useState(null);
@@ -42,7 +44,7 @@ function RechnungErstellen({ selUser }) {
       if (jsonstring === "{}") {
         return;
       }
-  
+
       setoldjson(phrased);
     }
     fetch();
@@ -74,15 +76,15 @@ function RechnungErstellen({ selUser }) {
   });
   useEffect(() => {
     const setUser = () => {
-      console.log("Debug Render Erstellen ", selUser)
-      if (selUser !== undefined) {
-        setRechnung({ ...rechnung, kundenId: selUser })
+      console.log("Debug Render Erstellen ", targetUser)
+      if (targetUser !== undefined) {
+        setRechnung((prev) => ({ ...prev, kundenId: targetUser }))
       }
     }
     setTimeout(() => {
       setUser();
     }, 50);
-  }, []);
+  }, [targetUser]);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   useEffect(() => {
@@ -138,9 +140,8 @@ function RechnungErstellen({ selUser }) {
     await saveRechnung(nRechnung, rnummer);
 
     setTimeout(() => {
-      navigate("/home/" + 1 + "/" + rnummer);
+      navigate("/invoices/" + rnummer);
     }, 20);
-    navigate("/reload", { replace: true });
   }
   const [brutto, setbrutto] = useState(false);
   //bgcolor: 'background.level1',
@@ -598,13 +599,13 @@ function RechnungErstellen({ selUser }) {
                     <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                       <Typography fontWeight="md" color="primary">
                         {
-                          
+
 
                           brutto || !oldjson?.mwst
                             ? (value * price).toFixed(2) + "€"   // Brutto = before Steuer
                             : (value * price * (1 + steuer / 100)).toFixed(2) + "€"  // Netto = after Steuer
                         }
-                        
+
                       </Typography>
                       <IconButton color="danger" onClick={() => removePosition(key)}>
                         <RemoveCircleOutlineOutlinedIcon />

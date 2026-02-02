@@ -7,30 +7,54 @@ import {
   Input,
   Typography,
   Modal,
-  ModalDialog
+  ModalDialog,
+  Select,
+  Option
 } from '@mui/joy';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { handleLoadFile, handleSaveFile } from '../../../Scripts/Filehandler';
 
 function CreateProdukt({ kathname, disable, update, kathpath }) {
-  const [price, setprice] = useState(0);
+  const [price, setprice] = useState("");
   const [produktname, setproduktname] = useState("");
-  const [mehrWertSteuer,setMehrWertSteuer] = useState(19);
+  const [mehrWertSteuer, setMehrWertSteuer] = useState(19);
+  const [selectedCategory, setSelectedCategory] = useState(kathname || "");
+  const [categories, setCategories] = useState([]);
   const [error, seterror] = useState(false);
 
+  useEffect(() => {
+    if (!kathname) {
+      // Load categories if not provided
+      const loadCats = async () => {
+        const jsonString = await handleLoadFile(kathpath);
+        const json = JSON.parse(jsonString);
+        setCategories(json.list || []);
+        if (json.list && json.list.length > 0) {
+          setSelectedCategory(json.list[0].name);
+        }
+      };
+      loadCats();
+    }
+  }, [kathname, kathpath]);
+
   async function addprodukt() {
-    if (price === 0 || !price || !produktname || produktname === "") {
+    if (!price || !produktname || produktname === "" || !selectedCategory) {
       seterror(true);
       return;
     }
     const jsonString = await handleLoadFile(kathpath);
     const json = JSON.parse(jsonString);
-    const kath = json.list.find((i) => i.name === kathname);
+    const kath = json.list.find((i) => i.name === selectedCategory);
+
+    if (!kath) {
+      console.error("Category not found");
+      return;
+    }
 
     kath.content.push({
       name: produktname,
-      price: price,
-      steuer: price > 0 ? mehrWertSteuer : 0,
+      price: parseFloat(price),
+      steuer: parseFloat(price) > 0 ? mehrWertSteuer : 0,
     });
 
     await handleSaveFile(kathpath, JSON.stringify(json));
@@ -60,19 +84,22 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
           </Typography>
           <Divider />
 
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-evenly",
-              gap: 2,
-              mt: 2,
-            }}
-          >
-            <FormControl sx={{ width: "60%" }}>
-              <FormLabel sx={{ color: 'gray' }}>Produktname {'(Zeitbasierte Produkte müssen "stunde" enthalten)'}</FormLabel>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+            {!kathname && (
+              <FormControl>
+                <FormLabel>Kategorie</FormLabel>
+                <Select value={selectedCategory} onChange={(e, val) => setSelectedCategory(val)}>
+                  {categories.map(c => (
+                    <Option key={c.name} value={c.name}>{c.name}</Option>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            <FormControl>
+              <FormLabel>Produktname {'(Zeitbasierte Produkte müssen "stunde" enthalten)'}</FormLabel>
               <Input
-              placeholder=""
+                placeholder="Bezeichnung..."
                 value={produktname}
                 onChange={(e) => {
                   setproduktname(e.target.value);
@@ -80,28 +107,32 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
                 }}
               />
             </FormControl>
-            <FormControl>
-              <FormLabel sx={{ color: 'gray' }}><br/> Netto Betrag in €</FormLabel>
-              <Input
-                onChange={(e) => {
-                  const value = e.target.value.replace(',', '.');
-                  setprice(value);
-                  seterror(false);
-                }}
-                type='number'
-                value={price}
-                inputProps={{ step: "0.01" }}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel sx={{color: "gray"}}><br/>Mehrwertsteuer in %</FormLabel>
-              <Input type='number' value={mehrWertSteuer} onChange={(e) => setMehrWertSteuer(e.target.value)}/>
-            </FormControl>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl sx={{ flex: 1 }}>
+                <FormLabel>Netto Betrag (€)</FormLabel>
+                <Input
+                  onChange={(e) => {
+                    const value = e.target.value.replace(',', '.');
+                    setprice(value);
+                    seterror(false);
+                  }}
+                  type='number'
+                  value={price}
+                  placeholder="0.00"
+                  inputProps={{ step: "0.01" }}
+                />
+              </FormControl>
+              <FormControl sx={{ flex: 1 }}>
+                <FormLabel>MwSt (%)</FormLabel>
+                <Input type='number' value={mehrWertSteuer} onChange={(e) => setMehrWertSteuer(e.target.value)} />
+              </FormControl>
+            </Box>
           </Box>
 
           {error && (
             <Typography color='danger' level="body-xs" mt={1}>
-              Bitte überprüfe deine Eingabe
+              Bitte alle Felder überprüfen.
             </Typography>
           )}
 
