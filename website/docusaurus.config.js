@@ -12,7 +12,7 @@ import { themes as prismThemes } from 'prism-react-renderer';
 const config = {
   title: 'Rechnix',
   tagline: 'Die einfache Rechnungsverwaltung',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/logo.png',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
@@ -74,13 +74,37 @@ const config = {
             position: 'left',
             label: 'Handbuch',
           },
-          //{to: '/download', label: 'Download', position: 'left'}, // We'll create a custom page
+          { to: '/download', label: 'Download', position: 'left' },
+          {
+            href: 'https://github.com/vqiz/Simple-Rechnungs-Programm',
+            label: 'GitHub',
+            position: 'right',
+          },
         ],
       },
       footer: {
         style: 'dark',
-        links: [],
-        copyright: `Copyright © ${new Date().getFullYear()} Dominic Bachl IT Solutions & Consulting. Built with Docusaurus.`,
+        links: [
+          {
+            title: 'Rechtliches',
+            items: [
+              {
+                label: 'Haftungsausschluss',
+                to: '/download#haftungsausschluss',
+              },
+            ],
+          },
+          {
+            title: 'Community',
+            items: [
+              {
+                label: 'GitHub',
+                href: 'https://github.com/vqiz/Simple-Rechnungs-Programm',
+              },
+            ],
+          }
+        ],
+        copyright: `Copyright © ${new Date().getFullYear()} Dominic Bachl IT Solutions & Consulting. <br/> Wir übernehmen keine Haftung für die Nutzung dieser Software oder für entstandene Schäden. Nutzung auf eigene Gefahr.<br/>Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,

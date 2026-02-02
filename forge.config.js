@@ -19,7 +19,10 @@ module.exports = {
     makers: [
         {
             name: '@electron-forge/maker-squirrel',
-            config: {},
+            config: {
+                name: 'Rechnix',
+            },
+            platforms: ['win32'], // Build Windows installer
         },
         {
             name: '@electron-forge/maker-zip',
@@ -29,8 +32,10 @@ module.exports = {
             name: '@electron-forge/maker-dmg',
             config: {
                 icon: 'icon.png',
-                name: 'Rechnix'
+                name: 'Rechnix',
+                format: 'ULFO'
             },
+            platforms: ['darwin'], // Only build DMG on macOS
         }
     ],
     plugins: [

@@ -33,3 +33,6 @@ kathegories/kathegories.rechnix
 /lieferantenrechnungen
 /lieferantenrechnungen
 /out
+*.zip
+*.exe
+*.dmg
