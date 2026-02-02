@@ -16,11 +16,17 @@
   "dependencies": {
     "@docusaurus/core": "3.9.2",
     "@docusaurus/preset-classic": "3.9.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@mdx-js/react": "^3.0.0",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/joy": "^5.0.0-beta.52",
+    "@mui/material": "^7.3.7",
     "clsx": "^2.0.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.9.2",

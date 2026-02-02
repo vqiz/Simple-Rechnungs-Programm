@@ -65,7 +65,7 @@ const config = {
         title: 'Rechnix',
         logo: {
           alt: 'Rechnix Logo',
-          src: 'img/logo.svg',
+          src: 'img/logo.png',
         },
         items: [
           {
@@ -80,7 +80,7 @@ const config = {
       footer: {
         style: 'dark',
         links: [],
-        copyright: `Copyright © ${new Date().getFullYear()} Rechnix. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Dominic Bachl IT Solutions & Consulting. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,

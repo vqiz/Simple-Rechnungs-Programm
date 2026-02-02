@@ -5,9 +5,9 @@ sidebar_position: 7
 
 # Statistiken & Berichte
 
-Der Bereich **Statistiken** hilft Ihnen, den finanziellen Erfolg Ihres Unternehmens zu verstehen.
+import StatisticsMock from '@site/src/components/AppMock/StatisticsMock';
 
-![Statistiken](pathname:///img/docs/stats.png)
+<StatisticsMock />
 
 ## Finanzübersicht
 
@@ -23,9 +23,7 @@ Das Balkendiagramm zeigt Einnahmen (Grün) und Ausgaben (Rot) im Monatsverlauf.
 
 *   **Interaktivität**: Klicken Sie auf einen Balken, um eine detaillierte Liste aller Rechnungen dieses Monats zu sehen. So wissen Sie sofort, welche Kunden für den Umsatz verantwortlich waren.
 
-## Ausgaben nach Kategorie
 
-Ein Kreisdiagramm zeigt Ihnen, wofür Sie Ihr Geld ausgeben (z.B. Software, Miete, Material).
 
 ## EÜR Export
 

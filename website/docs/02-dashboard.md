@@ -5,9 +5,9 @@ sidebar_position: 2
 
 # Dashboard & Übersicht
 
-Das Dashboard ist Ihr zentraler Einstiegspunkt in Rechnix. Hier erhalten Sie sofort einen Überblick über die wichtigsten Kennzahlen.
+import DashboardMock from '@site/src/components/AppMock/DashboardMock';
 
-![Dashboard](pathname:///img/docs/dashboard.png)
+<DashboardMock />
 
 ## Elemente des Dashboards
 
@@ -18,8 +18,7 @@ Das Dashboard ist Ihr zentraler Einstiegspunkt in Rechnix. Hier erhalten Sie sof
 2.  **Statistik-Karten**:
     *   Zeigen den aktuellen Umsatz, offene Rechnungen und weitere Schnellstatistiken.
 
-3.  **Schnellaktionen**:
-    *   Buttons, um direkt eine neue Rechnung oder einen neuen Kunden anzulegen.
+
 
 ## Navigation
 

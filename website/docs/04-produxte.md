@@ -5,9 +5,9 @@ sidebar_position: 4
 
 # Produkte & Dienstleistungen
 
-Verwalten Sie hier Ihr Inventar, um Rechnungspositionen schneller zu erstellen.
+import ProductsMock from '@site/src/components/AppMock/ProductsMock';
 
-![Produkte](pathname:///img/docs/produkte.png)
+<ProductsMock />
 
 ## Produktübersicht
 

@@ -5,9 +5,9 @@ sidebar_position: 6
 
 # Ausgaben erfassen
 
-Erfassen Sie Ihre geschäftlichen Ausgaben, um Ihren Gewinn korrekt zu ermitteln.
+import ExpensesMock from '@site/src/components/AppMock/ExpensesMock';
 
-![Ausgaben](pathname:///img/docs/ausgaben.png)
+<ExpensesMock />
 
 ## Ausgabe hinzufügen
 

@@ -1,0 +1,70 @@
+/* Swiss Design System Variables - Ported from src/styles/swiss.css */
+:root {
+    /* Colors - High Contrast */
+    --swiss-black: #111111;
+    --swiss-white: #ffffff;
+    --swiss-gray-50: #f9f9fa;
+    --swiss-gray-100: #f2f2f5;
+    --swiss-gray-200: #e5e5ea;
+    --swiss-gray-500: #86868b;
+    --swiss-gray-900: #1d1d1f;
+
+    --swiss-accent: #0071e3;
+    /* Classic clean blue */
+    --swiss-accent-hover: #0077ed;
+
+    --swiss-danger: #ff3b30;
+    --swiss-success: #34c759;
+    --swiss-warning: #ffcc00;
+
+    /* Typography */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    /* Spacing (8pt Grid) */
+    --space-1: 8px;
+    --space-2: 16px;
+    --space-3: 24px;
+    --space-4: 32px;
+    --space-5: 40px;
+    --space-6: 48px;
+    --space-8: 64px;
+
+    /* Layout */
+    --sidebar-width: 260px;
+    --header-height: 60px;
+
+    /* Borders */
+    --border-light: 1px solid var(--swiss-gray-200);
+}
+
+.swiss-mock-container * {
+    box-sizing: border-box;
+}
+
+.swiss-mock-container {
+    font-family: var(--font-sans);
+    background-color: var(--swiss-gray-50);
+    color: var(--swiss-black);
+    -webkit-font-smoothing: antialiased;
+    display: flex !important;
+    /* Force flex for layout */
+    width: 100%;
+    height: 600px;
+    /* Fixed height for mock iframe feel */
+    overflow: hidden;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.swiss-main {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    background-color: var(--swiss-white);
+    padding: 0 0;
+    /* Clear padding */
+}
+
+/* Sidebar Styles Inline within helper */
