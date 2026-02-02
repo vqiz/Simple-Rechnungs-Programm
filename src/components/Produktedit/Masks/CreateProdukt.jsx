@@ -125,7 +125,11 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
               </FormControl>
               <FormControl sx={{ flex: 1 }}>
                 <FormLabel>MwSt (%)</FormLabel>
-                <Input type='number' value={mehrWertSteuer} onChange={(e) => setMehrWertSteuer(e.target.value)} />
+                <Select value={mehrWertSteuer} onChange={(e, val) => setMehrWertSteuer(val)}>
+                  <Option value={19}>19% (Standard)</Option>
+                  <Option value={7}>7% (Ermäßigt)</Option>
+                  <Option value={0}>0% (Steuerfrei)</Option>
+                </Select>
               </FormControl>
             </Box>
           </Box>

@@ -295,3 +295,108 @@ function getInvoiceDatePlusTwoWeeks(rechnung) {
 
     return `${yearStr}-${monthStr}-${dayStr}`;
 }
+
+/**
+ * Parse an e-Rechnung (XRechnung/ZUGFeRD) XML file and extract expense data
+ * @param {string} xmlContent - The XML content as a string
+ * @returns {object} Parsed expense data
+ */
+export function parseERechnung(xmlContent) {
+    try {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlContent, "text/xml");
+
+        // Check for parsing errors
+        const parseError = xmlDoc.querySelector("parsererror");
+        if (parseError) {
+            throw new Error("XML parsing error");
+        }
+
+        // Helper function to get text content safely
+        const getText = (selector, ns = "") => {
+            const prefix = ns ? `${ns}\\:` : "";
+            const elem = xmlDoc.querySelector(`${prefix}${selector}`) ||
+                xmlDoc.querySelector(selector);
+            return elem?.textContent?.trim() || "";
+        };
+
+        // Extract invoice basic info
+        const invoiceNumber = getText("ID", "cbc") || getText("InvoiceNumber");
+        const issueDate = getText("IssueDate", "cbc") || getText("InvoiceDate");
+        const dueDate = getText("DueDate", "cbc") || getText("PaymentDueDate");
+
+        // Extract supplier info (AccountingSupplierParty)
+        const supplierName = getText("AccountingSupplierParty PartyName Name", "cbc") ||
+            getText("AccountingSupplierParty RegistrationName", "cbc") ||
+            getText("SellerName");
+
+        // Extract amounts
+        const totalAmount = getText("LegalMonetaryTotal PayableAmount", "cbc") ||
+            getText("PayableAmount", "cbc") ||
+            getText("GrandTotalAmount");
+
+        const nettoAmount = getText("LegalMonetaryTotal TaxExclusiveAmount", "cbc") ||
+            getText("TaxExclusiveAmount", "cbc");
+
+        const taxAmount = getText("TaxTotal TaxAmount", "cbc") ||
+            getText("TaxAmount", "cbc");
+
+        // Extract line items for description
+        const lineItems = [];
+        const lines = xmlDoc.querySelectorAll("InvoiceLine, cac\\:InvoiceLine");
+        lines.forEach(line => {
+            const itemName = line.querySelector("Item Name, cbc\\:Name")?.textContent?.trim() ||
+                line.querySelector("Name")?.textContent?.trim();
+            const quantity = line.querySelector("InvoicedQuantity, cbc\\:InvoicedQuantity")?.textContent?.trim();
+            const price = line.querySelector("Price PriceAmount, cbc\\:PriceAmount")?.textContent?.trim();
+
+            if (itemName) {
+                lineItems.push({
+                    name: itemName,
+                    quantity: quantity || "1",
+                    price: price || "0"
+                });
+            }
+        });
+
+        // Create description from line items
+        const description = lineItems.length > 0
+            ? lineItems.map(item => `${item.name} (${item.quantity}x)`).join(", ")
+            : `Rechnung ${invoiceNumber}`;
+
+        // Extract payment method
+        const paymentMeansCode = getText("PaymentMeans PaymentMeansCode", "cbc");
+        const paymentMethodMap = {
+            "30": "bank_transfer",
+            "31": "bank_transfer",
+            "48": "card",
+            "49": "direct_debit",
+            "1": "cash"
+        };
+        const paymentMethod = paymentMethodMap[paymentMeansCode] || "other";
+
+        return {
+            success: true,
+            data: {
+                name: description,
+                lieferant: supplierName || "Unbekannter Lieferant",
+                betrag: parseFloat(totalAmount?.replace(",", ".")) || 0,
+                netto: parseFloat(nettoAmount?.replace(",", ".")) || 0,
+                steuer: parseFloat(taxAmount?.replace(",", ".")) || 0,
+                datum: issueDate || new Date().toISOString().split('T')[0],
+                rechnungsnummer: invoiceNumber,
+                zahlungsziel: dueDate,
+                zahlungsmethode: paymentMethod,
+                interval: "einmalig",
+                lineItems: lineItems
+            }
+        };
+    } catch (error) {
+        console.error("Error parsing e-Rechnung:", error);
+        return {
+            success: false,
+            error: error.message,
+            data: null
+        };
+    }
+}

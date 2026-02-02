@@ -29,6 +29,7 @@
     "html2pdf.js": "^0.12.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.563.0",
+    "node-machine-id": "^1.1.12",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-easy-crop": "^5.5.3",

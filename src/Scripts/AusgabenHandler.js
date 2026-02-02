@@ -128,7 +128,60 @@ export const checkRecurringExpenses = async () => {
         rule.nextDueDate = nextDue.getTime();
     }
 
+    // Save modified rules if any expense was generated
     if (modified) {
         await handleSaveFile(RECURRING_PATH, JSON.stringify(rulesData));
+    }
+};
+
+/**
+ * Import expense from e-Rechnung XML
+ * @param {string} xmlContent - XML content of the e-Rechnung
+ * @returns {object} Created expense or error
+ */
+export const importFromERechnung = async (xmlContent) => {
+    try {
+        // Dynamic import to avoid circular dependency
+        const { parseERechnung } = await import('./ERechnungInterpretter.js');
+
+        const parseResult = parseERechnung(xmlContent);
+
+        if (!parseResult.success) {
+            return {
+                success: false,
+                error: parseResult.error
+            };
+        }
+
+        // Create expense from parsed data
+        const expense = {
+            title: parseResult.data.name,
+            amount: parseResult.data.betrag,
+            date: new Date(parseResult.data.datum).getTime(),
+            provider: parseResult.data.lieferant,
+            category: "Eingekaufte Leistungen",
+            description: `E-Rechnung: ${parseResult.data.rechnungsnummer || 'N/A'}`,
+            isRecurring: false,
+            id: generateCode(),
+            createdAt: new Date().toISOString(),
+            importedFrom: "e-rechnung",
+            invoiceNumber: parseResult.data.rechnungsnummer,
+            netto: parseResult.data.netto,
+            steuer: parseResult.data.steuer,
+            xmlData: xmlContent // Store original XML for reference
+        };
+
+        await saveAusgabe(expense);
+
+        return {
+            success: true,
+            expense: expense
+        };
+    } catch (error) {
+        console.error("Error importing e-Rechnung:", error);
+        return {
+            success: false,
+            error: error.message
+        };
     }
 };

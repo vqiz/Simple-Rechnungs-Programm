@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, Input, Table, Chip, IconButton } from '@mui/joy';
 import Headline from '../Headline';
 import InfoCard from '../InfoCard';
-import { getAusgaben, deleteAusgabe } from '../../Scripts/AusgabenHandler';
+import { getAusgaben, deleteAusgabe, importFromERechnung } from '../../Scripts/AusgabenHandler';
 import { exportToCSV } from '../../Scripts/ExportHandler';
 import AusgabenEditor from '../Ausgaben/AusgabenEditor';
 import SearchIcon from '@mui/icons-material/Search';
@@ -10,6 +10,7 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 
 export default function AusgabenVerwaltung() {
     const [expenses, setExpenses] = useState([]);
@@ -59,6 +60,31 @@ export default function AusgabenVerwaltung() {
         exportToCSV(exportData, "Ausgaben_Export.csv");
     };
 
+    const handleImportERechnung = async () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.xml';
+        input.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const text = await file.text();
+                const result = await importFromERechnung(text);
+
+                if (result.success) {
+                    alert(`E-Rechnung erfolgreich importiert:\n${result.expense.title}\nBetrag: ${result.expense.amount} €`);
+                    fetchData();
+                } else {
+                    alert(`Fehler beim Import: ${result.error}`);
+                }
+            } catch (error) {
+                alert(`Fehler beim Lesen der Datei: ${error.message}`);
+            }
+        };
+        input.click();
+    };
+
     const filteredExpenses = expenses.filter(e =>
         e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         e.provider?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -81,6 +107,7 @@ export default function AusgabenVerwaltung() {
                     sx={{ width: '300px' }}
                 />
                 <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button variant="outlined" startDecorator={<UploadFileOutlinedIcon />} onClick={handleImportERechnung}>E-Rechnung importieren</Button>
                     <Button variant="outlined" startDecorator={<FileDownloadOutlinedIcon />} onClick={handleExport}>CSV Export</Button>
                     <Button startDecorator={<AddCircleOutlineOutlinedIcon />} onClick={handleCreate}>Ausgabe erfassen</Button>
                 </Box>

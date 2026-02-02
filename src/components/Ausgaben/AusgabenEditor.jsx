@@ -3,18 +3,21 @@ import { Modal, ModalDialog, Typography, Box, Input, Button, FormControl, FormLa
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
-import { saveAusgabe, saveRecurringRule } from '../../Scripts/AusgabenHandler';
+import { saveAusgabe, saveRecurringRule } from '../../Scripts/Ausgaben';
+import { parseERechnung } from '../../Scripts/ERechnungInterpretter';
+import { handleLoadFile } from '../../Scripts/Filehandler';
 
 export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, onSave }) {
     const [formData, setFormData] = useState({
-        title: "",
-        amount: "",
+        id: Date.now(),
+        title: '',
+        amount: '',
         date: new Date().toISOString().split('T')[0],
-        category: "",
-        provider: "",
-        description: "",
+        category: '',
+        provider: '',
+        description: '',
         isRecurring: false,
-        interval: "monthly", // monthly, yearly, weekly
+        interval: 'monthly',
         file: null
     });
 
@@ -39,8 +42,40 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
         }
     }, [ausgabeToEdit, open]);
 
-    const handleChange = (key, value) => {
-        setFormData(prev => ({ ...prev, [key]: value }));
+    const handleChange = async (field, value) => {
+        // If uploading a file
+        if (field === 'file' && value) {
+            // Check if it's an XML file (e-Rechnung)
+            if (value.endsWith('.xml')) {
+                try {
+                    // Read the XML file
+                    const xmlContent = await handleLoadFile(value.replace(/^.*[\\\/]/, ''));
+                    // Parse e-Rechnung
+                    const parsedData = parseERechnung(xmlContent);
+
+                    if (parsedData) {
+                        // Auto-fill form with parsed data
+                        setFormData(prev => ({
+                            ...prev,
+                            title: parsedData.title || prev.title,
+                            amount: parsedData.totalGross || prev.amount,
+                            provider: parsedData.supplier || prev.provider,
+                            date: parsedData.issueDate ? new Date(parsedData.issueDate).toISOString().split('T')[0] : prev.date,
+                            category: parsedData.category || 'Eingekaufte Leistungen',
+                            file: value
+                        }));
+                        console.log('E-Rechnung automatisch geladen:', parsedData);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Fehler beim Parsen der E-Rechnung:', error);
+                    // Fall back to just setting the file path
+                }
+            }
+        }
+
+        // Normal field update
+        setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     const handleSave = async () => {
@@ -143,8 +178,8 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
                     </FormControl>
 
                     <Button startDecorator={<AttachFileOutlinedIcon />} variant="outlined" component="label">
-                        Beleg anhängen (PDF/Bild)
-                        <input type="file" hidden onChange={(e) => handleChange('file', e.target.files[0]?.path || null)} />
+                        E-Rechnung / Beleg anhängen (XML/PDF/Bild)
+                        <input type="file" hidden accept=".xml,.pdf,.jpg,.jpeg,.png" onChange={(e) => handleChange('file', e.target.files[0]?.path || null)} />
                     </Button>
                     {formData.file && <Typography level="body-sm">Datei: {formData.file}</Typography>}
 

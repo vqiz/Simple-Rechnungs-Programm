@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Headline from '../Headline'
 import { Autocomplete, Avatar, Box, Button, ButtonGroup, Card, Divider, FormControl, FormLabel, IconButton, Input, Link, Modal, ModalDialog, Switch, Table, Textarea, Tooltip, Typography } from '@mui/joy'
 import InfoCard from '../InfoCard'
-import { getKunde, getNewRechnungsnummer, handleLoadFile, saveKunde, saveRechnung } from '../../Scripts/Filehandler';
+import { getKunde, getNewRechnungsnummer, handleLoadFile, saveKunde, saveRechnung, setInvoiceDueDate } from '../../Scripts/Filehandler';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import { debounce } from 'lodash';
@@ -138,6 +138,9 @@ function RechnungErstellen({ selUser }) {
     kunde.rechnungen.push(rnummer);
     await saveKunde(kunde, nRechnung.kundenId);
     await saveRechnung(nRechnung, rnummer);
+
+    // Initialize payment tracking with 14-day payment term
+    await setInvoiceDueDate(rnummer, 14);
 
     setTimeout(() => {
       navigate("/invoices/" + rnummer);

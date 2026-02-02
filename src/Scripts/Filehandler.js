@@ -1,4 +1,3 @@
-//Later Task add encryption
 export const handleLoadFile = async (filePath) => {
   console.log("called handle load File")
   if (filePath) {
@@ -79,7 +78,7 @@ export const get_uRechnungen = async () => {
   }
   return JSON.parse(jsonstring);
 }
-export const change_PayStatus = async (rechnung,id) => {
+export const change_PayStatus = async (rechnung, id) => {
   const path = "fast_accsess/u_Rechnungen.db";
   const json = await get_uRechnungen();
   if (json.list.some((item) => item.rechnung == rechnung)) {
@@ -95,3 +94,87 @@ export const change_PayStatus = async (rechnung,id) => {
 
   await handleSaveFile(path, JSON.stringify(json));
 }
+
+// Enhanced Payment Tracking Functions
+export const markInvoiceAsPaid = async (rechnungsnummer, paymentData) => {
+  const path = "rechnungen/" + rechnungsnummer;
+  const jsonstring = await handleLoadFile(path);
+  const invoice = JSON.parse(jsonstring);
+
+  invoice.paymentStatus = 'paid';
+  invoice.paymentDate = paymentData.paymentDate || new Date().toISOString();
+  invoice.paymentAmount = paymentData.paymentAmount || invoice.summe;
+  invoice.paymentMethod = paymentData.paymentMethod || 'bank_transfer';
+
+  await handleSaveFile(path, JSON.stringify(invoice));
+
+  // Remove from unpaid list
+  await change_PayStatus(rechnungsnummer, invoice.kundenId);
+};
+
+export const markInvoiceAsPartiallyPaid = async (rechnungsnummer, paymentData) => {
+  const path = "rechnungen/" + rechnungsnummer;
+  const jsonstring = await handleLoadFile(path);
+  const invoice = JSON.parse(jsonstring);
+
+  if (!invoice.partialPayments) {
+    invoice.partialPayments = [];
+  }
+
+  invoice.partialPayments.push({
+    date: paymentData.paymentDate || new Date().toISOString(),
+    amount: paymentData.paymentAmount,
+    method: paymentData.paymentMethod || 'bank_transfer'
+  });
+
+  const totalPaid = invoice.partialPayments.reduce((sum, p) => sum + p.amount, 0);
+  invoice.paymentStatus = totalPaid >= invoice.summe ? 'paid' : 'partial';
+  invoice.paymentAmount = totalPaid;
+
+  await handleSaveFile(path, JSON.stringify(invoice));
+
+  if (invoice.paymentStatus === 'paid') {
+    await change_PayStatus(rechnungsnummer, invoice.kundenId);
+  }
+};
+
+export const getInvoicePaymentStatus = async (rechnungsnummer) => {
+  const path = "rechnungen/" + rechnungsnummer;
+  const jsonstring = await handleLoadFile(path);
+  if (jsonstring === "{}") return null;
+
+  const invoice = JSON.parse(jsonstring);
+  const unpaidInvoices = await get_uRechnungen();
+  const isUnpaid = unpaidInvoices.list.some((item) => item.rechnung === rechnungsnummer);
+
+  if (invoice.paymentStatus) {
+    return invoice.paymentStatus;
+  }
+
+  // Legacy support: convert old system
+  if (!isUnpaid) {
+    return 'paid';
+  }
+
+  // Check if overdue
+  if (invoice.dueDate && new Date(invoice.dueDate) < new Date()) {
+    return 'overdue';
+  }
+
+  return 'unpaid';
+};
+
+export const setInvoiceDueDate = async (rechnungsnummer, daysUntilDue = 14) => {
+  const path = "rechnungen/" + rechnungsnummer;
+  const jsonstring = await handleLoadFile(path);
+  const invoice = JSON.parse(jsonstring);
+
+  const invoiceDate = invoice.datum ? new Date(invoice.datum) : new Date();
+  const dueDate = new Date(invoiceDate);
+  dueDate.setDate(dueDate.getDate() + daysUntilDue);
+
+  invoice.dueDate = dueDate.toISOString();
+  invoice.paymentStatus = invoice.paymentStatus || 'unpaid';
+
+  await handleSaveFile(path, JSON.stringify(invoice));
+};

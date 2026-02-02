@@ -13,19 +13,29 @@ import CustomersMock from '@site/src/components/AppMock/CustomersMock';
 
 ## Neuen Kunden anlegen
 
-1.  Klicken Sie auf den Button **"Kunde erstellen"** oben rechts.
-2.  Ein Formular öffnet sich. Füllen Sie die Felder aus:
-    *   **Firma / Privat**: Wählen Sie den Kundentyp.
-    *   **Name / Firmenname**: Pflichtfeld.
-    *   **Anschrift**: Straße, PLZ, Ort.
-    *   **Kontaktdaten**: E-Mail, Telefon.
-3.  Klicken Sie auf **"Speichern"**.
+Klicken Sie auf den Button **"Kunde erstellen"** oben rechts. Ein Formular öffnet sich:
+
+import KundeErstellenMock from '@site/src/components/DocsMock/KundeErstellenMock';
+
+<KundeErstellenMock />
+
+### Wichtige Felder:
+
+- **Firma / Privatperson**: Nutzen Sie den Toggle-Schalter, um zwischen Privatkunde und Firmenkunde zu wechseln
+- **Name / Firmenname**: Pflichtfeld - Geben Sie den vollständigen Namen ein
+- **Anschrift**: Straße, Hausnummer, PLZ und Ort
+- **Kontaktdaten**: E-Mail und Telefonnummer für die Kommunikation
+- **Ländercode**: ISO-Code (z.B. "DE" für Deutschland)
+- **Bundesland**: Wichtig für die Rechnungsstellung
+- **USt-IdNr.**: Optional, bei Firmenkunden für steuerliche Zwecke
+
+Klicken Sie auf **"Erstellen"**, um den Kunden zu speichern.
 
 ## Kunden bearbeiten oder löschen
 
-*   Klicken Sie in der Liste auf einen Kunden, um die Details zu sehen.
-*   Klicken Sie in der Liste auf einen Kunden, um die Details zu sehen.
-*   **Hinweis**: Die Bearbeitungs- und Löschfunktionen sind in der Detailansicht verfügbar.
+- Klicken Sie in der Liste auf einen Kunden, um die Details zu sehen
+- In der Detailansicht können Sie die Kundendaten bearbeiten
+- **Hinweis**: Die Bearbeitungs- und Löschfunktionen sind in der Detailansicht verfügbar
 
 ## Suchfunktion
 

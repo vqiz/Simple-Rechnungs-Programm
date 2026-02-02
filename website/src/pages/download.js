@@ -29,32 +29,40 @@ export default function Download() {
                         <div className="card shadow--md" style={{ padding: '2rem', minWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <Heading as="h3">macOS</Heading>
                             <p>Für Apple Silicon (M1/M2/M3) &amp; Intel</p>
+                            <p style={{ fontSize: '0.9rem', color: '#666', fontStyle: 'italic', marginBottom: '1rem' }}>
+                                Downloads sind über GitHub Releases verfügbar
+                            </p>
                             <a
                                 className="button button--primary button--lg"
-                                href="/downloads/Rechnix.dmg"
-                                download>
-                                Download .dmg
+                                href="https://github.com/vqiz/Simple-Rechnungs-Programm/releases"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                Zu GitHub Releases
                             </a>
-                            <p style={{ fontSize: '0.8rem', marginTop: '1rem', color: '#666' }}>Version 0.1.0</p>
+                            <p style={{ fontSize: '0.8rem', marginTop: '1rem', color: '#666' }}>Version 0.1.0 Beta</p>
                         </div>
 
                         <div className="card shadow--md" style={{ padding: '2rem', minWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <Heading as="h3">Windows</Heading>
                             <p>Windows 10 / 11 (ARM64)</p>
+                            <p style={{ fontSize: '0.9rem', color: '#666', fontStyle: 'italic', marginBottom: '1rem' }}>
+                                Downloads sind über GitHub Releases verfügbar
+                            </p>
                             <a
                                 className="button button--primary button--lg"
-                                href="/downloads/Rechnix-Windows.zip"
-                                download>
-                                Download .zip
+                                href="https://github.com/vqiz/Simple-Rechnungs-Programm/releases"
+                                target="_blank"
+                                rel="noopener noreferrer">
+                                Zu GitHub Releases
                             </a>
-                            <p style={{ fontSize: '0.8rem', marginTop: '1rem', color: '#666' }}>Version 0.1.0</p>
+                            <p style={{ fontSize: '0.8rem', marginTop: '1rem', color: '#666' }}>Version 0.1.0 Beta</p>
                             <p style={{ fontSize: '0.75rem', marginTop: '0.5rem', color: '#888', fontStyle: 'italic' }}>Entpacken und Rechnix.exe ausführen</p>
                         </div>
                     </div>
 
                     <div className="alert alert--info" style={{ marginBottom: '2rem', textAlign: 'left' }}>
                         <strong>Entwickler-Hinweis:</strong><br />
-                        Sie können die Anwendungen auch selbst bauen. Der Befehl <code>npm run make</code> erstellt sowohl die macOS Version (auf Mac) als auch die Windows .exe Datei (auf Windows).
+                        Sie können die Anwendungen auch selbst bauen. Der Befehl <code>npm run make:all</code> erstellt die Binaries für beide Plattformen.
                         <br /><br />
                         Quellcode verfügbar auf GitHub: <Link href="https://github.com/vqiz/Simple-Rechnungs-Programm">https://github.com/vqiz/Simple-Rechnungs-Programm</Link>
                     </div>

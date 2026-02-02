@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
+const { encrypt, decrypt, isEncrypted } = require('./encryptionUtils');
 
 
 function createWindow() {
@@ -100,6 +101,21 @@ ipcMain.handle('read-file', async (_, relativePath) => {
 
   try {
     const content = await fsPromises.readFile(filePath, 'utf-8');
+
+    // Auto-decrypt if encrypted, otherwise return as-is (backward compatibility)
+    if (isEncrypted(content)) {
+      try {
+        const decrypted = decrypt(content);
+        console.log("📖 Decrypted:", relativePath);
+        return decrypted;
+      } catch (decryptErr) {
+        console.error("❌ Decryption failed for:", relativePath, decryptErr);
+        throw new Error('Failed to decrypt file');
+      }
+    }
+
+    // Unencrypted file (legacy) - return as-is
+    console.log("📄 Read unencrypted:", relativePath);
     return content;
   } catch (err) {
     if (err.code === 'ENOENT') {
@@ -113,6 +129,7 @@ ipcMain.handle('read-file', async (_, relativePath) => {
       }
 
       const emptyContent = "{}";
+      // New empty files are NOT encrypted yet (will be encrypted on first save)
       await fsPromises.writeFile(filePath, emptyContent, 'utf-8');
       return emptyContent;
     }
@@ -131,8 +148,16 @@ ipcMain.handle('write-file', async (_, relativePath, content) => {
       await fsPromises.mkdir(dir, { recursive: true });
     }
 
-    await fsPromises.writeFile(filePath, content, 'utf-8');
-    return 'success';
+    // Always encrypt before saving
+    try {
+      const encryptedContent = encrypt(content);
+      await fsPromises.writeFile(filePath, encryptedContent, 'utf-8');
+      console.log("🔒 Encrypted and saved:", relativePath);
+      return 'success';
+    } catch (encryptErr) {
+      console.error("❌ Encryption failed for:", relativePath, encryptErr);
+      return 'error';
+    }
   } catch (err) {
     console.error("Fehler beim Schreiben:", err);
     return 'error';
