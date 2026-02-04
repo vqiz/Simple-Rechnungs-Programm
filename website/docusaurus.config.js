@@ -74,12 +74,6 @@ const config = {
             position: 'left',
             label: 'Handbuch',
           },
-          { to: '/download', label: 'Download', position: 'left' },
-          {
-            href: 'https://github.com/vqiz/Simple-Rechnungs-Programm',
-            label: 'GitHub',
-            position: 'right',
-          },
         ],
       },
       footer: {
@@ -89,20 +83,15 @@ const config = {
             title: 'Rechtliches',
             items: [
               {
+                label: 'Impressum',
+                to: '/impressum',
+              },
+              {
                 label: 'Haftungsausschluss',
-                to: '/download#haftungsausschluss',
+                to: '/datenschutz-haftung',
               },
             ],
           },
-          {
-            title: 'Community',
-            items: [
-              {
-                label: 'GitHub',
-                href: 'https://github.com/vqiz/Simple-Rechnungs-Programm',
-              },
-            ],
-          }
         ],
         copyright: `Copyright © ${new Date().getFullYear()} Dominic Bachl IT Solutions & Consulting. <br/> Wir übernehmen keine Haftung für die Nutzung dieser Software oder für entstandene Schäden. Nutzung auf eigene Gefahr.<br/>Built with Docusaurus.`,
       },

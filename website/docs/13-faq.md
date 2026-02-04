@@ -9,8 +9,9 @@ Willkommen im umfangreichen Hilfebereich von Rechnix. Hier finden Sie Antworten 
 
 ## 🚀 Allgemeines & Installation
 
-### 1. Ist Rechnix wirklich kostenlos?
-Ja, Rechnix ist als lokale Anwendung konzipiert. Es gibt aktuell keine versteckten Abonnement-Kosten für die Grundfunktionen der lokalen Nutzung.
+### 1. Was kostet Rechnix?
+Rechnix setzt auf ein faires **"Einmal Zahlen, immer Nutzen"** Modell. Sie kaufen die aktuelle Version zum Festpreis (Vollversion). Es gibt **kein Abo**.
+14:
 
 ### 2. Auf welchen Betriebssystemen läuft Rechnix?
 Rechnix ist für **macOS** (Apple Silicon & Intel) sowie **Windows** (10/11) verfügbar. Eine Linux-Version ist technisch möglich, wird aber aktuell nicht offiziell supportet.
@@ -25,7 +26,7 @@ Nein. Da Rechnix lokal läuft, können Sie Rechnungen schreiben, Kunden anlegen 
 Nein, Rechnix ist eine **Einzelplatz-Lösung**. Wenn Sie die Datenbank in einen Cloud-Ordner (Dropbox/iCloud) legen, können Sie theoretisch von verschiedenen Geräten zugreifen, aber **niemals gleichzeitig**, da dies zu Datenverlust führen kann.
 
 ### 6. Wie aktualisiere ich die Software?
-Rechnix sucht beim Start automatisch nach Updates (sofern implementiert). Alternativ laden Sie einfach die neueste Version von der Webseite/Repository herunter und installieren sie über die bestehende Version. Daten bleiben dabei erhalten.
+Neue Features erhalten Sie über optionale **Updates**, die zu einem günstigen Preis erworben werden können. Bugfixes und Sicherheitsupdates innerhalb einer Version sind selbstverständlich kostenlos. Sie können die aktuelle Version jederzeit auf der Webseite herunterladen.
 
 ---
 

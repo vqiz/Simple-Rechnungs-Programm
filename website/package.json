@@ -11,7 +11,8 @@
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids"
+    "write-heading-ids": "docusaurus write-heading-ids",
+    "admin": "node admin-server.js"
   },
   "dependencies": {
     "@docusaurus/core": "3.9.2",
@@ -23,10 +24,16 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/joy": "^5.0.0-beta.52",
     "@mui/material": "^7.3.7",
+    "@stripe/stripe-js": "^8.7.0",
+    "body-parser": "^2.2.2",
     "clsx": "^2.0.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "framer-motion": "^12.31.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
     "recharts": "^3.7.0"
   },
   "devDependencies": {

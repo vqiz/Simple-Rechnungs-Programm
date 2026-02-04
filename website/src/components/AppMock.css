@@ -29,6 +29,9 @@
     overflow: hidden;
     max-height: 90vh;
     overflow-y: auto;
+    width: 100%;
+    /* Increased width */
+    max-width: 100%;
 }
 
 .modal-header {
