@@ -9,6 +9,7 @@ import EuroIcon from '@mui/icons-material/Euro';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import PaymentStatusBadge from '../../components/Payment/PaymentStatusBadge';
 
 function Dashboard() {
     const [u_rechnungen, setURechnung] = useState();
@@ -217,14 +218,7 @@ function Dashboard() {
                                             <Typography level="body-md">{item.rechnung}</Typography>
                                         </td>
                                         <td>
-                                            <Chip
-                                                variant="soft"
-                                                color="danger"
-                                                startDecorator={<FiberManualRecordOutlinedIcon />}
-                                                size="sm"
-                                            >
-                                                Unbezahlt
-                                            </Chip>
+                                            <PaymentStatusBadge key={item.rechnung} invoiceNumber={item.rechnung} />
                                         </td>
                                     </tr>
                                 ))

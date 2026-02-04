@@ -1,12 +1,13 @@
 import React from 'react';
 import MockFrame from './MockFrame';
-import { Box, Typography, Button, Table, Chip } from '@mui/joy';
+import { Box, Typography, Button, Table, Chip, IconButton } from '@mui/joy';
 import AddIcon from '@mui/icons-material/Add';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 const expenses = [
-    { title: 'Adobe Creative Cloud', category: 'Software', date: '01.03.2024', amount: 65, cycle: 'Monatlich' },
-    { title: 'Büromiete', category: 'Miete', date: '01.03.2024', amount: 850, cycle: 'Monatlich' },
-    { title: 'Server Hosting', category: 'Infrastruktur', date: '15.03.2024', amount: 120, cycle: '-' },
+    { title: 'Adobe Creative Cloud', category: 'Software', date: '01.03.2024', amount: 65, cycle: 'Monatlich', hasAttachment: true },
+    { title: 'Büromiete', category: 'Miete', date: '01.03.2024', amount: 850, cycle: 'Monatlich', hasAttachment: false },
+    { title: 'Server Hosting', category: 'Infrastruktur', date: '15.03.2024', amount: 120, cycle: '-', hasAttachment: true },
 ];
 
 export default function ExpensesMock() {
@@ -25,7 +26,9 @@ export default function ExpensesMock() {
                             <th>Kategorie</th>
                             <th>Datum</th>
                             <th>Intervall</th>
+                            <th>Intervall</th>
                             <th style={{ textAlign: 'right' }}>Betrag</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,6 +39,13 @@ export default function ExpensesMock() {
                                 <td>{ex.date}</td>
                                 <td>{ex.cycle}</td>
                                 <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{ex.amount.toFixed(2)} €</td>
+                                <td style={{ width: '40px' }}>
+                                    {ex.hasAttachment && (
+                                        <IconButton size="sm" variant="soft" color="primary">
+                                            <AttachFileIcon />
+                                        </IconButton>
+                                    )}
+                                </td>
                             </tr>
                         ))}
                     </tbody>

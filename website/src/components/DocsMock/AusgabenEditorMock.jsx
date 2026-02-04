@@ -3,6 +3,7 @@ import { ModalDialog, Typography, Box, Input, Button, FormControl, FormLabel, Se
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 export default function AusgabenEditorMock() {
     const formData = {
@@ -78,6 +79,16 @@ export default function AusgabenEditorMock() {
                         E-Rechnung / Beleg anhängen (XML/PDF/Bild)
                         <input type="file" hidden accept=".xml,.pdf,.jpg,.jpeg,.png" />
                     </Button>
+
+                    <Box sx={{ p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 'sm', position: 'relative' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography level="body-sm" fontWeight="bold">Anhang: rechnung.pdf</Typography>
+                            <IconButton size="sm" color="danger" variant="plain">
+                                <DeleteOutlineOutlinedIcon />
+                            </IconButton>
+                        </Box>
+                        <Typography level="body-xs" sx={{ mt: 1 }}>Dokument (PDF/Andere)</Typography>
+                    </Box>
 
                     <Button startDecorator={<SaveOutlinedIcon />} color="primary">Speichern</Button>
                 </Box>

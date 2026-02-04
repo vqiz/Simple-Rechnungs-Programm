@@ -1,13 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Chip } from '@mui/joy';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import HourglassEmptyOutlinedIcon from '@mui/icons-material/HourglassEmptyOutlined';
+import { getInvoicePaymentStatus } from '../../Scripts/Filehandler';
 
-export default function PaymentStatusBadge({ status }) {
-    const getStatusConfig = () => {
-        switch (status) {
+export default function PaymentStatusBadge({ status: providedStatus, invoiceNumber }) {
+    const [status, setStatus] = useState(providedStatus || 'loading');
+
+    useEffect(() => {
+        if (providedStatus) {
+            setStatus(providedStatus);
+            return;
+        }
+
+        if (invoiceNumber) {
+            let isMounted = true;
+            const fetchStatus = async () => {
+                try {
+                    const s = await getInvoicePaymentStatus(invoiceNumber);
+                    if (isMounted) setStatus(s || 'unpaid');
+                } catch (error) {
+                    console.error("Failed to fetch payment status for", invoiceNumber, error);
+                    if (isMounted) setStatus('unpaid');
+                }
+            };
+            fetchStatus();
+            return () => { isMounted = false; };
+        }
+    }, [providedStatus, invoiceNumber]);
+
+    const getStatusConfig = (currentStatus) => {
+        switch (currentStatus) {
             case 'paid':
                 return {
                     label: 'Bezahlt',
@@ -26,17 +51,25 @@ export default function PaymentStatusBadge({ status }) {
                     color: 'danger',
                     icon: <ErrorOutlineIcon />
                 };
+            case 'loading':
+                return {
+                    label: 'Lädt...',
+                    color: 'neutral',
+                    icon: <PendingOutlinedIcon />
+                }
+            case 'open':
+            case 'Offen':
             case 'unpaid':
             default:
                 return {
-                    label: 'Offen',
+                    label: 'Ausstehend',
                     color: 'neutral',
                     icon: <PendingOutlinedIcon />
                 };
         }
     };
 
-    const config = getStatusConfig();
+    const config = getStatusConfig(status);
 
     return (
         <Chip

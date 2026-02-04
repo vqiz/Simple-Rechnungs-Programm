@@ -11,6 +11,7 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import PaymentStatusBadge from '../components/Payment/PaymentStatusBadge';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <div className="swiss-card" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -142,18 +143,7 @@ const Dashboard = () => {
                                     >
                                         <td style={{ padding: '16px 0', fontSize: '14px' }}>{item.rechnung}</td>
                                         <td style={{ padding: '16px 0' }}>
-                                            <span style={{
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                padding: '4px 8px',
-                                                borderRadius: '999px',
-                                                backgroundColor: '#ff3b3020',
-                                                color: '#ff3b30',
-                                                fontSize: '12px',
-                                                fontWeight: 500
-                                            }}>
-                                                <FiberManualRecordIcon style={{ fontSize: '10px', marginRight: '4px' }} /> Unbezahlt
-                                            </span>
+                                            <PaymentStatusBadge invoiceNumber={item.rechnung} />
                                         </td>
                                     </tr>
                                 ))

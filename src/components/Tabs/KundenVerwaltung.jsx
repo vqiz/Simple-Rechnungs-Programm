@@ -11,9 +11,12 @@ import { rebuildKundenDB } from '../../Scripts/KundenDatenBank';
 import SyncIcon from '@mui/icons-material/Sync';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import debounce from 'lodash/debounce';
 import { useNavigate } from 'react-router-dom';
 import AvatarTabeUtil from '../AvatarTabeUtil';
+import { kundeErstellen } from '../../Scripts/KundenDatenBank';
 
 function KundenVerwaltung() {
     const [createkunde, setcreatekunde] = useState(false);
@@ -70,7 +73,112 @@ function KundenVerwaltung() {
             setFilteredList(filtered);
         };
         filterData();
+        filterData();
     }, [data, debouncedSearchTerm]);
+
+    const handleCSVExport = () => {
+        if (!data || !data.list || data.list.length === 0) {
+            alert("Keine Kunden zum Exportieren vorhanden.");
+            return;
+        }
+
+        // Define Headers
+        const headers = ["ID", "Name", "IstFirma", "Email", "Telefon", "Strasse", "Nummer", "PLZ", "Ort", "Land"];
+
+        // Map Data
+        const csvRows = [headers.join(";")];
+        data.list.forEach(k => {
+            const row = [
+                k.id,
+                k.name,
+                k.istfirma ? "1" : "0",
+                k.email || "",
+                k.tel || "",
+                k.street || "",
+                k.number || "",
+                k.plz || "",
+                k.ort || "",
+                k.landcode || "DE"
+            ].map(val => `"${String(val).replace(/"/g, '""')}"`); // Escape quotes
+            csvRows.push(row.join(";"));
+        });
+
+        const csvString = csvRows.join("\n");
+        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "kunden_export.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleCSVImport = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            const lines = text.split(/\r?\n/).filter(l => l.trim() !== "");
+            if (lines.length < 2) return;
+
+            const separator = lines[0].includes(';') ? ';' : ',';
+            const headers = lines[0].split(separator).map(h => h.trim().toLowerCase());
+
+            const findIdx = (keys) => headers.findIndex(h => keys.some(k => h === k || h.includes(k)));
+
+            const idxName = findIdx(['name', 'firma', 'kundenname', 'customer']);
+            const idxStreet = findIdx(['straße', 'street', 'adresse']);
+            const idxNumber = findIdx(['hausnummer', 'nr', 'number']);
+            const idxPLZ = findIdx(['plz', 'zip', 'postleitzahl']);
+            const idxOrt = findIdx(['ort', 'city', 'stadt']);
+            const idxEmail = findIdx(['email', 'mail']);
+            const idxTel = findIdx(['telefon', 'phone', 'mobil']);
+            const idxContact = findIdx(['ansprechpartner', 'contact']);
+
+            if (idxName === -1) {
+                alert("CSV Fehler: Spalte 'Name' nicht gefunden.");
+                return;
+            }
+
+            let count = 0;
+            for (let i = 1; i < lines.length; i++) {
+                const row = lines[i].split(separator).map(c => c.trim().replace(/^"|"$/g, ''));
+                if (row.length < headers.length * 0.5) continue; // Skip empty/broken rows
+
+                const name = row[idxName] || "";
+                if (!name) continue;
+
+                // Smart guess for "istFirma": if no specific flag, assume true if name contains GmbH, UG, AG, etc.
+                const istfirma = name.match(/(GmbH|UG|AG|Kg|Limited|Inc)/i) ? true : false;
+
+                await kundeErstellen(
+                    name,
+                    istfirma,
+                    idxStreet > -1 ? row[idxStreet] : "",
+                    idxNumber > -1 ? row[idxNumber] : "",
+                    idxPLZ > -1 ? row[idxPLZ] : "",
+                    idxOrt > -1 ? row[idxOrt] : "",
+                    "DE", // Default Land
+                    idxEmail > -1 ? row[idxEmail] : "",
+                    idxTel > -1 ? row[idxTel] : "",
+                    idxContact > -1 ? row[idxContact] : "",
+                    "" // LeitwegID
+                );
+                count++;
+            }
+
+            alert(`${count} Kunden erfolgreich importiert.`);
+            const list = await rebuildKundenDB();
+            setdata({ list });
+
+        } catch (err) {
+            console.error(err);
+            alert("Fehler beim Import: " + err.message);
+        }
+        e.target.value = null; // Reset input
+    };
 
     return (
         <Box
@@ -113,6 +221,13 @@ function KundenVerwaltung() {
                     />
                 </Box>
                 <Button onClick={() => setcreatekunde(true)} startDecorator={<AddCircleOutlineOutlinedIcon />} sx={{ mt: -1.8 }}>Kunde erstellen</Button>
+                <Button component="label" startDecorator={<UploadFileOutlinedIcon />} sx={{ mt: -1.8 }} variant="outlined">
+                    CSV Import
+                    <input type="file" hidden accept=".csv" onChange={handleCSVImport} />
+                </Button>
+                <Button onClick={handleCSVExport} startDecorator={<DownloadOutlinedIcon />} sx={{ mt: -1.8 }} variant="outlined">
+                    CSV Export
+                </Button>
                 <Button onClick={async () => {
                     const list = await rebuildKundenDB();
                     setdata({ list });

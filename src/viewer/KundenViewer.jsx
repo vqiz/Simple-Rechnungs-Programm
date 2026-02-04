@@ -19,6 +19,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import DangerousOutlinedIcon from '@mui/icons-material/DangerousOutlined';
 import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
+import PaymentStatusBadge from '../components/Payment/PaymentStatusBadge';
+import PaymentModal from '../components/Payment/PaymentModal';
+import { getbrutto } from '../Scripts/ERechnungInterpretter';
+import { handleLoadFile } from '../Scripts/Filehandler';
 import debounce from 'lodash/debounce';
 import InfoCard from '../components/InfoCard';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -34,6 +38,9 @@ function KundenViewer() {
   const [kunde, setkunde] = useState();
   const [u_Rechnungen, set_uRechnungen] = useState();
   const [editkunde, setEditKunde] = useState();
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState(null);
+  const [selectedInvoiceTotal, setSelectedInvoiceTotal] = useState(0);
 
   const navigate = useNavigate();
 
@@ -42,7 +49,7 @@ function KundenViewer() {
 
   const [anchor, setAnchor] = React.useState(null);
 
-  const [target, settarget] = useState(null);
+  const [target, settarget] = useState(null); // Keep only one
   const handleContextMenu = (event, item, payed) => {
     event.preventDefault(); // Standard-Menü verhindern
     settarget({ item, payed });
@@ -50,6 +57,19 @@ function KundenViewer() {
       mouseX: event.clientX,
       mouseY: event.clientY,
     });
+  };
+
+  const openPaymentModal = async (invoiceTitle) => {
+    try {
+      const jsonstring = await handleLoadFile("rechnungen/" + invoiceTitle);
+      const json = JSON.parse(jsonstring);
+      const total = getbrutto(json);
+      setSelectedInvoiceForPayment(invoiceTitle);
+      setSelectedInvoiceTotal(parseFloat(total));
+      setPaymentModalOpen(true);
+    } catch (e) {
+      console.error("Could not load invoice for payment", e);
+    }
   };
 
   const handleClose = () => {
@@ -116,14 +136,30 @@ function KundenViewer() {
         >
           <Box
             sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
-            onClick={() => { change_pstatus(target.item); handleClose(); }}
+            onClick={() => {
+              openPaymentModal(target.item);
+              handleClose();
+            }}
           >
-            {target?.payed ? <AccountBalanceWalletOutlinedIcon fontSize="small" /> : <DangerousOutlinedIcon fontSize="small" />}
+            <AttachMoneyOutlinedIcon fontSize="small" />
             <Typography level="body-sm" sx={{ ml: 1 }}>
-              Als {target?.payed ? "Bezahlt" : "Ausstehend"} kennzeichnen
+              Zahlung erfassen
             </Typography>
           </Box>
         </Box>
+      )}
+
+      {paymentModalOpen && (
+        <PaymentModal
+          open={paymentModalOpen}
+          onClose={() => setPaymentModalOpen(false)}
+          invoiceNumber={selectedInvoiceForPayment}
+          invoiceTotal={selectedInvoiceTotal}
+          onPaymentRecorded={() => {
+            fetch();
+            setPaymentModalOpen(false);
+          }}
+        />
       )}
 
 
@@ -321,18 +357,7 @@ function KundenViewer() {
                           </Box>
                         </Box>
                         <Box component="td" sx={{ padding: '12px 16px' }}>
-                          {
-                            u_Rechnungen?.list
-                              .filter((i) => i.id === id)  // compare strings
-                              .some((i) => i.rechnung === item) ? (
-                              <Tooltip title="diese Rechnung wurde noch nicht bezahlt">
-                                <Chip startDecorator={<DangerousOutlinedIcon />} color='danger'>Ausstehend</Chip>
-                              </Tooltip>
-                            ) : (
-
-                              <Chip startDecorator={<AccountBalanceWalletOutlinedIcon />} color="success">Bezahlt</Chip>
-                            )
-                          }
+                          <PaymentStatusBadge invoiceNumber={item} />
                         </Box>
 
                       </Box>

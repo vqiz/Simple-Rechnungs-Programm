@@ -11,12 +11,20 @@ import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { Modal, ModalDialog } from '@mui/joy';
 
 export default function AusgabenVerwaltung() {
     const [expenses, setExpenses] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+
+    // Attachment Viewer State
+    const [viewerOpen, setViewerOpen] = useState(false);
+    const [viewerContent, setViewerContent] = useState(null);
+    const [viewerType, setViewerType] = useState('image'); // image, pdf, xml
+    const [viewerTitle, setViewerTitle] = useState('');
 
     const fetchData = async () => {
         const data = await getAusgaben();
@@ -85,6 +93,39 @@ export default function AusgabenVerwaltung() {
         input.click();
     };
 
+    const handleViewAttachment = async (item) => {
+        if (!item.attachmentPath) return;
+
+        // If XML (E-Rechnung), show in internal viewer
+        if (item.attachmentPath.toLowerCase().endsWith('.xml')) {
+            try {
+                const content = await window.api.readAttachment(item.attachmentPath);
+                if (!content) {
+                    alert("Fehler beim Laden der E-Rechnung.");
+                    return;
+                }
+                setViewerTitle(item.title);
+                setViewerContent(content);
+                setViewerType('xml');
+                setViewerOpen(true);
+            } catch (e) {
+                console.error(e);
+                alert("Konnte E-Rechnung nicht öffnen.");
+            }
+        } else {
+            // Otherwise open in system default app
+            try {
+                const result = await window.api.openExternal(item.attachmentPath);
+                if (!result.success) {
+                    alert("Fehler beim Öffnen der Datei: " + (result.error || "Unbekannter Fehler"));
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Konnte Datei nicht extern öffnen.");
+            }
+        }
+    };
+
     const filteredExpenses = expenses.filter(e =>
         e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         e.provider?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -137,6 +178,11 @@ export default function AusgabenVerwaltung() {
                                 <td>{item.isRecurring && <Chip size="sm" color="primary">Abo</Chip>}</td>
                                 <td>
                                     <Box sx={{ display: 'flex', gap: 1 }}>
+                                        {item.attachmentPath && (
+                                            <IconButton size="sm" variant="soft" color="primary" onClick={() => handleViewAttachment(item)}>
+                                                <AttachFileIcon />
+                                            </IconButton>
+                                        )}
                                         <IconButton size="sm" variant="plain" onClick={() => handleEdit(item)}><EditOutlinedIcon /></IconButton>
                                         <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(item.id)}><DeleteOutlineOutlinedIcon /></IconButton>
                                     </Box>
@@ -158,6 +204,25 @@ export default function AusgabenVerwaltung() {
                 ausgabeToEdit={editingItem}
                 onSave={fetchData}
             />
+
+            {/* Attachment Viewer Modal */}
+            <Modal open={viewerOpen} onClose={() => setViewerOpen(false)}>
+                <ModalDialog sx={{ maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto', p: 0 }}>
+                    <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.level1' }}>
+                        <Typography level="h4">{viewerTitle} - Anhang</Typography>
+                        <Button variant="plain" color="neutral" onClick={() => setViewerOpen(false)}>Schließen</Button>
+                    </Box>
+                    <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+                        {/* Only XML viewer remains here */}
+                        {viewerType === 'xml' && viewerContent && (
+                            <pre style={{ overflow: 'auto', maxHeight: '500px', width: '100%', whiteSpace: 'pre-wrap', fontSize: '12px' }}>
+                                {atob(viewerContent.split(',')[1])}
+                            </pre>
+                        )}
+                        {viewerType !== 'xml' && <Typography>Vorschau nur extern verfügbar.</Typography>}
+                    </Box>
+                </ModalDialog>
+            </Modal>
         </Box>
     );
 }

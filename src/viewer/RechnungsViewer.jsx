@@ -7,6 +7,8 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
+import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
+import PaymentModal from '../components/Payment/PaymentModal';
 import { getKunde, handleLoadFile, handleSaveFile } from '../Scripts/Filehandler';
 import html2pdf from 'html2pdf.js';
 import ForwardToInboxOutlinedIcon from '@mui/icons-material/ForwardToInboxOutlined';
@@ -14,6 +16,8 @@ import { Buffer } from 'buffer';
 import { createERechnung, getbrutto, getTaxAmount, getTaxSumAmount } from '../Scripts/ERechnungInterpretter';
 import MaskProvider from '../components/MaskProvider';
 import DeleteConfirmation from '../components/Produktedit/Masks/DeleteConfirmation';
+import MahnungViewer from './MahnungViewer';
+import NotificationImportantOutlinedIcon from '@mui/icons-material/NotificationImportantOutlined';
 // A4: 210mm x 297mm
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
@@ -23,8 +27,8 @@ const HEADER_HEIGHT_MM = 45; // estimated header height
 const FOOTER_HEIGHT_MM = 35; // estimated footer height
 const ROWS_PER_PAGE = 6;
 
-function formatPrice(value) {
-  return Number(value).toFixed(2) + '€';
+function formatPrice(value, currency = '€') {
+  return Number(value).toFixed(2) + currency;
 }
 
 function RechnungsViewer({ rechnung, unternehmen }) {
@@ -33,6 +37,9 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   const navigate = useNavigate();
   const pdfRef = useRef();
   const [delconfirm, setdelconfirm] = useState(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [mahnungOpen, setMahnungOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,7 +56,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
       }
     };
     fetchData();
-  }, [rechnung]);
+  }, [rechnung, refreshTrigger]);
 
   useEffect(() => {
     if (!data) return;
@@ -213,6 +220,8 @@ function RechnungsViewer({ rechnung, unternehmen }) {
   // Sidebar button definitions
   const sidebarButtons = [
     { icon: <PersonOutlinedIcon />, label: "zum Kunden", click: () => { if (data?.kundenId) navigate("/kunden-viewer/" + data.kundenId); } },
+    { icon: <AttachMoneyOutlinedIcon />, label: "Zahlung erfassen", color: 'success', click: () => setPaymentModalOpen(true) },
+    { icon: <NotificationImportantOutlinedIcon />, label: "Mahnung erstellen", color: 'warning', click: () => setMahnungOpen(true) },
     { icon: <PictureAsPdfOutlinedIcon />, label: "Als PDF exportieren", click: handleExportPDF },
     { icon: <PrintOutlinedIcon />, label: "Drucken", click: () => handlePrintPDF() },
     { icon: <SendOutlinedIcon />, label: "Als E-Rechnung exportieren", click: () => createERechnung(rechnung, data, kunde, unternehmen) },
@@ -386,6 +395,28 @@ function RechnungsViewer({ rechnung, unternehmen }) {
         )
       }
 
+      {paymentModalOpen && (
+        <PaymentModal
+          open={paymentModalOpen}
+          onClose={() => setPaymentModalOpen(false)}
+          invoiceNumber={rechnung}
+          invoiceTotal={getbrutto(data)} // Use brutto helper to get total amount
+          onPaymentRecorded={() => {
+            setRefreshTrigger(prev => prev + 1);
+            setPaymentModalOpen(false);
+          }}
+        />
+      )}
+
+      {mahnungOpen && (
+        <MahnungViewer
+          rechnung={rechnung}
+          unternehmen={unternehmen}
+          open={mahnungOpen}
+          onClose={() => setMahnungOpen(false)}
+        />
+      )}
+
 
       {/* Invoice Pages */}
       {data && (
@@ -457,8 +488,8 @@ function RechnungsViewer({ rechnung, unternehmen }) {
                         <td style={{ ...columns[0].style, padding: '2mm', fontWeight: 500 }}>{pageStartIndex + idx + 1}</td>
                         <td style={{ ...columns[1].style, padding: '2mm' }}>{row.itemName}</td>
                         <td style={{ ...columns[2].style, padding: '2mm' }}>{row.amount}x</td>
-                        <td style={{ ...columns[3].style, padding: '2mm' }}>{formatPrice(row.price)}</td>
-                        <td style={{ ...columns[4].style, padding: '2mm' }}>{formatPrice(row.total)}</td>
+                        <td style={{ ...columns[3].style, padding: '2mm' }}>{formatPrice(row.price, unternehmen?.waehrung)}</td>
+                        <td style={{ ...columns[4].style, padding: '2mm' }}>{formatPrice(row.total, unternehmen?.waehrung)}</td>
                       </tr>
                     ))}
                     <tr>
@@ -469,8 +500,8 @@ function RechnungsViewer({ rechnung, unternehmen }) {
                       <td colSpan={1}></td>
                       <td style={{ padding: '2mm', textAlign: 'right' }}>
                         {isLastPage
-                          ? formatPrice(summeGesamt)
-                          : formatPrice(uebertrag)
+                          ? formatPrice(summeGesamt, unternehmen?.waehrung)
+                          : formatPrice(uebertrag, unternehmen?.waehrung)
                         }
                       </td>
                     </tr>
@@ -481,7 +512,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
                           <td colSpan={2}></td>
                           <td style={{ ...columns[2].style, padding: '2mm' }}>zzgl. USt.</td>
                           <td colSpan={1}></td>
-                          <td style={{ ...columns[4].style, padding: '2mm' }}>{getTaxAmount(data)}€</td>
+                          <td style={{ ...columns[4].style, padding: '2mm' }}>{getTaxAmount(data)}{unternehmen?.waehrung || '€'}</td>
                         </tr>
                       )
                     }
@@ -491,7 +522,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
                           <td colSpan={2}></td>
                           <td style={{ ...columns[2].style, padding: '2mm', fontWeight: "bold" }}>Brutto</td>
                           <td colSpan={1}></td>
-                          <td style={{ ...columns[4].style, padding: '2mm', fontWeight: "bold" }}>{getbrutto(data)}€</td>
+                          <td style={{ ...columns[4].style, padding: '2mm', fontWeight: "bold" }}>{getbrutto(data)}{unternehmen?.waehrung || '€'}</td>
                         </tr>
                       )
                     }

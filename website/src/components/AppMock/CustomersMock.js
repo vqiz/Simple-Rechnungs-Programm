@@ -8,6 +8,8 @@ import MaskProvider from './utils/MaskProvider';
 import SearchIcon from '@mui/icons-material/Search';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import SyncIcon from '@mui/icons-material/Sync';
+import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 
 export default function CustomersMock() {
     const [createkunde, setcreatekunde] = useState(false);
@@ -67,6 +69,8 @@ export default function CustomersMock() {
                         />
                     </Box>
                     <Button onClick={() => setcreatekunde(true)} startDecorator={<AddCircleOutlineOutlinedIcon />} sx={{ mt: -1.8 }}>Kunde erstellen</Button>
+                    <Button startDecorator={<UploadFileOutlinedIcon />} sx={{ mt: -1.8 }} variant="outlined">CSV Import</Button>
+                    <Button startDecorator={<DownloadOutlinedIcon />} sx={{ mt: -1.8 }} variant="outlined">CSV Export</Button>
                     <Button startDecorator={<SyncIcon />} sx={{ mt: -1.8 }} variant="soft">Index Neu laden</Button>
                 </Box>
                 <Box

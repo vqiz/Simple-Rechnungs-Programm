@@ -14,6 +14,7 @@ import RechnungErstellen from './components/Tabs/RechnungErstellen';
 import LieferantenVerwaltung from './components/Tabs/LieferantenVerwaltung';
 import AusgabenVerwaltung from './components/Tabs/AusgabenVerwaltung';
 import Statistiken from './components/Tabs/Statistiken';
+import Mahnungen from './components/Tabs/Mahnungen';
 
 // Keep old viewers for specific item views (might need adjustment to work within Layout or standalone)
 import KundenViewer from "./viewer/KundenViewer.jsx";
@@ -57,6 +58,13 @@ function App() {
           <Route path="/invoices/create/:userId" element={
             <Layout>
               <RechnungErstellen />
+            </Layout>
+          } />
+
+          {/* Mahnungen */}
+          <Route path="/mahnungen" element={
+            <Layout>
+              <Mahnungen />
             </Layout>
           } />
 

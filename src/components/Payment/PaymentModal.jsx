@@ -13,13 +13,41 @@ import {
     Option,
     Chip
 } from '@mui/joy';
-import { markInvoiceAsPaid, markInvoiceAsPartiallyPaid } from '../../Scripts/Filehandler';
+import { markInvoiceAsPaid, markInvoiceAsPartiallyPaid, getInvoicePayments, removePayment } from '../../Scripts/Filehandler';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import HistoryIcon from '@mui/icons-material/History';
+import { IconButton, Table, Sheet } from '@mui/joy';
 
 export default function PaymentModal({ open, onClose, invoiceNumber, invoiceTotal, onPaymentRecorded }) {
     const [paymentAmount, setPaymentAmount] = useState(invoiceTotal || 0);
     const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
     const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
     const [paymentType, setPaymentType] = useState('full'); // 'full' or 'partial'
+    const [history, setHistory] = useState([]);
+    const [showHistory, setShowHistory] = useState(false);
+
+    React.useEffect(() => {
+        if (open && invoiceNumber) {
+            loadHistory();
+        }
+    }, [open, invoiceNumber]);
+
+    const loadHistory = async () => {
+        try {
+            const h = await getInvoicePayments(invoiceNumber);
+            setHistory(h);
+        } catch (e) {
+            console.error("Failed to load payment history", e);
+        }
+    };
+
+    const handleDeletePayment = async (index) => {
+        if (window.confirm("Möchten Sie diese Zahlung wirklich löschen?")) {
+            await removePayment(invoiceNumber, index);
+            loadHistory();
+            if (onPaymentRecorded) onPaymentRecorded();
+        }
+    };
 
     const handleSubmit = async () => {
         const paymentData = {
@@ -64,7 +92,7 @@ export default function PaymentModal({ open, onClose, invoiceNumber, invoiceTota
                         Rechnung: <Chip variant="soft" size="sm">{invoiceNumber}</Chip>
                     </Typography>
                     <Typography level="body-sm" fontWeight="bold">
-                        Rechnungsbetrag: {invoiceTotal?.toFixed(2)} €
+                        Rechnungsbetrag: {invoiceTotal ? Number(invoiceTotal).toFixed(2) : '0.00'} €
                     </Typography>
                 </Box>
 
@@ -116,6 +144,53 @@ export default function PaymentModal({ open, onClose, invoiceNumber, invoiceTota
                             <Option value="other">Sonstige</Option>
                         </Select>
                     </FormControl>
+                </Box>
+
+                <Box sx={{ mt: 3 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                        <Button
+                            variant="plain"
+                            color="neutral"
+                            startDecorator={<HistoryIcon />}
+                            onClick={() => setShowHistory(!showHistory)}
+                            size="sm"
+                        >
+                            {showHistory ? "Historie ausblenden" : "Zahlungshistorie anzeigen"}
+                        </Button>
+                    </Box>
+
+                    {showHistory && (
+                        <Sheet variant="outlined" sx={{ borderRadius: 'sm', p: 1, maxHeight: 150, overflow: 'auto' }}>
+                            {history.length > 0 ? (
+                                <Table size="sm" stickyHeader>
+                                    <thead>
+                                        <tr>
+                                            <th>Datum</th>
+                                            <th>Betrag</th>
+                                            <th>Methode</th>
+                                            <th style={{ width: 50 }}></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {history.map((pay, idx) => (
+                                            <tr key={idx}>
+                                                <td>{new Date(pay.date).toLocaleDateString()}</td>
+                                                <td>{Number(pay.amount).toFixed(2)} €</td>
+                                                <td>{pay.method}</td>
+                                                <td>
+                                                    <IconButton size="sm" color="danger" variant="plain" onClick={() => handleDeletePayment(pay.index)}>
+                                                        <DeleteOutlineIcon />
+                                                    </IconButton>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            ) : (
+                                <Typography level="body-xs" textAlign="center" p={2}>Keine Zahlungen vorhanden</Typography>
+                            )}
+                        </Sheet>
+                    )}
                 </Box>
 
                 <Box

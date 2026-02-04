@@ -18,6 +18,11 @@ import DashboardMock from '@site/src/components/AppMock/DashboardMock';
 2.  **Statistik-Karten**:
     *   Zeigen den aktuellen Umsatz, offene Rechnungen und weitere Schnellstatistiken.
 
+3. **Unbezahlte Rechnungen**:
+    *   Eine Tabelle zeigt sofort alle offenen Posten.
+    *   Intelligente **Status-Badges** markieren Rechnungen als "Ausstehend" (Grau) oder "Überfällig" (Rot).
+    *   Klicken Sie auf eine Rechnung, um direkt zur Zahlungserfassung zu gelangen.
+
 
 
 ## Navigation

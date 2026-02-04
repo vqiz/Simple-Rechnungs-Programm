@@ -605,8 +605,8 @@ function RechnungErstellen({ selUser }) {
 
 
                           brutto || !oldjson?.mwst
-                            ? (value * price).toFixed(2) + "€"   // Brutto = before Steuer
-                            : (value * price * (1 + steuer / 100)).toFixed(2) + "€"  // Netto = after Steuer
+                            ? (value * price).toFixed(2) + (oldjson?.waehrung || "€")   // Brutto = before Steuer
+                            : (value * price * (1 + steuer / 100)).toFixed(2) + (oldjson?.waehrung || "€")  // Netto = after Steuer
                         }
 
                       </Typography>
@@ -662,7 +662,7 @@ function RechnungErstellen({ selUser }) {
                     }
                   }, 0)
                   .toFixed(2)}{" "}
-                €
+                {oldjson?.waehrung || "€"}
               </Typography>
               <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
                 <Typography level="title-lg" fontWeight="xl">Netto</Typography>

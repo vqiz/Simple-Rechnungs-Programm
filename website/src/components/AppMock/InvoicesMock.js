@@ -9,6 +9,7 @@ import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import ForwardToInboxOutlinedIcon from '@mui/icons-material/ForwardToInboxOutlined';
+import NotificationImportantOutlinedIcon from '@mui/icons-material/NotificationImportantOutlined';
 // Mocking A4 dimensions
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
@@ -28,6 +29,7 @@ export default function InvoicesMock() {
 
     const sidebarButtons = [
         { icon: <PersonOutlinedIcon />, label: "zum Kunden" },
+        { icon: <NotificationImportantOutlinedIcon />, label: "Mahnung erstellen", color: 'warning' },
         { icon: <PictureAsPdfOutlinedIcon />, label: "Als PDF exportieren" },
         { icon: <PrintOutlinedIcon />, label: "Drucken" },
         { icon: <SendOutlinedIcon />, label: "Als E-Rechnung exportieren" },

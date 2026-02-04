@@ -27,6 +27,9 @@ const sidebars = {
     'zahlungen',
     'mehrwertsteuer',
     'e-rechnung-import',
+    'datensicherheit',
+    'faq',
+    'mahnung',
   ],
 };
 

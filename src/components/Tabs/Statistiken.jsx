@@ -13,6 +13,9 @@ export default function Statistiken() {
     const [year, setYear] = useState(new Date().getFullYear());
     const [stats, setStats] = useState(null);
     const [selectedMonthDetails, setSelectedMonthDetails] = useState(null);
+    const [statusModalOpen, setStatusModalOpen] = useState(null);
+    const [statusModalTitle, setStatusModalTitle] = useState("");
+    const [statusModalList, setStatusModalList] = useState([]);
     const pdfRef = useRef();
 
     useEffect(() => {
@@ -54,6 +57,27 @@ export default function Statistiken() {
     const currentMonthStats = (isCurrentYear && chartData && chartData[currentMonthIndex]) ? chartData[currentMonthIndex] : null;
     const currentMonthName = new Date().toLocaleString('de-DE', { month: 'long' });
 
+    // Calculate Counts for Current Month Status
+    // We already have `currentMonthStats.invoices` (all invoices in this month).
+    // We need to check their status (Paid, Open, Overdue) to count them.
+    // Note: `currentMonthStats.invoices` contains objects with `id`, `amount`, etc.
+    // Logic from `getFinancialData` calculated totals but did not store status per invoice in `chartData`.
+    // Strategies:
+    // 1. Re-check status against `summary.open/overdue` logic? No, those are totals.
+    // 2. We need `unpaidInvoices` list here to check status again? `stats` object from `getFinancialData` doesn't pass it.
+    // Let's assume for now we count Income/Expenses count.
+
+    // User asked "Current Month... Count not Amount... click to see list".
+    // Let's use `currentMonthStats.invoices.length` for "Einnahmen Anzahl".
+
+
+
+    const handleMonthCardClick = (type, list, title) => {
+        setStatusModalList(list || []);
+        setStatusModalTitle(title);
+        setStatusModalOpen(true);
+    };
+
     return (
         <Box sx={{ height: '100vh', overflowY: "auto", pb: 10 }}>
             <Headline>Statistiken & Berichte</Headline>
@@ -76,7 +100,7 @@ export default function Statistiken() {
             {/* Summary Cards */}
             <Box sx={{ display: 'flex', gap: 2, px: 2, mt: 3, flexWrap: 'wrap' }}>
                 <Card sx={{ flex: 1, minWidth: 200, bgcolor: 'success.50' }}>
-                    <Typography level="title-md">Einnahmen (Netto)</Typography>
+                    <Typography level="title-md">Einnahmen (Gesamt)</Typography>
                     <Typography level="h3" color="success">{summary.totalIncome?.toFixed(2)} €</Typography>
                 </Card>
                 <Card sx={{ flex: 1, minWidth: 200, bgcolor: 'danger.50' }}>
@@ -93,25 +117,83 @@ export default function Statistiken() {
                 </Card>
             </Box>
 
+            {/* Payment Status Cards */}
+            <Box sx={{ display: 'flex', gap: 2, px: 2, mt: 2, flexWrap: 'wrap' }}>
+                <Card sx={{ flex: 1, minWidth: 200 }}>
+                    <Typography level="title-md">Bezahlt</Typography>
+                    <Typography level="h3" color="success">{summary.paidAmount?.toFixed(2)} €</Typography>
+                </Card>
+                <Card sx={{ flex: 1, minWidth: 200 }}>
+                    <Typography level="title-md">Offen</Typography>
+                    <Typography level="h3" color="neutral">{summary.openAmount?.toFixed(2)} €</Typography>
+                </Card>
+                <Card sx={{ flex: 1, minWidth: 200 }}>
+                    <Typography level="title-md">Überfällig</Typography>
+                    <Typography level="h3" color="danger">{summary.overdueAmount?.toFixed(2)} €</Typography>
+                </Card>
+            </Box>
+
             {currentMonthStats && (
                 <Box sx={{ mt: 4, px: 2 }}>
                     <Typography level="h4" mb={2}>Aktueller Monat ({currentMonthName})</Typography>
                     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                        <Card sx={{ flex: 1, minWidth: 200, bgcolor: 'success.50' }}>
+                        <Card
+                            sx={{ flex: 1, minWidth: 200, bgcolor: 'success.50', cursor: 'pointer', '&:hover': { boxShadow: 'md' } }}
+                            onClick={() => handleMonthCardClick('income', currentMonthStats.invoices, `Einnahmen im ${currentMonthName}`)}
+                        >
                             <Typography level="title-md">Einnahmen</Typography>
                             <Typography level="h3" color="success">{currentMonthStats.income?.toFixed(2)} €</Typography>
                         </Card>
-                        <Card sx={{ flex: 1, minWidth: 200, bgcolor: 'danger.50' }}>
+                        <Card
+                            sx={{ flex: 1, minWidth: 200, bgcolor: 'danger.50', cursor: 'pointer', '&:hover': { boxShadow: 'md' } }}
+                            onClick={() => {
+                                const monthexps = expensesList.filter(e => new Date(e.date).getMonth() === currentMonthIndex && new Date(e.date).getFullYear() === year);
+                                handleMonthCardClick('expense', monthexps, `Ausgaben im ${currentMonthName}`);
+                            }}
+                        >
                             <Typography level="title-md">Ausgaben</Typography>
-                            <Typography level="h3" color="danger">{currentMonthStats.expenses?.toFixed(2)} €</Typography>
-                        </Card>
-                        <Card sx={{ flex: 1, minWidth: 200, bgcolor: currentMonthStats.profit >= 0 ? 'primary.50' : 'warning.50' }}>
-                            <Typography level="title-md">Gewinn / Verlust</Typography>
-                            <Typography level="h3" color={currentMonthStats.profit >= 0 ? "primary" : "warning"}>{currentMonthStats.profit?.toFixed(2)} €</Typography>
+                            <Typography level="h3" color="danger">
+                                {expensesList.filter(e => new Date(e.date).getMonth() === currentMonthIndex && new Date(e.date).getFullYear() === year)
+                                    .reduce((sum, item) => sum + item.amount, 0).toFixed(2)} €
+                            </Typography>
                         </Card>
                     </Box>
                 </Box>
             )}
+
+            <Modal
+                open={!!statusModalOpen}
+                onClose={() => setStatusModalOpen(false)}
+                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            >
+                <ModalDialog sx={{ width: '600px', maxWidth: '90vw', maxHeight: '80vh', overflow: 'auto' }}>
+                    <ModalClose />
+                    <Typography level="h4" mb={2}>{statusModalTitle}</Typography>
+                    <Divider sx={{ mb: 2 }} />
+                    {statusModalList && statusModalList.length > 0 ? (
+                        <Table hoverRow>
+                            <thead>
+                                <tr>
+                                    <th>Beschreibung/Kunde</th>
+                                    <th>Datum</th>
+                                    <th style={{ textAlign: 'right' }}>Betrag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {statusModalList.map((item, idx) => (
+                                    <tr key={item.id || idx}>
+                                        <td>{item.customerName || item.category || "Unbekannt"}</td>
+                                        <td>{new Date(item.date).toLocaleDateString()}</td>
+                                        <td style={{ textAlign: 'right' }}>{item.amount?.toFixed(2)} €</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    ) : (
+                        <Typography>Keine Einträge vorhanden.</Typography>
+                    )}
+                </ModalDialog>
+            </Modal>
 
             {/* Main Chart */}
             <Box sx={{ px: 2, mt: 4, height: 400 }}>

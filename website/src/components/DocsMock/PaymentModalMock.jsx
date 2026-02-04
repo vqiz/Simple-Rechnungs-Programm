@@ -12,6 +12,9 @@ import {
     Option,
     Chip
 } from '@mui/joy';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import HistoryIcon from '@mui/icons-material/History';
+import { IconButton, Table, Sheet } from '@mui/joy';
 
 export default function PaymentModalMock() {
     const invoiceNumber = "R2024-2-1-42";
@@ -88,6 +91,30 @@ export default function PaymentModalMock() {
                             <Option value="other">Sonstige</Option>
                         </Select>
                     </FormControl>
+                </Box>
+
+                <Box sx={{ mt: 3, borderTop: '1px solid #ddd', pt: 2 }}>
+                    <Typography level="title-sm" mb={1} startDecorator={<HistoryIcon />}>Zahlungshistorie</Typography>
+                    <Sheet variant="outlined" sx={{ borderRadius: 'sm', p: 1 }}>
+                        <Table size="sm">
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Betrag</th>
+                                    <th>Methode</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>01.10.2023</td>
+                                    <td>50.00 €</td>
+                                    <td>Banküberweisung</td>
+                                    <td><IconButton size="sm" color="danger" variant="plain"><DeleteOutlineIcon /></IconButton></td>
+                                </tr>
+                            </tbody>
+                        </Table>
+                    </Sheet>
                 </Box>
 
                 <Box

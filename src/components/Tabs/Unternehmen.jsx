@@ -1,4 +1,4 @@
-import { Alert, Avatar, Box, Button, Divider, FormControl, FormLabel, Input, Switch, Typography } from '@mui/joy'
+import { Alert, Avatar, Box, Button, Divider, FormControl, FormLabel, Input, Switch, Typography, Select, Option } from '@mui/joy'
 import React, { useCallback, useEffect, useState } from 'react'
 import Headline from '../Headline'
 import InfoCard from '../InfoCard'
@@ -32,6 +32,10 @@ function Unternehmen() {
     steuernr: "",
     mwst: false,
     bundesland: "",
+    invoicePrefix: "R",
+    invoiceDateFormat: "YYYY-MM-DD",
+    invoiceSeparator: "-",
+    waehrung: "€"
   });
   const [oldjson, setoldjson] = useState();
   const [changes, setchanges] = useState(false);
@@ -395,7 +399,61 @@ function Unternehmen() {
       </Box>
 
 
+      <Typography sx={{ color: "gray", ml: 2 }}>Rechnungsnummer Format</Typography>
+      <Divider orientation="horizontal" />
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
+        <Box sx={boxlinestyle}>
+          <FormControl sx={{ width: "30%" }}>
+            <FormLabel sx={labelstyle}>Präfix</FormLabel>
+            <Input
+              placeholder='z.B. R'
+              value={formData.invoicePrefix || ""}
+              onChange={e => setFormData({ ...formData, invoicePrefix: e.target.value })}
+            />
+          </FormControl>
+          <FormControl sx={{ width: "30%" }}>
+            <FormLabel sx={labelstyle}>Datumsformat</FormLabel>
+            <Select
+              value={formData.invoiceDateFormat || "YYYY-MM-DD"}
+              onChange={(e, val) => setFormData({ ...formData, invoiceDateFormat: val })}
+            >
+              <Option value="YYYY-MM-DD">2024-03-01</Option>
+              <Option value="YYYYMMDD">20240301</Option>
+              <Option value="YYYY-MM">2024-03</Option>
+              <Option value="YYYY">2024</Option>
+              <Option value="NONE">Kein Datum</Option>
+            </Select>
+          </FormControl>
+          <FormControl sx={{ width: "30%" }}>
+            <FormLabel sx={labelstyle}>Trennzeichen</FormLabel>
+            <Input
+              placeholder='z.B. -'
+              value={formData.invoiceSeparator || ""}
+              onChange={e => setFormData({ ...formData, invoiceSeparator: e.target.value })}
+            />
+          </FormControl>
+        </Box>
+        <Typography level="body-xs" sx={{ ml: 1, color: 'neutral.500' }}>
+          Vorschau: {formData.invoicePrefix || "R"}{formData.invoiceDateFormat !== "NONE" ? (formData.invoiceSeparator || "-") + "2024..." : ""}{formData.invoiceSeparator || "-"}123
+        </Typography>
+      </Box>
 
+      <Typography sx={{ color: "gray", ml: 2 }}>Währung</Typography>
+      <Divider orientation="horizontal" />
+      <Box sx={{ p: 2 }}>
+        <FormControl sx={{ width: "20%" }}>
+          <FormLabel sx={labelstyle}>Währungssymbol</FormLabel>
+          <Select
+            value={formData.waehrung || "€"}
+            onChange={(e, val) => setFormData({ ...formData, waehrung: val })}
+          >
+            <Option value="€">Euro (€)</Option>
+            <Option value="$">Dollar ($)</Option>
+            <Option value="£">Pfund (£)</Option>
+            <Option value="CHF">Schweizer Franken (CHF)</Option>
+          </Select>
+        </FormControl>
+      </Box>
       <Typography sx={{ color: "gray", ml: 2 }}>Logo</Typography>
       <Divider orientation="horizontal" />
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2, mb: 15 }}>
@@ -450,7 +508,7 @@ function Unternehmen() {
         }
 
       </Box>
-    </Box>
+    </Box >
 
   )
 }

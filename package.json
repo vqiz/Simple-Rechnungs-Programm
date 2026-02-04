@@ -9,8 +9,8 @@
     "start": "react-scripts start",
     "electron": "electron .",
     "package": "electron-forge package",
-    "make": "npm run build && electron-forge make --platform=win32",
-    "make:all": "npm run build && electron-forge make --platform=darwin && electron-forge make --platform=win32",
+    "make": "npm run build && concurrently -c \"bgBlue.bold,bgMagenta.bold\" \"electron-forge make --platform=darwin\" \"electron-forge make --platform=win32\"",
+    "make:all": "npm run build && concurrently \"electron-forge make --platform=darwin\" \"electron-forge make --platform=win32\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -48,6 +48,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
     "@electron-forge/plugin-fuses": "^7.10.2",
     "@electron/fuses": "^1.8.0",
+    "concurrently": "^9.2.1",
     "electron": "^37.2.1",
     "electron-builder": "^26.0.12"
   },

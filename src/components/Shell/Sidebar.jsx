@@ -8,6 +8,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import NotificationImportantOutlinedIcon from '@mui/icons-material/NotificationImportantOutlined';
 
 const SidebarItem = ({ icon: Icon, label, path, active, onClick }) => {
     return (
@@ -42,6 +43,7 @@ const Sidebar = () => {
         { label: 'Produkte', icon: InventoryIcon, path: '/products' },
         { label: 'Ausgaben', icon: AccountBalanceWalletIcon, path: '/expenses' },
         { label: 'Statistiken', icon: AssessmentIcon, path: '/statistics' },
+        { label: 'Mahnwesen', icon: NotificationImportantOutlinedIcon, path: '/mahnungen' },
         { label: 'Einstellungen', icon: SettingsIcon, path: '/settings' },
     ];
 

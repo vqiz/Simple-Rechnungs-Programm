@@ -15,7 +15,19 @@ Oben sehen Sie die wichtigsten Zahlen für das gewählte Jahr:
 *   **Einnahmen (Netto)**: Summe aller Rechnungen (ohne Steuer).
 *   **Ausgaben**: Summe aller erfassten Kosten.
 *   **Gewinn / Verlust**: Die Differenz zwischen Einnahmen und Ausgaben.
-*   **USt. Eingenommen**: Die Summe der Umsatzsteuer, die Sie eingenommen haben (wichtig für die Voranmeldung).
+*   **Gewinn / Verlust**: Die Differenz zwischen Einnahmen und Ausgaben.
+*   **USt. Eingenommen**: Die Summe der Umsatzsteuer, die Sie eingenommen haben.
+
+### Zahlungsstatus
+Hier sehen Sie auf einen Blick, wie es um Ihre Rechnungen steht:
+*   **Bezahlt**: Umsatz, der bereits auf Ihrem Konto eingegangen ist.
+*   **Ausstehend**: Rechnungen, die versendet, aber noch nicht bezahlt wurden (noch im Zahlungsziel).
+*   **Überfällig**: Forderungen, deren Zahlungsziel überschritten ist.
+
+### Aktueller Monat (Detailansicht)
+Darunter sehen Sie Kacheln für den aktuellen Monat.
+*   **Einnahmen/Ausgaben**: Zeigt die **Summe der Beträge** für den laufenden Monat.
+*   **Klickbar**: Klicken Sie auf eine Kachel, um eine **detaillierte Liste** aller einzelnen Einnahmen oder Ausgaben zu sehen (Datum, Kunde, Betrag).
 
 ## Jahresverlauf (Interaktiv)
 

@@ -3,7 +3,8 @@ import { Modal, ModalDialog, Typography, Box, Input, Button, FormControl, FormLa
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
-import { saveAusgabe, saveRecurringRule } from '../../Scripts/Ausgaben';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { saveAusgabe, saveRecurringRule } from '../../Scripts/AusgabenHandler';
 import { parseERechnung } from '../../Scripts/ERechnungInterpretter';
 import { handleLoadFile } from '../../Scripts/Filehandler';
 
@@ -18,8 +19,13 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
         description: '',
         isRecurring: false,
         interval: 'monthly',
-        file: null
+        isRecurring: false,
+        interval: 'monthly',
+        file: null,
+        attachmentPath: null
     });
+    const [pendingAttachment, setPendingAttachment] = useState(null); // { name, data, type }
+    const [attachmentPreview, setAttachmentPreview] = useState(null);
 
     useEffect(() => {
         if (ausgabeToEdit) {
@@ -42,49 +48,99 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
         }
     }, [ausgabeToEdit, open]);
 
-    const handleChange = async (field, value) => {
-        // If uploading a file
-        if (field === 'file' && value) {
-            // Check if it's an XML file (e-Rechnung)
-            if (value.endsWith('.xml')) {
-                try {
-                    // Read the XML file
-                    const xmlContent = await handleLoadFile(value.replace(/^.*[\\\/]/, ''));
-                    // Parse e-Rechnung
-                    const parsedData = parseERechnung(xmlContent);
-
-                    if (parsedData) {
-                        // Auto-fill form with parsed data
-                        setFormData(prev => ({
-                            ...prev,
-                            title: parsedData.title || prev.title,
-                            amount: parsedData.totalGross || prev.amount,
-                            provider: parsedData.supplier || prev.provider,
-                            date: parsedData.issueDate ? new Date(parsedData.issueDate).toISOString().split('T')[0] : prev.date,
-                            category: parsedData.category || 'Eingekaufte Leistungen',
-                            file: value
-                        }));
-                        console.log('E-Rechnung automatisch geladen:', parsedData);
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Fehler beim Parsen der E-Rechnung:', error);
-                    // Fall back to just setting the file path
-                }
+    // Load preview if existing attachment
+    useEffect(() => {
+        const loadPreview = async () => {
+            if (formData.attachmentPath && !pendingAttachment) {
+                const data = await window.api.readAttachment(formData.attachmentPath);
+                setAttachmentPreview(data);
             }
+        };
+        if (open) loadPreview();
+    }, [formData.attachmentPath, open, pendingAttachment]);
+
+    const handleChange = async (field, value, fileObj = null) => {
+        // If uploading a file
+        if (field === 'file' && fileObj) {
+
+            // 1. Read file as DataURL for storage/preview
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const dataUrl = e.target.result;
+                setPendingAttachment({
+                    name: fileObj.name,
+                    data: dataUrl,
+                    type: fileObj.type
+                });
+                setAttachmentPreview(dataUrl);
+
+                // 2. If E-Rechnung (XML), try to parse
+                if (fileObj.name.toLowerCase().endsWith('.xml')) {
+                    try {
+                        // XML is text, read as text for parsing logic
+                        const textReader = new FileReader();
+                        textReader.onload = (txtEvent) => {
+                            const xmlContent = txtEvent.target.result;
+                            const parsedData = parseERechnung(xmlContent);
+                            if (parsedData) {
+                                setFormData(prev => ({
+                                    ...prev,
+                                    title: parsedData.title || prev.title,
+                                    amount: parsedData.totalGross || prev.amount,
+                                    provider: parsedData.supplier || prev.provider,
+                                    date: parsedData.issueDate ? new Date(parsedData.issueDate).toISOString().split('T')[0] : prev.date,
+                                    category: parsedData.category || 'Eingekaufte Leistungen',
+                                    file: fileObj.name
+                                }));
+                            }
+                        };
+                        textReader.readAsText(fileObj);
+                    } catch (err) {
+                        console.error("XML Parse Error", err);
+                    }
+                } else {
+                    setFormData(prev => ({ ...prev, file: fileObj.name }));
+                }
+            };
+            reader.readAsDataURL(fileObj);
+            return;
         }
 
         // Normal field update
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
+    const handleRemoveAttachment = () => {
+        setPendingAttachment(null);
+        setAttachmentPreview(null);
+        setFormData(prev => ({
+            ...prev,
+            file: null,
+            attachmentPath: null
+        }));
+    };
+
     const handleSave = async () => {
         if (!formData.title || !formData.amount) return;
+
+        let finalAttachmentPath = formData.attachmentPath;
+
+        // Upload attachment if pending
+        if (pendingAttachment) {
+            const result = await window.api.saveAttachment(pendingAttachment);
+            if (result.success) {
+                finalAttachmentPath = result.path;
+            } else {
+                alert("Fehler beim Speichern des Anhangs: " + result.error);
+                return;
+            }
+        }
 
         const expenseData = {
             ...formData,
             amount: parseFloat(formData.amount),
             date: new Date(formData.date).getTime(),
+            attachmentPath: finalAttachmentPath
         };
 
         if (formData.isRecurring) {
@@ -179,9 +235,31 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
 
                     <Button startDecorator={<AttachFileOutlinedIcon />} variant="outlined" component="label">
                         E-Rechnung / Beleg anhängen (XML/PDF/Bild)
-                        <input type="file" hidden accept=".xml,.pdf,.jpg,.jpeg,.png" onChange={(e) => handleChange('file', e.target.files[0]?.path || null)} />
+                        <input
+                            type="file"
+                            hidden
+                            accept=".xml,.pdf,.jpg,.jpeg,.png"
+                            onChange={(e) => handleChange('file', null, e.target.files[0])}
+                        />
                     </Button>
-                    {formData.file && <Typography level="body-sm">Datei: {formData.file}</Typography>}
+
+                    {/* Attachment Preview / Info */}
+                    {(attachmentPreview || formData.attachmentPath) && (
+                        <Box sx={{ p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 'sm', position: 'relative' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography level="body-sm" fontWeight="bold">Anhang: {formData.file || "Datei"}</Typography>
+                                <IconButton size="sm" color="danger" variant="plain" onClick={handleRemoveAttachment}>
+                                    <DeleteOutlineOutlinedIcon />
+                                </IconButton>
+                            </Box>
+
+                            {attachmentPreview && formData.file && (formData.file.toLowerCase().endsWith('.jpg') || formData.file.toLowerCase().endsWith('.png')) ? (
+                                <img src={attachmentPreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', marginTop: '10px' }} />
+                            ) : (
+                                <Typography level="body-xs" sx={{ mt: 1 }}>{formData.file ? (formData.file.toLowerCase().endsWith('.xml') ? "E-Rechnung (XML)" : "Dokument (PDF/Andere)") : "Gespeicherter Anhang"}</Typography>
+                            )}
+                        </Box>
+                    )}
 
                     <Button startDecorator={<SaveOutlinedIcon />} onClick={handleSave} color="primary">Speichern</Button>
                 </Box>

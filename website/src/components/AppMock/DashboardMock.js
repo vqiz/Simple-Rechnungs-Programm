@@ -130,11 +130,11 @@ export default function DashboardMock() {
                                             <td>
                                                 <Chip
                                                     variant="soft"
-                                                    color="danger"
+                                                    color="neutral"
                                                     startDecorator={<FiberManualRecordOutlinedIcon />}
                                                     size="sm"
                                                 >
-                                                    Unbezahlt
+                                                    Ausstehend
                                                 </Chip>
                                             </td>
                                         </tr>

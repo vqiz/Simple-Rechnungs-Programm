@@ -46,6 +46,7 @@ import AusgabenEditorMock from '@site/src/components/DocsMock/AusgabenEditorMock
 
 - In der Liste sehen Sie alle Ausgaben sortiert nach Datum
 - Mit dem **Filter** können Sie nach Monaten oder Jahren suchen
+- **Anhänge ansehen**: Wenn ein 📎 Symbol angezeigt wird, klicken Sie darauf, um das Bild, PDF oder die E-Rechnung direkt anzusehen.
 - Klicken Sie auf das **Stift-Symbol**, um eine Ausgabe zu bearbeiten
 - Klicken Sie auf das **Papierkorb-Symbol**, um eine Ausgabe zu löschen
 
