@@ -4,10 +4,17 @@ import {
   Input,
   Typography,
   Modal,
-  ModalDialog
+  ModalDialog,
+  Divider,
+  IconButton,
+  FormControl,
+  FormLabel,
+  Stack
 } from '@mui/joy'
 import React, { useState } from 'react'
 import { handleLoadFile, handleSaveFile } from '../../../Scripts/Filehandler';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 
 function CreateProduktKathegorie({ setcreate, path, update }) {
   const [name, setname] = useState("");
@@ -25,74 +32,72 @@ function CreateProduktKathegorie({ setcreate, path, update }) {
       name: name,
       content: [],
     }
-    console.log("Pfad", path)
-    const jsonString = await handleLoadFile(path);
-    console.log(jsonString);
-    const json = JSON.parse(jsonString);
-    if (!("list" in json)) {
-      json.list = [];
+    try {
+      const jsonString = await handleLoadFile(path);
+      const json = JSON.parse(jsonString);
+      if (!("list" in json)) {
+        json.list = [];
+      }
+      json.list.push(content);
+      await handleSaveFile(path, JSON.stringify(json));
+      setcreate(false);
+      await update();
+    } catch (e) {
+      console.error(e);
     }
-    json.list.push(content);
-    await handleSaveFile(path, JSON.stringify(json));
-    setcreate(false);
-    await update();
   }
 
   return (
     <Modal open={true} onClose={() => setcreate(false)}>
       <ModalDialog
         variant="outlined"
+        role="alertdialog"
         sx={{
-          borderRadius: "md",
-          width: "55vh",
-          maxWidth: "90vw",
+          borderRadius: "xl",
+          width: "400px",
+          maxWidth: "95vw",
+          p: 0,
+          overflow: 'hidden',
+          bgcolor: 'var(--md-sys-color-surface)'
         }}
       >
-        <form onSubmit={(e) => createKatheigorie(e)} style={{ width: "100%" }}>
-          <Typography level="h3" mt={1}>
-            Kathegorie Erstellen
+        {/* Header */}
+        <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: 'var(--md-sys-color-surface-container)' }}>
+          <Typography level='h4' fontWeight="lg">
+            Kategorie erstellen
           </Typography>
-          <Box mt={2} sx={{ height: "1px", bgcolor: "lightgray", width: "100%" }} />
+          <IconButton onClick={() => setcreate(false)} variant="plain" color="neutral" sx={{ borderRadius: '50%' }}>
+            <CloseOutlinedIcon />
+          </IconButton>
+        </Box>
+        <Divider />
 
-          <Input
-            sx={{ mt: 4, width: "100%", borderColor: error ? "red" : null }}
-            value={name}
-            onChange={(e) => { setname(e.target.value); seterror(false) }}
-            placeholder="Kathegoriename"
-            required
-          />
-          {error && (
-            <Box sx={{ width: "100%" }}>
-              <Typography ml={0.5} level="body-xs" color='danger'>
-                Bitte gib einen Namen an
-              </Typography>
-            </Box>
-          )}
+        {/* Body */}
+        <Box sx={{ p: 3 }}>
+          <form onSubmit={(e) => createKatheigorie(e)}>
+            <FormControl required error={error}>
+              <FormLabel>Kategoriename</FormLabel>
+              <Input
+                value={name}
+                onChange={(e) => { setname(e.target.value); seterror(false) }}
+                placeholder="z.B. Dienstleistungen"
+                autoFocus
+              />
+              {error && (
+                <Typography level="body-xs" color='danger' sx={{ mt: 1 }}>
+                  Bitte einen Namen eingeben.
+                </Typography>
+              )}
+            </FormControl>
+          </form>
+        </Box>
+        <Divider />
 
-          <Box
-            sx={{
-              width: "100%",
-              mt: 3,
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Button
-              onClick={() => setcreate(false)}
-              variant='outlined'
-              color="danger"
-            >
-              Abbrechen
-            </Button>
-            <Button
-              onClick={() => createKatheigorie()}
-              color="neutral"
-              variant='outlined'
-            >
-              Speichern
-            </Button>
-          </Box>
-        </form>
+        {/* Footer */}
+        <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 1, bgcolor: 'var(--swiss-gray-50)' }}>
+          <Button variant="plain" color="neutral" onClick={() => setcreate(false)}>Abbrechen</Button>
+          <Button onClick={() => createKatheigorie()} startDecorator={<AddCircleOutlineOutlinedIcon />}>Erstellen</Button>
+        </Box>
       </ModalDialog>
     </Modal>
   )

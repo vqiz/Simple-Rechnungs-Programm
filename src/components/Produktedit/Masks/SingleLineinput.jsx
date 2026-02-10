@@ -6,97 +6,92 @@ import {
     Input,
     Modal,
     ModalDialog,
-    Sheet,
     Typography,
+    IconButton,
+    FormControl,
+    FormLabel
 } from "@mui/joy";
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 function SingleLineinput({ title, onClose, onSave, val, inputtype }) {
     const [value, setValue] = useState(val);
-    const [error, seterror] = useState(false);
+    const [error, setError] = useState(false);
+
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
-        if (value && value !== "") {
-            if (inputtype === "number") {
-                const num = Number(value.replace(",", "."));
-                if (isNaN(num)) {
-                    seterror(true);
-                    return;
-                }
-                const formatted = parseFloat(num.toFixed(2)); 
-                if (onSave) onSave(formatted);
-            } else {
-                if (onSave) onSave(value);
+
+        let finalValue = value;
+
+        if (inputtype === "number") {
+            const num = Number(value.toString().replace(",", "."));
+            if (isNaN(num)) {
+                setError(true);
+                return;
             }
-            setValue("");
-            if (onClose) onClose();
+            finalValue = parseFloat(num.toFixed(2));
+        } else {
+            if (!value || value.trim() === "") {
+                setError(true);
+                return;
+            }
         }
+
+        if (onSave) onSave(finalValue);
+        if (onClose) onClose();
     };
 
     return (
-        <Modal open={true} onClose={onClose}>
-            <ModalDialog>
-                <form onSubmit={handleSubmit}>
-                    <Sheet
-                        sx={{
-                            borderRadius: "16px",
-                            width: "400px",
-                            p: 2,
-                            boxShadow: "lg",
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 2,
-                            bgcolor: "background.surface",
-                        }}
-                    >
-                        <Typography level="h4" textAlign="center">
-                            {title}
-                        </Typography>
+        <Modal open={true} onClose={() => onClose(null)}>
+            <ModalDialog
+                variant="outlined"
+                role="alertdialog"
+                sx={{
+                    borderRadius: "xl",
+                    width: "400px",
+                    maxWidth: "95vw",
+                    p: 0,
+                    overflow: 'hidden',
+                    bgcolor: 'var(--md-sys-color-surface)'
+                }}
+            >
+                {/* Header */}
+                <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: 'var(--md-sys-color-surface-container)' }}>
+                    <Typography level='h4' fontWeight="lg">
+                        {title}
+                    </Typography>
+                    <IconButton onClick={() => onClose(null)} variant="plain" color="neutral" sx={{ borderRadius: '50%' }}>
+                        <CloseOutlinedIcon />
+                    </IconButton>
+                </Box>
+                <Divider />
 
-                        <Divider />
+                {/* Body */}
+                <Box sx={{ p: 3 }}>
+                    <form onSubmit={handleSubmit}>
+                        <FormControl error={error}>
+                            <Input
+                                value={value}
+                                onChange={(e) => { setValue(e.target.value); setError(false); }}
+                                placeholder=""
+                                autoFocus
+                                slotProps={{ input: { step: inputtype === 'number' ? '0.01' : undefined, type: inputtype || 'text' } }}
+                            />
+                            {error && (
+                                <Typography level="body-xs" color="danger" sx={{ mt: 1 }}>
+                                    Bitte einen gültigen Wert eingeben.
+                                </Typography>
+                            )}
+                        </FormControl>
+                    </form>
+                </Box>
+                <Divider />
 
-                        <Input
-                            value={value}
-                            onChange={(e) => setValue(e.target.value)}
-                            placeholder=""
-                            sx={{
-                                "--Input-radius": "8px",
-                                fontSize: "1rem",
-                                bgcolor: "background.body",
-                                borderColor: error ? "red" : "black",
-
-                            }}
-                            autoFocus
-                        />
-                        {
-                            error && (
-                                <Typography level="body-xs" color="danger">Bitte gültige Zahl eingeben</Typography>
-                            )
-                        }
-                        <Box
-                            sx={{
-                                width: "100%",
-                                display: "flex",
-                                justifyContent: "space-between",
-                            }}
-                        >
-                            <Button
-                                onClick={() => onClose(null)}
-                                variant='outlined'
-                                color="neutral"
-                            >
-                                Abbrechen
-                            </Button>
-
-                            <Button
-                                onClick={() => handleSubmit()}
-                                color="success"
-                                variant='solid'
-                            >
-                                Speichern
-                            </Button>
-                        </Box>
-                    </Sheet>
-                </form>
+                {/* Footer */}
+                <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 1, bgcolor: 'var(--swiss-gray-50)' }}>
+                    <Button variant="plain" color="neutral" onClick={() => onClose(null)}>Abbrechen</Button>
+                    <Button onClick={handleSubmit} startDecorator={<EditOutlinedIcon />}>Speichern</Button>
+                </Box>
             </ModalDialog>
         </Modal>
     );

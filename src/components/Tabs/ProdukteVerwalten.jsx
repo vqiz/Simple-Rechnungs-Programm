@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Input, Table, IconButton, Chip, Dropdown, Menu, MenuButton, MenuItem, ListItemDecorator } from '@mui/joy';
+import { Box, Typography, Button, Input, Table, IconButton, Chip, Dropdown, Menu, MenuButton, MenuItem, ListItemDecorator, Tooltip, Stack } from '@mui/joy';
 import Headline from '../Headline';
 import InfoCard from '../InfoCard';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
@@ -8,7 +8,7 @@ import CreateProdukt from '../Produktedit/Masks/CreateProdukt';
 import CreateProduktKathegorie from '../Produktedit/Masks/CreateProduktKathegorie';
 import DeleteConfirmation from '../Produktedit/Masks/DeleteConfirmation';
 import SingleLineinput from '../Produktedit/Masks/SingleLineinput';
-
+import SyncIcon from '@mui/icons-material/Sync';
 import SearchIcon from '@mui/icons-material/Search';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -16,6 +16,8 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EuroSymbolOutlinedIcon from '@mui/icons-material/EuroSymbolOutlined';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
+import '../../styles/swiss.css';
 
 const KATH_PATH = 'kathegories/kathegories.rechnix';
 
@@ -103,28 +105,54 @@ export default function ProdukteVerwalten() {
     );
 
     return (
-        <Box sx={{ height: '100vh', overflowY: "auto", display: 'flex', flexDirection: 'column', pb: 5 }}>
-            <Headline>Produkte Verwalten</Headline>
-            <Box sx={{ p: 2 }}>
-                <InfoCard headline="Inventar">Konfigurieren Sie hier Ihre Produkte und Dienstleistungen für die Rechnungserstellung.</InfoCard>
-            </Box>
-
-            <Box sx={{ px: 2, pb: 2, display: 'flex', gap: 2, justifyContent: 'space-between', alignItems: 'center' }}>
-                <Input
-                    startDecorator={<SearchIcon />}
-                    placeholder="Suchen..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    sx={{ width: '300px' }}
-                />
+        <Box sx={{ p: 4, height: '100%', overflowY: 'auto' }}>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <Typography level="h2" sx={{ fontSize: '24px', fontWeight: 600 }}>Produkte</Typography>
+                    <Typography level="body-sm">Verwalten Sie Ihr Inventar und Dienstleistungen.</Typography>
+                </div>
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Button variant="outlined" onClick={() => setIsCreateCategoryStart(true)}>Kategorie erstellen</Button>
-                    <Button startDecorator={<AddCircleOutlineOutlinedIcon />} onClick={() => setIsCreateProductStart(true)}>Produkt erstellen</Button>
+                    <Button
+                        variant="outlined"
+                        color="neutral"
+                        startDecorator={<CategoryOutlinedIcon />}
+                        onClick={() => setIsCreateCategoryStart(true)}
+                        sx={{ borderRadius: '20px' }}
+                    >
+                        Kategorie erstellen
+                    </Button>
+                    <button
+                        className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                        onClick={() => setIsCreateProductStart(true)}
+                    >
+                        <AddCircleOutlineOutlinedIcon sx={{ fontSize: '20px' }} />
+                        Neues Produkt
+                    </button>
                 </Box>
             </Box>
 
-            <Box sx={{ px: 2 }}>
-                <Table hoverRow sx={{ borderRadius: "15px", bgcolor: 'background.surface' }}>
+            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Input
+                    placeholder="Produkt suchen..."
+                    startDecorator={<SearchIcon />}
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    sx={{
+                        flexGrow: 1,
+                        maxWidth: '400px',
+                        borderRadius: '24px',
+                        '--Input-focusedHighlight': 'var(--md-sys-color-primary)'
+                    }}
+                />
+                <Tooltip title="Neu laden">
+                    <IconButton variant="plain" color="neutral" onClick={fetchData} sx={{ borderRadius: '12px' }}>
+                        <SyncIcon />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+
+            <Box className="swiss-card" sx={{ p: 0, overflow: 'hidden' }}>
+                <Table hoverRow sx={{ '--TableCell-headBackground': 'var(--swiss-gray-50)' }}>
                     <thead>
                         <tr>
                             <th style={{ width: '30%' }}>Produktname</th>
@@ -137,16 +165,16 @@ export default function ProdukteVerwalten() {
                     <tbody>
                         {filteredProducts.map((p, idx) => (
                             <tr key={`${p.categoryName}-${p.name}-${idx}`}>
-                                <td><Typography fontWeight="bold">{p.name}</Typography></td>
-                                <td><Chip size="sm" variant="soft">{p.categoryName}</Chip></td>
-                                <td style={{ textAlign: 'right' }}>{parseFloat(p.price).toFixed(2)} €</td>
+                                <td><Typography fontWeight="md">{p.name}</Typography></td>
+                                <td><Chip size="sm" variant="soft" color="neutral">{p.categoryName}</Chip></td>
+                                <td style={{ textAlign: 'right' }}><Typography fontFamily="monospace">{parseFloat(p.price).toFixed(2)} €</Typography></td>
                                 <td style={{ textAlign: 'right' }}>{p.steuer} %</td>
                                 <td style={{ textAlign: 'right' }}>
                                     <Dropdown>
                                         <MenuButton slots={{ root: IconButton }} slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}>
                                             <MoreVertIcon />
                                         </MenuButton>
-                                        <Menu placement="bottom-end">
+                                        <Menu placement="bottom-end" size="sm">
                                             <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'name', value: p.name })}>
                                                 <ListItemDecorator><EditOutlinedIcon /></ListItemDecorator> Titel bearbeiten
                                             </MenuItem>
@@ -164,6 +192,13 @@ export default function ProdukteVerwalten() {
                                 </td>
                             </tr>
                         ))}
+                        {filteredProducts.length === 0 && (
+                            <tr>
+                                <td colSpan={5} style={{ textAlign: 'center', padding: '32px', color: 'var(--swiss-gray-500)' }}>
+                                    Keine Produkte gefunden
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </Table>
             </Box>

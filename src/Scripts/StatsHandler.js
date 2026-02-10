@@ -4,6 +4,21 @@ import { getbrutto, getNetto, getTaxAmount, getInvoiceDate } from "./ERechnungIn
 
 export const getFinancialData = async (yearFilter = new Date().getFullYear()) => {
     try {
+        // 0. Check Kleinunternehmer Setting
+        let isKleinunternehmer = false;
+        try {
+            const settingsStr = await handleLoadFile("settings/unternehmen.rechnix");
+            const settings = JSON.parse(settingsStr);
+            // In Unternehmen.jsx: Switch checked={formData.mwst}. If checked -> Gewerbe (Tax). If unchecked -> Kleingewerbe (No Tax).
+            // So if mwst is false (or undefined), it is Kleinunternehmer?
+            // Wait, default state in Unternehmen.jsx is false.
+            // "Kleingewerbe" label is left (usually unchecked), "Gewerbe" is right (checked).
+            // So: mwst == true => Tax. mwst == false => No Tax (Kleinunternehmer).
+            isKleinunternehmer = !settings.mwst;
+        } catch (e) {
+            console.error("Error loading settings", e);
+        }
+
         // 1. Get all Invoices
         const kundenDBString = await handleLoadFile("fast_accsess/kunden.db");
         if (!kundenDBString || kundenDBString === "{}") return { income: [], expenses: [], summary: {} };
@@ -58,7 +73,12 @@ export const getFinancialData = async (yearFilter = new Date().getFullYear()) =>
             // Calculate totals
             const brutto = parseFloat(getbrutto(inv.data));
             const netto = parseFloat(getNetto(inv.data));
-            const tax = parseFloat(getTaxAmount(inv.data));
+            let tax = parseFloat(getTaxAmount(inv.data));
+
+            if (isKleinunternehmer) {
+                tax = 0;
+            }
+
             const dateStr = getInvoiceDate(inv.id); // YYYY-MM-DD
 
             return {
@@ -137,7 +157,7 @@ export const getFinancialData = async (yearFilter = new Date().getFullYear()) =>
         // But if filtering by year, maybe we only show stats for that year's invoices.
         // Let's stick to the selected year for consistency.
 
-        for (const inv of incomeList) {
+        for (const inv of incomeFiltered) {
             // Check if paid
             // In our current logic, incomeList contains ALL invoices found in customer files.
             // We need to check if they are in u_Rechnungen to be "unpaid".

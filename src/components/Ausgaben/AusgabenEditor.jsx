@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, ModalDialog, Typography, Box, Input, Button, FormControl, FormLabel, Select, Option, Switch, IconButton, Divider } from '@mui/joy';
+import { Modal, ModalDialog, Typography, Box, Input, Button, FormControl, FormLabel, Select, Option, Switch, IconButton, Divider, Stack } from '@mui/joy';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined';
@@ -19,8 +19,6 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
         description: '',
         isRecurring: false,
         interval: 'monthly',
-        isRecurring: false,
-        interval: 'monthly',
         file: null,
         attachmentPath: null
     });
@@ -35,6 +33,7 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
             });
         } else {
             setFormData({
+                id: Date.now(),
                 title: "",
                 amount: "",
                 date: new Date().toISOString().split('T')[0],
@@ -43,8 +42,11 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
                 description: "",
                 isRecurring: false,
                 interval: "monthly",
-                file: null
+                file: null,
+                attachmentPath: null
             });
+            setPendingAttachment(null);
+            setAttachmentPreview(null);
         }
     }, [ausgabeToEdit, open]);
 
@@ -52,8 +54,12 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
     useEffect(() => {
         const loadPreview = async () => {
             if (formData.attachmentPath && !pendingAttachment) {
-                const data = await window.api.readAttachment(formData.attachmentPath);
-                setAttachmentPreview(data);
+                try {
+                    const data = await window.api.readAttachment(formData.attachmentPath);
+                    setAttachmentPreview(data);
+                } catch (e) {
+                    console.error("Failed to load attachment preview", e);
+                }
             }
         };
         if (open) loadPreview();
@@ -171,11 +177,6 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
             await saveRecurringRule(rule);
         }
 
-        // Save as a one-time expense as well (if it's the first occurrence) or just normal save
-        // If editing existing, just update. 
-        // If new and recurring, maybe we assume the first one is created by the recurring logic? 
-        // Or we create the first one now? Let's create the first one now to be safe and immediate.
-
         await saveAusgabe(expenseData);
         if (onSave) onSave();
         onClose();
@@ -183,85 +184,150 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
 
     return (
         <Modal open={open} onClose={onClose}>
-            <ModalDialog sx={{ width: '500px', maxWidth: '90vw' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography level="h4">{ausgabeToEdit ? 'Ausgabe bearbeiten' : 'Neue Ausgabe'}</Typography>
-                    <IconButton onClick={onClose}><CloseOutlinedIcon /></IconButton>
+            <ModalDialog
+                variant="outlined"
+                role="alertdialog"
+                sx={{
+                    borderRadius: "xl",
+                    width: "600px",
+                    maxWidth: "95vw",
+                    p: 0,
+                    overflow: 'hidden',
+                    bgcolor: 'var(--md-sys-color-surface)'
+                }}
+            >
+                {/* Header */}
+                <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: 'var(--md-sys-color-surface-container)' }}>
+                    <Typography level='h4' fontWeight="lg">
+                        {ausgabeToEdit ? 'Ausgabe bearbeiten' : 'Neue Ausgabe'}
+                    </Typography>
+                    <IconButton onClick={onClose} variant="plain" color="neutral" sx={{ borderRadius: '50%' }}>
+                        <CloseOutlinedIcon />
+                    </IconButton>
                 </Box>
                 <Divider />
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-                    <FormControl>
-                        <FormLabel>Titel</FormLabel>
-                        <Input placeholder="z.B. Server Miete" value={formData.title} onChange={e => handleChange('title', e.target.value)} required />
-                    </FormControl>
+                {/* Body */}
+                <Box sx={{ p: 3, maxHeight: '70vh', overflowY: 'auto' }}>
+                    <Stack spacing={2}>
+                        <FormControl required>
+                            <FormLabel>Titel</FormLabel>
+                            <Input
+                                placeholder="z.B. Server Miete"
+                                value={formData.title}
+                                onChange={e => handleChange('title', e.target.value)}
+                            />
+                        </FormControl>
 
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <FormControl sx={{ flex: 1 }}>
-                            <FormLabel>Betrag (€)</FormLabel>
-                            <Input prefix="€" type="number" placeholder="0.00" value={formData.amount} onChange={e => handleChange('amount', e.target.value)} required />
-                        </FormControl>
-                        <FormControl sx={{ flex: 1 }}>
-                            <FormLabel>Datum</FormLabel>
-                            <Input type="date" value={formData.date} onChange={e => handleChange('date', e.target.value)} />
-                        </FormControl>
-                    </Box>
-
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        <FormControl sx={{ flex: 1 }}>
-                            <FormLabel>Kategorie</FormLabel>
-                            <Input placeholder="Büro, Software..." value={formData.category} onChange={e => handleChange('category', e.target.value)} />
-                        </FormControl>
-                        <FormControl sx={{ flex: 1 }}>
-                            <FormLabel>Empfänger / Anbieter</FormLabel>
-                            <Input placeholder="Amazon, Adobe..." value={formData.provider} onChange={e => handleChange('provider', e.target.value)} />
-                        </FormControl>
-                    </Box>
-
-                    <FormControl>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                            <Switch checked={formData.isRecurring} onChange={e => handleChange('isRecurring', e.target.checked)} />
-                            <Typography>Wiederkehrende Ausgabe (Abo)</Typography>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                            <FormControl required>
+                                <FormLabel>Betrag (€)</FormLabel>
+                                <Input
+                                    startDecorator="€"
+                                    type="number"
+                                    placeholder="0.00"
+                                    value={formData.amount}
+                                    onChange={e => handleChange('amount', e.target.value)}
+                                    slotProps={{ input: { step: "0.01" } }}
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel>Datum</FormLabel>
+                                <Input
+                                    type="date"
+                                    value={formData.date}
+                                    onChange={e => handleChange('date', e.target.value)}
+                                />
+                            </FormControl>
                         </Box>
-                        {formData.isRecurring && (
-                            <Select value={formData.interval} onChange={(e, val) => handleChange('interval', val)}>
-                                <Option value="monthly">Monatlich</Option>
-                                <Option value="quarterly">Vierteljährlich</Option>
-                                <Option value="yearly">Jährlich</Option>
-                                <Option value="weekly">Wöchentlich</Option>
-                            </Select>
-                        )}
-                    </FormControl>
 
-                    <Button startDecorator={<AttachFileOutlinedIcon />} variant="outlined" component="label">
-                        E-Rechnung / Beleg anhängen (XML/PDF/Bild)
-                        <input
-                            type="file"
-                            hidden
-                            accept=".xml,.pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => handleChange('file', null, e.target.files[0])}
-                        />
-                    </Button>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                            <FormControl>
+                                <FormLabel>Kategorie</FormLabel>
+                                <Input
+                                    placeholder="Büro, Software..."
+                                    value={formData.category}
+                                    onChange={e => handleChange('category', e.target.value)}
+                                />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel>Empfänger / Anbieter</FormLabel>
+                                <Input
+                                    placeholder="Amazon, Adobe..."
+                                    value={formData.provider}
+                                    onChange={e => handleChange('provider', e.target.value)}
+                                />
+                            </FormControl>
+                        </Box>
 
-                    {/* Attachment Preview / Info */}
-                    {(attachmentPreview || formData.attachmentPath) && (
-                        <Box sx={{ p: 1, border: '1px solid', borderColor: 'divider', borderRadius: 'sm', position: 'relative' }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Typography level="body-sm" fontWeight="bold">Anhang: {formData.file || "Datei"}</Typography>
-                                <IconButton size="sm" color="danger" variant="plain" onClick={handleRemoveAttachment}>
-                                    <DeleteOutlineOutlinedIcon />
-                                </IconButton>
+                        <Divider />
+
+                        <FormControl>
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", mb: 1 }}>
+                                <Typography fontWeight="md">Wiederkehrende Ausgabe (Abo)</Typography>
+                                <Switch checked={formData.isRecurring} onChange={e => handleChange('isRecurring', e.target.checked)} />
                             </Box>
-
-                            {attachmentPreview && formData.file && (formData.file.toLowerCase().endsWith('.jpg') || formData.file.toLowerCase().endsWith('.png')) ? (
-                                <img src={attachmentPreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px', marginTop: '10px' }} />
-                            ) : (
-                                <Typography level="body-xs" sx={{ mt: 1 }}>{formData.file ? (formData.file.toLowerCase().endsWith('.xml') ? "E-Rechnung (XML)" : "Dokument (PDF/Andere)") : "Gespeicherter Anhang"}</Typography>
+                            {formData.isRecurring && (
+                                <Select value={formData.interval} onChange={(e, val) => handleChange('interval', val)} sx={{ mt: 1 }}>
+                                    <Option value="monthly">Monatlich</Option>
+                                    <Option value="quarterly">Vierteljährlich</Option>
+                                    <Option value="yearly">Jährlich</Option>
+                                    <Option value="weekly">Wöchentlich</Option>
+                                </Select>
                             )}
-                        </Box>
-                    )}
+                        </FormControl>
 
-                    <Button startDecorator={<SaveOutlinedIcon />} onClick={handleSave} color="primary">Speichern</Button>
+                        <Divider />
+
+                        <FormControl>
+                            <FormLabel>Anhang (E-Rechnung / Beleg)</FormLabel>
+                            <Button
+                                variant="outlined"
+                                color="neutral"
+                                component="label"
+                                startDecorator={<AttachFileOutlinedIcon />}
+                                sx={{ width: '100%', justifyContent: 'flex-start' }}
+                            >
+                                Datei auswählen...
+                                <input
+                                    type="file"
+                                    hidden
+                                    accept=".xml,.pdf,.jpg,.jpeg,.png"
+                                    onChange={(e) => handleChange('file', null, e.target.files[0])}
+                                />
+                            </Button>
+                            {/* Attachment Preview / Info */}
+                            {(attachmentPreview || formData.attachmentPath) && (
+                                <Box sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 'md', position: 'relative', bgcolor: 'background.level1' }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Typography level="body-sm" fontWeight="bold" noWrap sx={{ maxWidth: '80%' }}>
+                                            {formData.file || "Unbekannte Datei"}
+                                        </Typography>
+                                        <IconButton size="sm" color="danger" variant="plain" onClick={handleRemoveAttachment}>
+                                            <DeleteOutlineOutlinedIcon />
+                                        </IconButton>
+                                    </Box>
+
+                                    {attachmentPreview && formData.file && (formData.file.toLowerCase().endsWith('.jpg') || formData.file.toLowerCase().endsWith('.png')) ? (
+                                        <Box sx={{ mt: 1, display: 'flex', justifyContent: 'center', bgcolor: 'white', borderRadius: 'sm', overflow: 'hidden' }}>
+                                            <img src={attachmentPreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'contain' }} />
+                                        </Box>
+                                    ) : (
+                                        <Typography level="body-xs" sx={{ mt: 1, color: 'text.secondary' }}>
+                                            {formData.file ? (formData.file.toLowerCase().endsWith('.xml') ? "E-Rechnung (XML-Format)" : "Dokument (PDF/Andere)") : "Gespeicherter Anhang"}
+                                        </Typography>
+                                    )}
+                                </Box>
+                            )}
+                        </FormControl>
+                    </Stack>
+                </Box>
+                <Divider />
+
+                {/* Footer */}
+                <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 1, bgcolor: 'var(--swiss-gray-50)' }}>
+                    <Button variant="plain" color="neutral" onClick={onClose}>Abbrechen</Button>
+                    <Button onClick={handleSave} startDecorator={<SaveOutlinedIcon />}>Speichern</Button>
                 </Box>
             </ModalDialog>
         </Modal>

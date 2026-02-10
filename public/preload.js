@@ -6,9 +6,9 @@ contextBridge.exposeInMainWorld('api', {
   deleteFile: (path) => ipcRenderer.invoke("deleteFile", path),
   openFileDialog: () => ipcRenderer.invoke('dialog:openFile'),
   saveFileDialog: () => ipcRenderer.invoke('dialog:saveFile'),
+  showSaveDialog: (options) => ipcRenderer.invoke('dialog:saveFile', options),
   listfiles: (path) => ipcRenderer.invoke("list-files", path),
-  saveFileToPath: (content, filePath) =>
-    ipcRenderer.invoke('save-file-to-path', { content, filePath }),
+  saveFileToPath: (data) => ipcRenderer.invoke('save-file-to-path', data),
   getpath: (path) => ipcRenderer.invoke("get-path", path),
   delFile: (path) => ipcRenderer.invoke("delete-file", path),
   openMail: (path, empfänger, subject, body) => ipcRenderer.invoke("open-mail", path, empfänger, subject, body),

@@ -1,7 +1,10 @@
-import { Box, Button, Divider, FormControl, FormLabel, IconButton, Input, Modal, ModalDialog, Typography } from '@mui/joy'
+import { Box, Button, Divider, FormControl, FormLabel, IconButton, Input, Modal, ModalDialog, Typography, Stack } from '@mui/joy'
 import React from 'react'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import '../../styles/swiss.css';
+
 function LieferantenCreator({ close }) {
     const [formData, setFormData] = React.useState({
         name: "",
@@ -14,110 +17,104 @@ function LieferantenCreator({ close }) {
         tel: "",
         dateien: [],
     });
+
     const submit = async () => {
-        await handleLoadFile("lieferanten/test.data");
+        if (!formData.name) return; // Basic validation
+        await handleLoadFile("lieferanten/test.data"); // Ensure dir exists (legacy check?)
         await handleSaveFile("lieferanten/" + formData.name, JSON.stringify(formData));
         close(formData.name);
     }
+
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
     return (
-        <Modal open={true}>
+        <Modal open={true} onClose={() => close()}>
             <ModalDialog
                 variant='outlined'
+                role="alertdialog"
                 sx={{
-                    borderRadius: "md",
-                    width: "55vh",
-                    maxWidth: "90vw",
+                    borderRadius: "xl",
+                    width: "600px",
+                    maxWidth: "95vw",
+                    p: 0,
+                    overflow: 'hidden',
+                    bgcolor: 'var(--md-sys-color-surface)'
                 }}>
-                <form>
-                    <Box sx={{ display: "flex", width: "100%", flexDirection: "row", justifyContent: "space-between" }}>
-                        <Typography level='h3' mb={1}>
-                            Lieferant erstellen
-                        </Typography>
-                        <IconButton onClick={() => { close(); }} sx={{ mt: -1 }}>
-                            <CloseOutlinedIcon />
-                        </IconButton>
-                    </Box>
-                    <Divider />
 
-                    <FormControl sx={{ mt: 2 }}>
-                        <FormLabel sx={{ color: "gray" }}>{"Vor und Nachname"}</FormLabel>
-                        <Input value={formData.name} onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                name: e.target.value,
-                            });
-                        }} placeholder='z.B. Mustermann GMBH' required />
-                    </FormControl>
-                    <Box sx={{ display: "flex", flexDirection: "row", gap: 2, width: "100%", mt: 1 }}>
-                        <FormControl sx={{ width: "70%" }}>
-                            <FormLabel sx={{ color: "gray" }}>Straße</FormLabel>
-                            <Input value={formData.straße} onChange={(e) => {
-                                setFormData({
-                                    ...formData,
-                                    straße: e.target.value,
-                                });
-                            }} placeholder='z.B. Musterstraße' />
-                        </FormControl>
-                        <FormControl sx={{ width: "30%" }}>
-                            <FormLabel sx={{ color: "gray" }}>Hausnummer</FormLabel>
-                            <Input value={formData.hausnummer} onChange={(e) => {
-                                setFormData({
-                                    ...formData,
-                                    hausnummer: e.target.value,
-                                });
-                            }} placeholder='z.B. 92' />
-                        </FormControl>
-                    </Box>
+                {/* Header */}
+                <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: 'var(--md-sys-color-surface-container)' }}>
+                    <Typography level='h4' fontWeight="lg">
+                        Neuen Lieferanten anlegen
+                    </Typography>
+                    <IconButton onClick={() => close()} variant="plain" color="neutral" sx={{ borderRadius: '50%' }}>
+                        <CloseOutlinedIcon />
+                    </IconButton>
+                </Box>
+                <Divider />
 
-                    <Box sx={{ display: "flex", flexDirection: "row", gap: 2, width: "100%", mt: 1 }}>
+                {/* Body */}
+                <Box sx={{ p: 3, maxHeight: '70vh', overflowY: 'auto' }}>
+                    <Stack spacing={2}>
+                        <FormControl required>
+                            <FormLabel>Firmenname / Name</FormLabel>
+                            <Input
+                                value={formData.name}
+                                onChange={(e) => handleChange('name', e.target.value)}
+                                placeholder="z.B. Mustermann GmbH"
+                            />
+                        </FormControl>
+
+                        <Box sx={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 2 }}>
+                            <FormControl>
+                                <FormLabel>Straße</FormLabel>
+                                <Input value={formData.straße} onChange={(e) => handleChange('straße', e.target.value)} placeholder="Hauptstraße" />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel>Nr.</FormLabel>
+                                <Input value={formData.hausnummer} onChange={(e) => handleChange('hausnummer', e.target.value)} placeholder="1" />
+                            </FormControl>
+                        </Box>
+
+                        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 2 }}>
+                            <FormControl>
+                                <FormLabel>PLZ</FormLabel>
+                                <Input value={formData.plz} onChange={(e) => handleChange('plz', e.target.value)} placeholder="12345" />
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel>Ort</FormLabel>
+                                <Input value={formData.city} onChange={(e) => handleChange('city', e.target.value)} placeholder="Musterstadt" />
+                            </FormControl>
+                        </Box>
+
+                        <Divider><Typography level="body-xs">Kontakt</Typography></Divider>
+
                         <FormControl>
-                            <FormLabel sx={{ color: "gray" }}>PLZ</FormLabel>
-                            <Input value={formData.plz} onChange={(e) => {
-                                setFormData({
-                                    ...formData,
-                                    plz: e.target.value,
-                                });
-                            }} placeholder='z.B. 94315' type='Number' />
+                            <FormLabel>Ansprechpartner</FormLabel>
+                            <Input value={formData.ansprechpartner} onChange={(e) => handleChange('ansprechpartner', e.target.value)} placeholder="z.B. Max Mustermann" />
                         </FormControl>
-                        <FormControl sx={{ width: "60%" }}>
-                            <FormLabel sx={{ color: "gray" }}>Stadt | Ort</FormLabel>
-                            <Input value={formData.city} onChange={(e) => {
-                                setFormData({
-                                    ...formData,
-                                    city: e.target.value,
-                                });
-                            }} placeholder='z.B. Straubing' />
+
+                        <FormControl>
+                            <FormLabel>Email</FormLabel>
+                            <Input value={formData.email} onChange={(e) => handleChange('email', e.target.value)} placeholder="email@example.com" type="email" />
                         </FormControl>
-                    </Box>
-                    <FormControl sx={{ mt: 1 }}>
-                        <FormLabel sx={{ color: "gray" }}>{"Ansprechpartner"}</FormLabel>
-                        <Input value={formData.ansprechpartner} onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                ansprechpartner: e.target.value,
-                            });
-                        }} placeholder='z.B. Max Mustermann' required />
-                    </FormControl>
-                    <FormControl sx={{ mt: 1 }}>
-                        <FormLabel sx={{ color: "gray" }}>{"Email"}</FormLabel>
-                        <Input value={formData.email} onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                email: e.target.value,
-                            });
-                        }} placeholder='z.B. test@test.gmbh.com' required />
-                    </FormControl>
-                    <FormControl sx={{ mt: 1 }}>
-                        <FormLabel sx={{ color: "gray" }}>{"Telefon"}</FormLabel>
-                        <Input value={formData.tel} onChange={(e) => {
-                            setFormData({
-                                ...formData,
-                                tel: e.target.value,
-                            });
-                        }} placeholder='z.B. +4915151136187' required />
-                    </FormControl>
-                    <Button onClick={() => submit()} sx={{ mt: 2, width: "100%" }}>Speichern</Button>
-                </form>
+
+                        <FormControl>
+                            <FormLabel>Telefon</FormLabel>
+                            <Input value={formData.tel} onChange={(e) => handleChange('tel', e.target.value)} placeholder="+49 123 456789" />
+                        </FormControl>
+                    </Stack>
+                </Box>
+
+                <Divider />
+
+                {/* Footer */}
+                <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 1, bgcolor: 'var(--swiss-gray-50)' }}>
+                    <Button variant="plain" color="neutral" onClick={() => close()}>Abbrechen</Button>
+                    <Button onClick={submit} startDecorator={<AddCircleOutlineOutlinedIcon />}>Erstellen</Button>
+                </Box>
+
             </ModalDialog>
         </Modal>
     )

@@ -1,21 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Box, Typography, Select, Option, Button, Card, CardContent, Divider, Grid, Table, Modal, ModalDialog, ModalClose, Sheet } from '@mui/joy';
-import Headline from '../Headline';
-import InfoCard from '../InfoCard';
+import { Select, Option } from '@mui/joy';
 import { getFinancialData } from '../../Scripts/StatsHandler';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import PictureAsPdfOutlinedIcon from '@mui/icons-material/PictureAsPdfOutlined';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import html2pdf from 'html2pdf.js';
+import { Download, TrendingUp, TrendingDown, Euro, CreditCard, AlertCircle, FileText } from 'lucide-react';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+// Shadcn imports
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
 export default function Statistiken() {
     const [year, setYear] = useState(new Date().getFullYear());
     const [stats, setStats] = useState(null);
-    const [selectedMonthDetails, setSelectedMonthDetails] = useState(null);
-    const [statusModalOpen, setStatusModalOpen] = useState(null);
-    const [statusModalTitle, setStatusModalTitle] = useState("");
-    const [statusModalList, setStatusModalList] = useState([]);
     const pdfRef = useRef();
 
     useEffect(() => {
@@ -39,11 +38,20 @@ export default function Statistiken() {
         html2pdf().set(opt).from(element).save();
     };
 
-    if (!stats) return <Box sx={{ p: 4 }}>Lade Statistiken...</Box>;
+    if (!stats) {
+        return (
+            <div className="flex items-center justify-center h-full p-8">
+                <div className="text-center">
+                    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+                    <p className="text-muted-foreground">Lade Statistiken...</p>
+                </div>
+            </div>
+        );
+    }
 
     const { chartData, summary, expensesList } = stats;
 
-    // Prepare Pie Chart Data (Expenses by Category)
+    // Prepare Pie Chart Data
     const categoryData = {};
     expensesList.forEach(e => {
         const cat = e.category || "Sonstiges";
@@ -51,287 +59,214 @@ export default function Statistiken() {
     });
     const pieData = Object.entries(categoryData).map(([name, value]) => ({ name, value }));
 
-    // Current Month Calculation
     const currentMonthIndex = new Date().getMonth();
     const isCurrentYear = year === new Date().getFullYear();
     const currentMonthStats = (isCurrentYear && chartData && chartData[currentMonthIndex]) ? chartData[currentMonthIndex] : null;
-    const currentMonthName = new Date().toLocaleString('de-DE', { month: 'long' });
-
-    // Calculate Counts for Current Month Status
-    // We already have `currentMonthStats.invoices` (all invoices in this month).
-    // We need to check their status (Paid, Open, Overdue) to count them.
-    // Note: `currentMonthStats.invoices` contains objects with `id`, `amount`, etc.
-    // Logic from `getFinancialData` calculated totals but did not store status per invoice in `chartData`.
-    // Strategies:
-    // 1. Re-check status against `summary.open/overdue` logic? No, those are totals.
-    // 2. We need `unpaidInvoices` list here to check status again? `stats` object from `getFinancialData` doesn't pass it.
-    // Let's assume for now we count Income/Expenses count.
-
-    // User asked "Current Month... Count not Amount... click to see list".
-    // Let's use `currentMonthStats.invoices.length` for "Einnahmen Anzahl".
-
-
-
-    const handleMonthCardClick = (type, list, title) => {
-        setStatusModalList(list || []);
-        setStatusModalTitle(title);
-        setStatusModalOpen(true);
-    };
 
     return (
-        <Box sx={{ height: '100vh', overflowY: "auto", pb: 10 }}>
-            <Headline>Statistiken & Berichte</Headline>
-            <Box sx={{ p: 2 }}>
-                <InfoCard headline="Finanzübersicht">Analysieren Sie hier Ihre Einnahmen und Ausgaben und erstellen Sie Ihre EÜR.</InfoCard>
-            </Box>
-
-            <Box sx={{ px: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Select value={year} onChange={(e, val) => setYear(val)} sx={{ width: 150 }}>
-                    <Option value={2024}>2024</Option>
-                    <Option value={2025}>2025</Option>
-                    <Option value={2026}>2026</Option>
-                </Select>
-
-                <Button startDecorator={<PictureAsPdfOutlinedIcon />} onClick={handleExportEUR}>
-                    EÜR {year} Exportieren
-                </Button>
-            </Box>
-
-            {/* Summary Cards */}
-            <Box sx={{ display: 'flex', gap: 2, px: 2, mt: 3, flexWrap: 'wrap' }}>
-                <Card sx={{ flex: 1, minWidth: 200, bgcolor: 'success.50' }}>
-                    <Typography level="title-md">Einnahmen (Gesamt)</Typography>
-                    <Typography level="h3" color="success">{summary.totalIncome?.toFixed(2)} €</Typography>
-                </Card>
-                <Card sx={{ flex: 1, minWidth: 200, bgcolor: 'danger.50' }}>
-                    <Typography level="title-md">Ausgaben</Typography>
-                    <Typography level="h3" color="danger">{summary.totalExpenses?.toFixed(2)} €</Typography>
-                </Card>
-                <Card sx={{ flex: 1, minWidth: 200, bgcolor: summary.profit >= 0 ? 'primary.50' : 'warning.50' }}>
-                    <Typography level="title-md">Gewinn / Verlust</Typography>
-                    <Typography level="h3" color={summary.profit >= 0 ? "primary" : "warning"}>{summary.profit?.toFixed(2)} €</Typography>
-                </Card>
-                <Card sx={{ flex: 1, minWidth: 200, bgcolor: 'neutral.50' }}>
-                    <Typography level="title-md">USt. Eingenommen</Typography>
-                    <Typography level="h3">{summary.totalTaxCollected?.toFixed(2)} €</Typography>
-                </Card>
-            </Box>
-
-            {/* Payment Status Cards */}
-            <Box sx={{ display: 'flex', gap: 2, px: 2, mt: 2, flexWrap: 'wrap' }}>
-                <Card sx={{ flex: 1, minWidth: 200 }}>
-                    <Typography level="title-md">Bezahlt</Typography>
-                    <Typography level="h3" color="success">{summary.paidAmount?.toFixed(2)} €</Typography>
-                </Card>
-                <Card sx={{ flex: 1, minWidth: 200 }}>
-                    <Typography level="title-md">Offen</Typography>
-                    <Typography level="h3" color="neutral">{summary.openAmount?.toFixed(2)} €</Typography>
-                </Card>
-                <Card sx={{ flex: 1, minWidth: 200 }}>
-                    <Typography level="title-md">Überfällig</Typography>
-                    <Typography level="h3" color="danger">{summary.overdueAmount?.toFixed(2)} €</Typography>
-                </Card>
-            </Box>
-
-            {currentMonthStats && (
-                <Box sx={{ mt: 4, px: 2 }}>
-                    <Typography level="h4" mb={2}>Aktueller Monat ({currentMonthName})</Typography>
-                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                        <Card
-                            sx={{ flex: 1, minWidth: 200, bgcolor: 'success.50', cursor: 'pointer', '&:hover': { boxShadow: 'md' } }}
-                            onClick={() => handleMonthCardClick('income', currentMonthStats.invoices, `Einnahmen im ${currentMonthName}`)}
+        <div className="h-full overflow-y-auto bg-background">
+            <div className="max-w-7xl mx-auto p-6 space-y-6">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Finanzübersicht</h1>
+                        <p className="text-muted-foreground mt-1">Analysieren Sie Ihre Einnahmen und Ausgaben für {year}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Select
+                            value={year}
+                            onChange={(e, val) => setYear(val)}
+                            sx={{ minWidth: 140 }}
                         >
-                            <Typography level="title-md">Einnahmen</Typography>
-                            <Typography level="h3" color="success">{currentMonthStats.income?.toFixed(2)} €</Typography>
+                            <Option value={2022}>2022</Option>
+                            <Option value={2023}>2023</Option>
+                            <Option value={2024}>2024</Option>
+                            <Option value={2025}>2025</Option>
+                            <Option value={2026}>2026</Option>
+                        </Select>
+                        <Button onClick={handleExportEUR} className="gap-2">
+                            <Download className="h-4 w-4" />
+                            EÜR Exportieren
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Main Stats Grid */}
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <Card className="border-l-4 border-l-green-500">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Gesamte Einnahmen</CardTitle>
+                            <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                                <TrendingUp className="h-4 w-4 text-green-600" />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-green-600">{summary.totalIncome?.toFixed(2)} €</div>
+                            <p className="text-xs text-muted-foreground mt-1">Bruttoeinkommen {year}</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-l-4 border-l-red-500">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Gesamte Ausgaben</CardTitle>
+                            <div className="h-8 w-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                                <TrendingDown className="h-4 w-4 text-red-600" />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-red-600">{summary.totalExpenses?.toFixed(2)} €</div>
+                            <p className="text-xs text-muted-foreground mt-1">Betriebsausgaben {year}</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className={`border-l-4 ${summary.profit >= 0 ? 'border-l-blue-500' : 'border-l-orange-500'}`}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">Gewinn / Verlust</CardTitle>
+                            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${summary.profit >= 0 ? 'bg-blue-500/10' : 'bg-orange-500/10'}`}>
+                                <Euro className={`h-4 w-4 ${summary.profit >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className={`text-2xl font-bold ${summary.profit >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+                                {summary.profit?.toFixed(2)} €
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">{summary.profit >= 0 ? 'Jahresüberschuss' : 'Jahresfehlbetrag'}</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-l-4 border-l-purple-500">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">USt. Eingenommen</CardTitle>
+                            <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                                <FileText className="h-4 w-4 text-purple-600" />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-purple-600">{summary.totalTaxCollected?.toFixed(2)} €</div>
+                            <p className="text-xs text-muted-foreground mt-1">Umsatzsteuer {year}</p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Payment Status */}
+                <div className="grid gap-4 md:grid-cols-3">
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                Bezahlte Rechnungen
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{summary.paidAmount?.toFixed(2)} €</div>
+                            <p className="text-xs text-muted-foreground mt-1">{summary.paidCount || 0} Rechnungen</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+                                Offene Rechnungen
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{summary.openAmount?.toFixed(2)} €</div>
+                            <p className="text-xs text-muted-foreground mt-1">{summary.openCount || 0} Rechnungen</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-medium flex items-center gap-2">
+                                <div className="h-2 w-2 rounded-full bg-red-500"></div>
+                                Überfällige Rechnungen
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-red-600">{summary.overdueAmount?.toFixed(2)} €</div>
+                            <p className="text-xs text-muted-foreground mt-1">{summary.overdueCount || 0} Rechnungen</p>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Charts Grid */}
+                <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Monthly Revenue Chart */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Jahresverlauf</CardTitle>
+                            <CardDescription>Einnahmen und Ausgaben pro Monat</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-[300px]">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={chartData}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                                        <XAxis
+                                            dataKey="month"
+                                            stroke="#6b7280"
+                                            fontSize={12}
+                                            tickLine={false}
+                                        />
+                                        <YAxis
+                                            stroke="#6b7280"
+                                            fontSize={12}
+                                            tickLine={false}
+                                            tickFormatter={(value) => `${value}€`}
+                                        />
+                                        <RechartsTooltip
+                                            contentStyle={{
+                                                backgroundColor: 'white',
+                                                border: '1px solid #e5e7eb',
+                                                borderRadius: '8px',
+                                                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                            }}
+                                            formatter={(value) => [`${value.toFixed(2)}€`, '']}
+                                        />
+                                        <Legend />
+                                        <Bar dataKey="income" fill="#10b981" name="Einnahmen" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="expenses" fill="#ef4444" name="Ausgaben" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Expense Categories Pie Chart */}
+                    {pieData.length > 0 && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Ausgaben nach Kategorie</CardTitle>
+                                <CardDescription>Verteilung der Betriebsausgaben</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[300px]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={pieData}
+                                                cx="50%"
+                                                cy="50%"
+                                                labelLine={false}
+                                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                                outerRadius={80}
+                                                fill="#8884d8"
+                                                dataKey="value"
+                                            >
+                                                {pieData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <RechartsTooltip formatter={(value) => `${value.toFixed(2)}€`} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
                         </Card>
-                        <Card
-                            sx={{ flex: 1, minWidth: 200, bgcolor: 'danger.50', cursor: 'pointer', '&:hover': { boxShadow: 'md' } }}
-                            onClick={() => {
-                                const monthexps = expensesList.filter(e => new Date(e.date).getMonth() === currentMonthIndex && new Date(e.date).getFullYear() === year);
-                                handleMonthCardClick('expense', monthexps, `Ausgaben im ${currentMonthName}`);
-                            }}
-                        >
-                            <Typography level="title-md">Ausgaben</Typography>
-                            <Typography level="h3" color="danger">
-                                {expensesList.filter(e => new Date(e.date).getMonth() === currentMonthIndex && new Date(e.date).getFullYear() === year)
-                                    .reduce((sum, item) => sum + item.amount, 0).toFixed(2)} €
-                            </Typography>
-                        </Card>
-                    </Box>
-                </Box>
-            )}
-
-            <Modal
-                open={!!statusModalOpen}
-                onClose={() => setStatusModalOpen(false)}
-                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-            >
-                <ModalDialog sx={{ width: '600px', maxWidth: '90vw', maxHeight: '80vh', overflow: 'auto' }}>
-                    <ModalClose />
-                    <Typography level="h4" mb={2}>{statusModalTitle}</Typography>
-                    <Divider sx={{ mb: 2 }} />
-                    {statusModalList && statusModalList.length > 0 ? (
-                        <Table hoverRow>
-                            <thead>
-                                <tr>
-                                    <th>Beschreibung/Kunde</th>
-                                    <th>Datum</th>
-                                    <th style={{ textAlign: 'right' }}>Betrag</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {statusModalList.map((item, idx) => (
-                                    <tr key={item.id || idx}>
-                                        <td>{item.customerName || item.category || "Unbekannt"}</td>
-                                        <td>{new Date(item.date).toLocaleDateString()}</td>
-                                        <td style={{ textAlign: 'right' }}>{item.amount?.toFixed(2)} €</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    ) : (
-                        <Typography>Keine Einträge vorhanden.</Typography>
                     )}
-                </ModalDialog>
-            </Modal>
-
-            {/* Main Chart */}
-            <Box sx={{ px: 2, mt: 4, height: 400 }}>
-                <Typography level="h4" mb={2}>Jahresverlauf</Typography>
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <RechartsTooltip />
-                        <RechartsTooltip />
-                        <Legend />
-                        <Bar
-                            dataKey="income"
-                            name="Einnahmen"
-                            fill="#10b981"
-                            onClick={(data) => {
-                                setSelectedMonthDetails(data);
-                            }}
-                            style={{ cursor: 'pointer' }}
-                        />
-                        <Bar
-                            dataKey="expenses"
-                            name="Ausgaben"
-                            fill="#ef4444"
-                        />
-                    </BarChart>
-                </ResponsiveContainer>
-            </Box>
-
-            {/* Detailed Month View Modal */}
-            <Modal
-                open={!!selectedMonthDetails}
-                onClose={() => setSelectedMonthDetails(null)}
-                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-            >
-                <ModalDialog sx={{ width: '600px', maxWidth: '90vw', maxHeight: '80vh', overflow: 'auto' }}>
-                    <ModalClose />
-                    <Typography level="h4" mb={2}>Details für {selectedMonthDetails?.name}</Typography>
-                    <Divider sx={{ mb: 2 }} />
-
-                    <Typography level="title-md" mb={1}>Einnahmen ({selectedMonthDetails?.income?.toFixed(2)} €)</Typography>
-                    {selectedMonthDetails?.invoices && selectedMonthDetails.invoices.length > 0 ? (
-                        <Table hoverRow sx={{ '& thead th:nth-of-type(1)': { width: '40%' } }}>
-                            <thead>
-                                <tr>
-                                    <th>Kunde</th>
-                                    <th>Datum</th>
-                                    <th style={{ textAlign: 'right' }}>Betrag (Netto)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {selectedMonthDetails.invoices.map((inv) => (
-                                    <tr key={inv.id}>
-                                        <td>{inv.customerName}</td>
-                                        <td>{new Date(inv.date).toLocaleDateString()}</td>
-                                        <td style={{ textAlign: 'right' }}>{inv.netto?.toFixed(2)} €</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    ) : (
-                        <Typography level="body-sm" color="neutral">Keine Einnahmen in diesem Monat.</Typography>
-                    )}
-                </ModalDialog>
-            </Modal>
-
-            {/* Category Chart */}
-            <Box sx={{ px: 2, mt: 5, mb: 5, height: 350 }}>
-                <Typography level="h4" mb={2}>Ausgaben nach Kategorie</Typography>
-                <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                            data={pieData}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                            outerRadius={120}
-                            fill="#8884d8"
-                            dataKey="value"
-                        >
-                            {pieData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <RechartsTooltip />
-                    </PieChart>
-                </ResponsiveContainer>
-            </Box>
-
-            {/* Hidden PDF Container */}
-            <Box sx={{ position: 'absolute', top: -10000, left: -10000 }}>
-                <Box ref={pdfRef} sx={{ p: '20mm', width: '210mm', minHeight: '297mm', bgcolor: 'white', boxSizing: 'border-box' }}>
-                    <Typography level="h2" mb={2}>Einnahmenüberschussrechnung {year}</Typography>
-                    <Divider sx={{ mb: 4 }} />
-
-                    <Typography level="h4" mb={2}>Zusammenfassung</Typography>
-                    <Table sx={{ mb: 4 }}>
-                        <tbody>
-                            <tr>
-                                <td><Typography fontWeight="bold">Gesamteinnahmen (Netto)</Typography></td>
-                                <td style={{ textAlign: 'right' }}>{summary.totalIncome?.toFixed(2)} €</td>
-                            </tr>
-                            <tr>
-                                <td><Typography fontWeight="bold">Gesamtausgaben</Typography></td>
-                                <td style={{ textAlign: 'right' }}>{summary.totalExpenses?.toFixed(2)} €</td>
-                            </tr>
-                            <tr style={{ borderTop: '2px solid black' }}>
-                                <td><Typography level="h4">Gewinn / Verlust</Typography></td>
-                                <td style={{ textAlign: 'right' }}><Typography level="h4">{summary.profit?.toFixed(2)} €</Typography></td>
-                            </tr>
-                        </tbody>
-                    </Table>
-
-                    <Typography level="h4" mb={2} mt={4}>Monatliche Aufschlüsselung</Typography>
-                    <Table>
-                        <thead>
-                            <tr>
-                                <th>Monat</th>
-                                <th style={{ textAlign: 'right' }}>Einnahmen</th>
-                                <th style={{ textAlign: 'right' }}>Ausgaben</th>
-                                <th style={{ textAlign: 'right' }}>Gewinn</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {chartData && chartData.map((m, i) => (
-                                <tr key={i}>
-                                    <td>{m.name}</td>
-                                    <td style={{ textAlign: 'right' }}>{m.income?.toFixed(2)} €</td>
-                                    <td style={{ textAlign: 'right' }}>{m.expenses?.toFixed(2)} €</td>
-                                    <td style={{ textAlign: 'right', color: m.profit >= 0 ? 'black' : 'red' }}>{m.profit?.toFixed(2)} €</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                </Box>
-            </Box>
-        </Box>
+                </div>
+            </div>
+        </div>
     );
 }

@@ -36,3 +36,4 @@ kathegories/kathegories.rechnix
 *.zip
 *.exe
 *.dmg
+/dist

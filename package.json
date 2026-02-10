@@ -1,6 +1,8 @@
 {
   "name": "Rechnix",
   "version": "0.1.0",
+  "description": "Das moderne Rechnungsprogramm für Selbstständige und Kleinunternehmer.",
+  "author": "Dominic Bachl IT Solutions & Consulting",
   "private": true,
   "homepage": ".",
   "main": "public/electron.js",
@@ -9,8 +11,8 @@
     "start": "react-scripts start",
     "electron": "electron .",
     "package": "electron-forge package",
-    "make": "npm run build && concurrently -c \"bgBlue.bold,bgMagenta.bold\" \"electron-forge make --platform=darwin\" \"electron-forge make --platform=win32\"",
-    "make:all": "npm run build && concurrently \"electron-forge make --platform=darwin\" \"electron-forge make --platform=win32\"",
+    "make": "npm run build && electron-builder -mw",
+    "dist": "npm run build && electron-builder -mw",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -20,11 +22,13 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.2.0",
     "@mui/joy": "^5.0.0-beta.52",
+    "@radix-ui/react-slot": "^1.2.4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "buffer": "^6.0.3",
+    "class-variance-authority": "^0.7.1",
     "crypto": "^1.0.1",
     "html2pdf.js": "^0.12.1",
     "lodash": "^4.17.21",
@@ -36,6 +40,9 @@
     "react-router-dom": "^7.6.3",
     "react-scripts": "5.0.1",
     "recharts": "^3.7.0",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^3.4.17",
+    "tailwindcss-animate": "^1.0.7",
     "url": "^0.11.4",
     "web-vitals": "^2.1.4",
     "xmlbuilder2": "^4.0.0"
@@ -48,9 +55,11 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
     "@electron-forge/plugin-fuses": "^7.10.2",
     "@electron/fuses": "^1.8.0",
+    "autoprefixer": "^10.4.24",
     "concurrently": "^9.2.1",
     "electron": "^37.2.1",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "postcss": "^8.5.6"
   },
   "eslintConfig": {
     "extends": [
@@ -69,5 +78,29 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "build": {
+    "appId": "com.rechnix.app",
+    "productName": "Rechnix",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "build/**/*",
+      "public/**/*",
+      "icon.png"
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "icon": "icon.png"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.png"
+    },
+    "extends": null
   }
 }

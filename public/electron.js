@@ -66,8 +66,21 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  console.log("App quit");
-  if (process.platform !== 'darwin') app.quit();
+  console.log("All windows closed");
+  // On macOS, apps typically stay open even when all windows are closed
+  // Users can quit via Cmd+Q or the menu
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+// macOS-specific: Re-create window when dock icon is clicked and no windows are open
+app.on('activate', () => {
+  console.log("App activated");
+  // On macOS, re-create window when dock icon is clicked and there are no other windows
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
 });
 
 
@@ -238,9 +251,9 @@ ipcMain.handle('dialog:openFile', async () => {
   return result.canceled ? null : result.filePaths[0];
 });
 
-ipcMain.handle('dialog:saveFile', async () => {
-  const result = await dialog.showSaveDialog({});
-  return result.canceled ? null : result.filePath;
+ipcMain.handle('dialog:saveFile', async (_, options = {}) => {
+  const result = await dialog.showSaveDialog(options);
+  return result;
 });
 
 ipcMain.handle('save-file-to-path', async (_, { content, filePath }) => {

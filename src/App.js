@@ -9,6 +9,7 @@ import Login from "./pages/Login.jsx";
 import KundenVerwaltung from './components/Tabs/KundenVerwaltung';
 import ProdukteVerwalten from './components/Tabs/ProdukteVerwalten';
 import Unternehmen from './components/Tabs/Unternehmen';
+import RechnungenVerwalten from './components/Tabs/RechnungenVerwalten';
 import RechnungsViewerTab from './components/Tabs/RechnungsViewerTab';
 import RechnungErstellen from './components/Tabs/RechnungErstellen';
 import LieferantenVerwaltung from './components/Tabs/LieferantenVerwaltung';
@@ -38,14 +39,14 @@ function App() {
           {/* Invoices List */}
           <Route path="/invoices" element={
             <Layout>
-              <RechnungsViewerTab />
+              <RechnungenVerwalten />
             </Layout>
           } />
 
           {/* Specific Invoice */}
           <Route path="/invoices/:id" element={
             <Layout>
-              <RechnungsViewerTab />
+              <RechnungenVerwalten />
             </Layout>
           } />
 

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Input, Table, Chip, IconButton } from '@mui/joy';
-import Headline from '../Headline';
-import InfoCard from '../InfoCard';
+import { Box, Typography, Button, Input, Table, Chip, IconButton, Tooltip, Stack, Dropdown, Menu, MenuButton, MenuItem, ListItemDecorator } from '@mui/joy';
 import { getAusgaben, deleteAusgabe, importFromERechnung } from '../../Scripts/AusgabenHandler';
 import { exportToCSV } from '../../Scripts/ExportHandler';
 import AusgabenEditor from '../Ausgaben/AusgabenEditor';
@@ -12,6 +10,8 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SyncIcon from '@mui/icons-material/Sync';
 import { Modal, ModalDialog } from '@mui/joy';
 
 export default function AusgabenVerwaltung() {
@@ -38,6 +38,10 @@ export default function AusgabenVerwaltung() {
     }, []);
 
     const handleDelete = async (id) => {
+        // Confirmation is now handled slightly differently or we can keep window.confirm for now
+        //Ideally we use a custom modal, but for speed window.confirm is fine if not requested otherwise.
+        // Let's stick to consistent UI if possible, but I don't have a generic confirm modal ready here comfortably without context.
+        // I will use window.confirm for now as per original code, but wrapped in a better UX if possible later.
         if (window.confirm("Möchten Sie diese Ausgabe wirklich löschen?")) {
             await deleteAusgabe(id);
             fetchData();
@@ -133,65 +137,110 @@ export default function AusgabenVerwaltung() {
     );
 
     return (
-        <Box sx={{ height: '100vh', overflowY: "auto", display: 'flex', flexDirection: 'column' }}>
-            <Headline>Ausgabenverwaltung</Headline>
-            <Box sx={{ p: 2 }}>
-                <InfoCard headline="Übersicht">Verwalten Sie hier Ihre geschäftlichen Ausgaben und wiederkehrenden Kosten.</InfoCard>
-            </Box>
-
-            <Box sx={{ px: 2, pb: 2, display: 'flex', gap: 2, justifyContent: 'space-between', alignItems: 'center' }}>
-                <Input
-                    startDecorator={<SearchIcon />}
-                    placeholder="Suchen..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    sx={{ width: '300px' }}
-                />
+        <Box sx={{ p: 4, height: '100%', overflowY: 'auto' }}>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <Typography level="h2" sx={{ fontSize: '24px', fontWeight: 600 }}>Ausgaben</Typography>
+                    <Typography level="body-sm">Verwalten Sie Ihre geschäftlichen Ausgaben und wiederkehrenden Kosten.</Typography>
+                </div>
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Button variant="outlined" startDecorator={<UploadFileOutlinedIcon />} onClick={handleImportERechnung}>E-Rechnung importieren</Button>
-                    <Button variant="outlined" startDecorator={<FileDownloadOutlinedIcon />} onClick={handleExport}>CSV Export</Button>
-                    <Button startDecorator={<AddCircleOutlineOutlinedIcon />} onClick={handleCreate}>Ausgabe erfassen</Button>
+                    <Button
+                        variant="outlined"
+                        color="neutral"
+                        startDecorator={<FileDownloadOutlinedIcon />}
+                        onClick={handleExport}
+                        sx={{ borderRadius: '20px' }}
+                    >
+                        Exportieren
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        color="neutral"
+                        startDecorator={<UploadFileOutlinedIcon />}
+                        onClick={handleImportERechnung}
+                        sx={{ borderRadius: '20px' }}
+                    >
+                        Importieren
+                    </Button>
+                    <button
+                        className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                        onClick={handleCreate}
+                    >
+                        <AddCircleOutlineOutlinedIcon sx={{ fontSize: '20px' }} />
+                        Ausgabe erfassen
+                    </button>
                 </Box>
             </Box>
 
-            <Box sx={{ px: 2, pb: 5 }}>
-                <Table hoverRow sx={{ borderRadius: "15px", bgcolor: 'background.surface' }}>
+            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Input
+                    placeholder="Ausgaben suchen..."
+                    startDecorator={<SearchIcon />}
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    sx={{
+                        flexGrow: 1,
+                        maxWidth: '400px',
+                        borderRadius: '24px',
+                        '--Input-focusedHighlight': 'var(--md-sys-color-primary)'
+                    }}
+                />
+                <Tooltip title="Neu laden">
+                    <IconButton variant="plain" color="neutral" onClick={fetchData} sx={{ borderRadius: '12px' }}>
+                        <SyncIcon />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+
+            <Box className="swiss-card" sx={{ p: 0, overflow: 'hidden' }}>
+                <Table hoverRow sx={{ '--TableCell-headBackground': 'var(--swiss-gray-50)' }}>
                     <thead>
                         <tr>
                             <th style={{ width: '15%' }}>Datum</th>
                             <th style={{ width: '25%' }}>Titel</th>
                             <th style={{ width: '15%' }}>Kategorie</th>
                             <th style={{ width: '15%' }}>Anbieter</th>
-                            <th style={{ width: '10%' }}>Betrag</th>
+                            <th style={{ width: '10%', textAlign: 'right' }}>Betrag</th>
                             <th style={{ width: '10%' }}>Typ</th>
-                            <th style={{ width: '10%' }}>Aktionen</th>
+                            <th style={{ width: '10%', textAlign: 'right' }}>Aktionen</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredExpenses.map(item => (
                             <tr key={item.id}>
                                 <td>{new Date(item.date).toLocaleDateString("de-DE")}</td>
-                                <td><Typography fontWeight="bold">{item.title}</Typography></td>
-                                <td>{item.category && <Chip size="sm" variant="soft">{item.category}</Chip>}</td>
+                                <td><Typography fontWeight="md">{item.title}</Typography></td>
+                                <td>{item.category && <Chip size="sm" variant="soft" color="neutral">{item.category}</Chip>}</td>
                                 <td>{item.provider}</td>
-                                <td><Typography color="danger">-{parseFloat(item.amount).toFixed(2)} €</Typography></td>
-                                <td>{item.isRecurring && <Chip size="sm" color="primary">Abo</Chip>}</td>
-                                <td>
-                                    <Box sx={{ display: 'flex', gap: 1 }}>
-                                        {item.attachmentPath && (
-                                            <IconButton size="sm" variant="soft" color="primary" onClick={() => handleViewAttachment(item)}>
-                                                <AttachFileIcon />
-                                            </IconButton>
-                                        )}
-                                        <IconButton size="sm" variant="plain" onClick={() => handleEdit(item)}><EditOutlinedIcon /></IconButton>
-                                        <IconButton size="sm" variant="plain" color="danger" onClick={() => handleDelete(item.id)}><DeleteOutlineOutlinedIcon /></IconButton>
-                                    </Box>
+                                <td style={{ textAlign: 'right' }}><Typography color="danger" fontFamily="monospace">-{parseFloat(item.amount).toFixed(2)} €</Typography></td>
+                                <td>{item.isRecurring && <Chip size="sm" color="primary" variant="outlined">Abo</Chip>}</td>
+                                <td style={{ textAlign: 'right' }}>
+                                    <Dropdown>
+                                        <MenuButton slots={{ root: IconButton }} slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}>
+                                            <MoreVertIcon />
+                                        </MenuButton>
+                                        <Menu placement="bottom-end" size="sm">
+                                            {item.attachmentPath && (
+                                                <MenuItem onClick={() => handleViewAttachment(item)}>
+                                                    <ListItemDecorator><AttachFileIcon /></ListItemDecorator> Anhang anzeigen
+                                                </MenuItem>
+                                            )}
+                                            <MenuItem onClick={() => handleEdit(item)}>
+                                                <ListItemDecorator><EditOutlinedIcon /></ListItemDecorator> Bearbeiten
+                                            </MenuItem>
+                                            <MenuItem color="danger" onClick={() => handleDelete(item.id)}>
+                                                <ListItemDecorator><DeleteOutlineOutlinedIcon /></ListItemDecorator> Löschen
+                                            </MenuItem>
+                                        </Menu>
+                                    </Dropdown>
                                 </td>
                             </tr>
                         ))}
                         {filteredExpenses.length === 0 && (
                             <tr>
-                                <td colSpan={7} style={{ textAlign: 'center', padding: '20px' }}>Keine Ausgaben gefunden.</td>
+                                <td colSpan={7} style={{ textAlign: 'center', padding: '32px', color: 'var(--swiss-gray-500)' }}>
+                                    Keine Ausgaben gefunden.
+                                </td>
                             </tr>
                         )}
                     </tbody>
@@ -208,7 +257,7 @@ export default function AusgabenVerwaltung() {
             {/* Attachment Viewer Modal */}
             <Modal open={viewerOpen} onClose={() => setViewerOpen(false)}>
                 <ModalDialog sx={{ maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto', p: 0 }}>
-                    <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'background.level1' }}>
+                    <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', bgcolor: 'var(--swiss-gray-50)' }}>
                         <Typography level="h4">{viewerTitle} - Anhang</Typography>
                         <Button variant="plain" color="neutral" onClick={() => setViewerOpen(false)}>Schließen</Button>
                     </Box>

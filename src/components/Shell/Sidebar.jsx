@@ -1,89 +1,72 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import ReceiptIcon from '@mui/icons-material/Receipt';
-import PeopleIcon from '@mui/icons-material/People';
-import InventoryIcon from '@mui/icons-material/Inventory';
-
-import SettingsIcon from '@mui/icons-material/Settings';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import NotificationImportantOutlinedIcon from '@mui/icons-material/NotificationImportantOutlined';
-
-const SidebarItem = ({ icon: Icon, label, path, active, onClick }) => {
-    return (
-        <div
-            onClick={onClick}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '10px 16px',
-                margin: '4px 8px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                backgroundColor: active ? 'var(--swiss-gray-200)' : 'transparent',
-                color: active ? 'var(--swiss-black)' : 'var(--swiss-gray-500)',
-                transition: 'all 0.2s ease'
-            }}
-        >
-            <Icon sx={{ fontSize: 20, marginRight: '12px', color: 'inherit' }} />
-            <span style={{ fontSize: '14px', fontWeight: 500 }}>{label}</span>
-        </div>
-    );
-};
+import { LayoutDashboard, Receipt, Users, Package, Wallet, BarChart3, Bell, Settings, FileText } from 'lucide-react';
+import { cn } from '../../lib/utils';
+import { Button } from '../ui/button';
 
 const Sidebar = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
     const menuItems = [
-        { label: 'Dashboard', icon: DashboardIcon, path: '/' },
-        { label: 'Rechnungen', icon: ReceiptIcon, path: '/invoices' },
-        { label: 'Kunden', icon: PeopleIcon, path: '/clients' },
-        { label: 'Produkte', icon: InventoryIcon, path: '/products' },
-        { label: 'Ausgaben', icon: AccountBalanceWalletIcon, path: '/expenses' },
-        { label: 'Statistiken', icon: AssessmentIcon, path: '/statistics' },
-        { label: 'Mahnwesen', icon: NotificationImportantOutlinedIcon, path: '/mahnungen' },
-        { label: 'Einstellungen', icon: SettingsIcon, path: '/settings' },
+        { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+        { label: 'Rechnungen', icon: Receipt, path: '/invoices' },
+        { label: 'Kunden', icon: Users, path: '/clients' },
+        { label: 'Produkte', icon: Package, path: '/products' },
+        { label: 'Ausgaben', icon: Wallet, path: '/expenses' },
+        { label: 'Statistiken', icon: BarChart3, path: '/statistics' },
+        { label: 'Mahnwesen', icon: Bell, path: '/mahnungen' },
+        { label: 'Einstellungen', icon: Settings, path: '/settings' },
     ];
 
     return (
-        <div style={{
-            width: 'var(--sidebar-width)',
-            backgroundColor: 'var(--swiss-gray-50)',
-            borderRight: 'var(--border-light)',
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '24px 0'
-        }}>
-            <div style={{ padding: '0 24px 32px 24px' }}>
-                <h1 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>Rechnix</h1>
-                <span style={{ fontSize: '12px', color: 'var(--swiss-gray-500)' }}>Rechnungsmanagement</span>
+        <div className="w-64 border-r bg-background flex flex-col h-screen bg-zinc-50/50 dark:bg-zinc-900/50">
+            <div className="p-6">
+                <div className="flex items-center gap-2 mb-8">
+                    <div className="h-8 w-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">
+                        R
+                    </div>
+                    <div>
+                        <h1 className="text-lg font-semibold tracking-tight">Rechnix</h1>
+                        <p className="text-xs text-muted-foreground">Workspace</p>
+                    </div>
+                </div>
+
+                <div className="space-y-1">
+                    {menuItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+
+                        return (
+                            <Button
+                                key={item.path}
+                                variant={isActive ? "default" : "ghost"}
+                                className={cn(
+                                    "w-full justify-start gap-3 font-normal",
+                                    isActive && "bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium shadow-md hover:from-blue-700 hover:to-blue-800"
+                                )}
+                                onClick={() => navigate(item.path)}
+                            >
+                                <Icon className="h-4 w-4" />
+                                {item.label}
+                            </Button>
+                        );
+                    })}
+                </div>
             </div>
 
-            <div style={{ flex: 1 }}>
-                {menuItems.map((item) => (
-                    <SidebarItem
-                        key={item.path}
-                        icon={item.icon}
-                        label={item.label}
-                        active={location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))}
-                        onClick={() => navigate(item.path)}
-                    />
-                ))}
-            </div>
-
-            <div style={{ padding: '24px' }}>
-                <div style={{
-                    padding: '12px',
-                    backgroundColor: 'var(--swiss-white)',
-                    borderRadius: '8px',
-                    border: 'var(--border-light)',
-                    fontSize: '12px',
-                    color: 'var(--swiss-gray-500)'
-                }}>
-                    Status: Online<br />
-                    Version: 1.0.0
+            <div className="mt-auto p-6 border-t bg-background/50">
+                <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-zinc-200 flex items-center justify-center">
+                        <Users className="h-4 w-4 text-zinc-500" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-sm font-medium">Benutzer</p>
+                        <p className="text-xs text-muted-foreground">Pro Plan</p>
+                    </div>
+                </div>
+                <div className="mt-4 text-[10px] text-center text-muted-foreground/50">
+                    v1.0.0 • Stable
                 </div>
             </div>
         </div>

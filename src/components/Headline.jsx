@@ -1,48 +1,50 @@
 import { Box, IconButton, Tooltip, Typography } from '@mui/joy'
 import React from 'react'
-import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import '../styles/swiss.css';
+
 function Headline({ children, back, onback }) {
   return (
     <Box
       sx={{
         width: '100%',
-        minHeight: '55px',
-     
+        minHeight: '64px', // Standard height
         display: 'flex',
         alignItems: 'center',
-        borderBottom: '1px solid #ddd',
-        bgcolor: "background.surface",
+        borderBottom: '1px solid var(--md-sys-color-outline)',
+        padding: '0 24px',
+        bgcolor: 'var(--md-sys-color-surface)',
+        gap: '16px'
       }}
     >
-      <Box sx={{ width: "50%", flexDirection: "row", display: "flex" }}>
-        {
-          back && (
-            <Tooltip title="Zurück">
-              <IconButton onClick={() => onback()} sx={{
-                "&:hover": {
-                  color: "#1976d2"
-                }
-              }}>
-                <ArrowCircleLeftOutlinedIcon />
-              </IconButton>
-            </Tooltip>
-          )
-        }
+      {
+        back && (
+          <Tooltip title="Zurück">
+            <IconButton
+              onClick={() => onback()}
+              variant="plain"
+              sx={{
+                color: "var(--md-sys-color-on-surface)",
+                "&:hover": { bgcolor: "var(--md-sys-color-secondary)" }
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+          </Tooltip>
+        )
+      }
 
-        <Typography
-          sx={{
-            ml: '15px',
-            fontSize: '1.25rem',
-            fontWeight: 600,
-            color: '#333',
-            cursor: "default",
-            userSelect: "none",
-            mt: 0.35,
-          }}
-        >
-          {children}
-        </Typography>
-      </Box>
+      <Typography
+        sx={{
+          fontSize: '22px',
+          fontWeight: 400, // Google Sans Regular
+          color: 'var(--md-sys-color-on-surface)',
+          cursor: "default",
+          userSelect: "none",
+        }}
+      >
+        {children}
+      </Typography>
     </Box>
   )
 }

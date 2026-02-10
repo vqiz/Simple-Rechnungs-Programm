@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { change_PayStatus, get_uRechnungen, getKunde } from '../Scripts/Filehandler';
-import { Avatar, Box, Button, Chip, Dropdown, IconButton, Input, ListItem, ListItemDecorator, Menu, MenuButton, MenuItem, Table, Tooltip, Typography } from '@mui/joy';
-import Headline from '../components/Headline';
+import { Avatar, Box, Button, Chip, Dropdown, IconButton, Input, ListItem, ListItemDecorator, Menu, MenuButton, MenuItem, Table, Tooltip, Typography, Divider } from '@mui/joy';
+import Headline from '../components/Headline'; // Check if needed or if we use custom header
 import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
 import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
-import ListPart from '../components/ListPart';
+import ListPart from '../components/ListPart'; // Might replace with custom
 import NavigationOutlinedIcon from '@mui/icons-material/NavigationOutlined';
 import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
 import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
@@ -32,6 +32,8 @@ import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import MaskProvider from '../components/MaskProvider';
 import KundenEditor from '../components/KundenVerwaltung/Masks/KundenEditor';
+import AvatarTabeUtil from '../components/AvatarTabeUtil'; // Reuse for consistent avatars
+import '../styles/swiss.css';
 
 function KundenViewer() {
   const { id } = useParams();
@@ -48,10 +50,10 @@ function KundenViewer() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   const [anchor, setAnchor] = React.useState(null);
+  const [target, settarget] = useState(null);
 
-  const [target, settarget] = useState(null); // Keep only one
   const handleContextMenu = (event, item, payed) => {
-    event.preventDefault(); // Standard-Menü verhindern
+    event.preventDefault();
     settarget({ item, payed });
     setAnchor({
       mouseX: event.clientX,
@@ -75,6 +77,7 @@ function KundenViewer() {
   const handleClose = () => {
     setAnchor(null);
   };
+
   const fetch = async () => {
     const fkunde = await getKunde(id);
     setkunde(fkunde);
@@ -82,10 +85,10 @@ function KundenViewer() {
     const u_R = await get_uRechnungen();
     set_uRechnungen(u_R);
   }
-  useEffect(() => {
 
+  useEffect(() => {
     fetch();
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     const handler = debounce(() => {
@@ -96,55 +99,223 @@ function KundenViewer() {
       handler.cancel();
     };
   }, [searchTerm]);
-  async function change_pstatus(item) {
-    await change_PayStatus(item, id);
-    const u_R = await get_uRechnungen();
-    set_uRechnungen(u_R);
-  }
-  function onb() {
-    navigate("/clients");
-  }
-  function oneditclose() {
+
+  const oneditclose = () => {
     setEditKunde(false);
     fetch();
   }
+
+  if (!kunde) return <Box sx={{ p: 4 }}>Lade Kundendaten...</Box>;
+
   return (
-    <Box>
-      <Headline back={true} onback={onb}>{kunde?.name}</Headline>
-      {
-        editkunde && (
-          <MaskProvider>
-            <KundenEditor id={id} close={oneditclose} />
-          </MaskProvider>
-        )
-      }
+    <Box sx={{ display: 'flex', height: '100%', overflow: 'hidden', bgcolor: 'var(--md-sys-color-background)' }}>
+
+      {/* LEFT SIDEBAR: PROFILE */}
+      <Box sx={{
+        width: '320px',
+        bgcolor: 'var(--md-sys-color-surface)',
+        borderRight: '1px solid var(--md-sys-color-outline)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflowY: 'auto',
+        p: 3,
+        gap: 3
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <IconButton onClick={() => navigate('/clients')} variant="plain" sx={{ ml: -1 }}>
+            <ArrowCircleLeftOutlinedIcon />
+          </IconButton>
+          <Typography level="title-sm" sx={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Zurück zur Übersicht</Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <Avatar sx={{ width: 80, height: 80, fontSize: 32, mb: 2 }}>{kunde.name.charAt(0)}</Avatar>
+          <Typography level="h3" sx={{ fontWeight: 600, mb: 0.5 }}>{kunde.name}</Typography>
+          <Chip variant="soft" color={kunde.istfirma ? 'primary' : 'neutral'} size="sm">
+            {kunde.istfirma ? 'Firmenkunde' : 'Privatkunde'}
+          </Chip>
+        </Box>
+
+        <Divider />
+
+        <Box>
+          <Typography level="title-sm" sx={{ mb: 1, color: 'var(--md-sys-color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '11px' }}>Kontakt</Typography>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <ApartmentOutlinedIcon sx={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: 20 }} />
+              <div>
+                <Typography level="body-sm">{kunde.street} {kunde.number}</Typography>
+                <Typography level="body-sm">{kunde.plz} {kunde.ort}</Typography>
+              </div>
+            </div>
+            {kunde.tel && (
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <LocalPhoneOutlinedIcon sx={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: 20 }} />
+                <Typography level="body-sm">{kunde.tel}</Typography>
+              </div>
+            )}
+            {kunde.email && (
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <AlternateEmailOutlinedIcon sx={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: 20 }} />
+                <Typography level="body-sm" sx={{ wordBreak: 'break-all' }}>{kunde.email}</Typography>
+              </div>
+            )}
+          </div>
+        </Box>
+
+        {kunde.istfirma && (
+          <Box>
+            <Typography level="title-sm" sx={{ mb: 1, color: 'var(--md-sys-color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '11px' }}>Ansprechpartner</Typography>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <PersonPinCircleOutlinedIcon sx={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: 20 }} />
+              <Typography level="body-sm">{kunde.ansprechpartner || 'Keine Angabe'}</Typography>
+            </div>
+          </Box>
+        )}
+
+        <Box>
+          <Typography level="title-sm" sx={{ mb: 1, color: 'var(--md-sys-color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '11px' }}>Meta</Typography>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <Typography level="body-xs" sx={{ color: 'var(--md-sys-color-on-surface-variant)', width: '80px' }}>Kunden-Nr</Typography>
+              <Typography level="body-xs">{kunde.id}</Typography>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <Typography level="body-xs" sx={{ color: 'var(--md-sys-color-on-surface-variant)', width: '80px' }}>Seit</Typography>
+              <Typography level="body-xs">{new Date(kunde.erstellt).toLocaleDateString("de-DE")}</Typography>
+            </div>
+          </div>
+        </Box>
+
+        <Box sx={{ mt: 'auto', display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Button variant="outlined" color="primary" startDecorator={<EditOutlinedIcon />} onClick={() => setEditKunde(true)}>
+            Bearbeiten
+          </Button>
+        </Box>
+      </Box>
+
+
+      {/* MAIN CONTENT: INVOICES & HISTORY */}
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Header/Toolbar */}
+        <Box sx={{
+          p: 3,
+          borderBottom: '1px solid var(--md-sys-color-outline)',
+          bgcolor: 'var(--md-sys-color-surface)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <Typography level="h4">Rechnungen</Typography>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Input
+              placeholder="Rechnung suchen..."
+              startDecorator={<SearchIcon />}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ minWidth: '250px', borderRadius: '20px' }}
+            />
+            <Button startDecorator={<AddCircleOutlineOutlinedIcon />} onClick={() => navigate("/invoices/create/" + id)}>
+              Neue Rechnung
+            </Button>
+          </Box>
+        </Box>
+
+        {/* List */}
+        <Box sx={{ p: 4, overflowY: 'auto', flex: 1 }}>
+          {(!kunde.rechnungen || kunde.rechnungen.length === 0) ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 8, opacity: 0.6 }}>
+              <ReceiptLongOutlinedIcon sx={{ fontSize: 64, mb: 2 }} />
+              <Typography>Keine Rechnungen vorhanden</Typography>
+            </Box>
+          ) : (
+            <div className="swiss-card" style={{ padding: 0, overflow: 'hidden' }}>
+              <Table hoverRow sx={{ '--TableCell-headBackground': 'var(--swiss-gray-50)' }}>
+                <thead>
+                  <tr>
+                    <th style={{ width: '60px' }}></th>
+                    <th>Rechnung Nr.</th>
+                    <th>Datum</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(kunde?.rechnungen || [])
+                    .filter((i) => i.includes(debouncedSearchTerm))
+                    .slice().reverse()
+                    .sort((a, b) => {
+                      const isAUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === a);
+                      const isBUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === b);
+                      if (isAUnpaid && !isBUnpaid) return -1;
+                      if (!isAUnpaid && isBUnpaid) return 1;
+                      const dateA = kunde?.rechnungsDatum?.[a] ? new Date(kunde.rechnungsDatum[a]) : new Date(0);
+                      const dateB = kunde?.rechnungsDatum?.[b] ? new Date(kunde.rechnungsDatum[b]) : new Date(0);
+                      return dateB - dateA;
+                    }).map((item) => {
+                      const isUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === item);
+                      return (
+                        <tr
+                          key={item}
+                          onClick={() => navigate("/invoices/" + item)}
+                          onContextMenu={(e) => handleContextMenu(e, item, !isUnpaid)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <td style={{ textAlign: 'center', color: 'var(--swiss-gray-400)' }}>
+                            <ReceiptLongOutlinedIcon fontSize="small" />
+                          </td>
+                          <td>
+                            <Typography fontWeight="md">{item}</Typography>
+                          </td>
+                          <td>
+                            <Typography level="body-sm">
+                              {kunde?.rechnungsDatum?.[item] ? new Date(kunde.rechnungsDatum[item]).toLocaleDateString("de-DE") : "-"}
+                            </Typography>
+                          </td>
+                          <td>
+                            <PaymentStatusBadge invoiceNumber={item} />
+                          </td>
+                        </tr>
+                      )
+                    })}
+                </tbody>
+              </Table>
+            </div>
+          )}
+        </Box>
+      </Box>
+
+      {/* Modals & Menus */}
+      {editkunde && (
+        <MaskProvider>
+          <KundenEditor id={id} close={oneditclose} />
+        </MaskProvider>
+      )}
+
       {anchor && (
         <Box
           sx={{
             position: "absolute",
             top: anchor.mouseY,
             left: anchor.mouseX,
-            bgcolor: "background.surface",
-            border: "1px solid",
-            borderColor: "divider",
+            bgcolor: "white",
+            border: "1px solid #ccc",
             borderRadius: "4px",
-            boxShadow: 3,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             zIndex: 1300,
             p: 1,
+            minWidth: '150px'
           }}
           onMouseLeave={handleClose}
         >
           <Box
-            sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "neutral.plainHoverBg" } }}
+            sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "#f5f5f5" }, borderRadius: '4px' }}
             onClick={() => {
               openPaymentModal(target.item);
               handleClose();
             }}
           >
-            <AttachMoneyOutlinedIcon fontSize="small" />
-            <Typography level="body-sm" sx={{ ml: 1 }}>
-              Zahlung erfassen
-            </Typography>
+            <AttachMoneyOutlinedIcon fontSize="small" sx={{ mr: 1, color: 'var(--swiss-success)' }} />
+            <Typography level="body-sm">Zahlung erfassen</Typography>
           </Box>
         </Box>
       )}
@@ -161,215 +332,7 @@ function KundenViewer() {
           }}
         />
       )}
-
-
-      <Box sx={{ width: "100%", height: "calc(100vh - 55px)", display: "flex", overflowY: "auto", flexDirection: "row" }}>
-        <Box
-          sx={{
-            height: "100%",
-            width: "15%",
-            borderRight: "1px solid",
-            borderColor: "divider",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "flex-start",
-            p: 2,
-            boxSizing: "border-box",
-            bgcolor: "",
-          }}
-        >
-          <Avatar sx={{ mt: 5, mb: 2 }} size='lg' />
-          <Typography sx={{ fontWeight: "5px", fontWeight: "bold" }}>{kunde?.name}</Typography>
-          <Box sx={{ mt: 5, width: "100%", alignContent: "flex-start", justifyContent: "flex-start", display: "flex", flexDirection: "column" }}>
-            <ListPart title={"Anschrift"}>
-              <ListItem>
-                <Box>
-                  <Typography
-                    level="body-xs"
-                    startDecorator={<NavigationOutlinedIcon />}
-                    sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer" }}
-                  >
-                    {kunde?.street} {kunde?.number}
-                  </Typography>
-                </Box>
-              </ListItem>
-              <ListItem>
-                <Box>
-                  <Typography
-                    level="body-xs"
-                    startDecorator={<ApartmentOutlinedIcon />}
-                    sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer" }}
-                  >
-                    {kunde?.plz}, {kunde?.ort}
-                  </Typography>
-                </Box>
-              </ListItem>
-            </ListPart>
-            <ListPart title={"Kontakt"}>
-              <ListItem>
-                <Box>
-                  <Typography
-                    level="body-xs"
-                    startDecorator={<LocalPhoneOutlinedIcon />}
-                    sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer" }}
-                  >
-                    {kunde?.tel}
-                  </Typography>
-                </Box>
-              </ListItem>
-              <ListItem>
-                <Box>
-                  <Typography
-                    level="body-xs"
-                    startDecorator={<AlternateEmailOutlinedIcon />}
-                    sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer" }}
-                  >
-                    {kunde?.email}
-                  </Typography>
-                </Box>
-              </ListItem>
-            </ListPart>
-            {
-
-              kunde?.istfirma && (
-                <ListPart title={"Ansprechpartner"}>
-                  <ListItem>
-                    <Box>
-                      <Typography
-                        level="body-xs"
-                        startDecorator={<PersonPinCircleOutlinedIcon />}
-                        sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer" }}
-                      >
-                        {kunde?.ansprechpartner}
-                      </Typography>
-                    </Box>
-                  </ListItem>
-                </ListPart>
-              )
-            }
-            <ListPart title={"Sonstiges"}>
-              <ListItem>
-                <Box>
-                  <Typography
-                    level="body-xs"
-                    startDecorator={<DateRangeOutlinedIcon />}
-                    sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer" }}
-                  >
-                    Kunde seit {new Date(kunde?.erstellt).toLocaleDateString("de-DE")}
-                  </Typography>
-                </Box>
-              </ListItem>
-              <ListItem>
-                <Box>
-                  <Typography
-                    level="body-xs"
-                    startDecorator={<FormatListNumberedOutlinedIcon />}
-                    sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer" }}
-                  >
-                    Leitwegid {kunde?.leitwegid ? kunde?.leitwegid : "Nicht angegeben"}
-                  </Typography>
-                </Box>
-              </ListItem>
-            </ListPart>
-          </Box>
-        </Box>
-        <Box sx={{ width: "85%", p: 2, display: "block", overflowY: "auto" }}>
-          <InfoCard headline={"Information"}>Hier finden sie alle Rechnungen für {kunde?.name} aufgelistet. <br></br> Unbezahlte Rechnungen werden <Typography fontWeight={"bold"}>immer</Typography> ganz oben angezeigt</InfoCard>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 2, mt: 7 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: "55%", flexDirection: "row" }}>
-              <Input
-                placeholder="Rechnung suchen..."
-                variant="outlined"
-                sx={{ flexGrow: 1, userSelect: "all" }}
-                onChange={(e) => setSearchTerm(e.target.value)}
-
-                startDecorator={<SearchIcon />}
-              />
-            </Box>
-            <Dropdown>
-              <MenuButton color="primary" sx={{ mt: -1.7 }}>
-                <EditOutlinedIcon />
-                Bearbeiten
-              </MenuButton>
-              <Menu>
-                <MenuItem onClick={() => navigate("/invoices/create/" + id)}><AddCircleOutlineOutlinedIcon />Rechnung hinzufügen</MenuItem>
-                <MenuItem onClick={() => setEditKunde(true)}><EditOutlinedIcon />Kunden bearbeiten</MenuItem>
-              </Menu>
-            </Dropdown>
-
-          </Box>
-          <Table sx={{ mt: 2, "& th:nth-of-type(1)": { width: "70%" }, "& th:nth-of-type(2)": { width: "20%" }, "& th:nth-of-type(3)": { width: "10%" } }}>
-            <thead>
-              <tr>
-                <th>Rechnung</th>
-                <th>Status</th>
-
-              </tr>
-            </thead>
-            <tbody>
-              {
-                (kunde?.rechnungen || [])
-                  .filter((i) => i.includes(debouncedSearchTerm))
-                  .slice().reverse() // Kopie
-                  .sort((a, b) => {
-                    const isAUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === a);
-                    const isBUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === b);
-
-                    // Unbezahlte zuerst
-                    if (isAUnpaid && !isBUnpaid) return -1;
-                    if (!isAUnpaid && isBUnpaid) return 1;
-
-                    // Beide gleich, nach Datum absteigend
-                    const dateA = kunde?.rechnungsDatum?.[a] ? new Date(kunde.rechnungsDatum[a]) : new Date(0);
-                    const dateB = kunde?.rechnungsDatum?.[b] ? new Date(kunde.rechnungsDatum[b]) : new Date(0);
-
-                    return dateB - dateA;
-                  }).map((item, index) => {
-                    const payed = u_Rechnungen?.list
-                      .filter((i) => i.id === id)  // compare strings
-                      .some((i) => i.rechnung === item);
-                    return (
-                      <Box
-                        component="tr"
-                        key={index}
-                        onContextMenu={(e) => handleContextMenu(e, item, payed)}
-
-                        sx={{
-                          transition: 'background-color 0.2s',
-                          '&:hover': {
-                            bgcolor: 'neutral.plainHoverBg',
-                          },
-                          cursor: "pointer"
-                        }}
-                        onClick={() => navigate("/invoices/" + item)}
-                      >
-
-                        <Box component="td" sx={{ padding: '12px 16px' }}>
-                          <Box sx={{
-                            display: "flex", alignContent: "center", flexDirection: "row",
-                          }}>
-                            <ReceiptLongOutlinedIcon />
-                            <Box sx={{ display: "flex", flexDirection: "column", ml: 1, cursor: "pointer" }}>
-                              <Typography level="body-md" sx={{ cursor: "pointer", userSelect: "none" }}>{item}</Typography>
-                              <Typography sx={{ color: "darkgray", cursor: "pointer", userSelect: "none" }} level="body-sm">{ }</Typography>
-                            </Box>
-                          </Box>
-                        </Box>
-                        <Box component="td" sx={{ padding: '12px 16px' }}>
-                          <PaymentStatusBadge invoiceNumber={item} />
-                        </Box>
-
-                      </Box>
-                    )
-                  })
-              }
-            </tbody>
-          </Table>
-        </Box>
-      </Box>
     </Box>
-
   )
 }
 

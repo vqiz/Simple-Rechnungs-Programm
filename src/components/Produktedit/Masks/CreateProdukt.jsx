@@ -9,10 +9,14 @@ import {
   Modal,
   ModalDialog,
   Select,
-  Option
+  Option,
+  Stack,
+  IconButton
 } from '@mui/joy';
 import React, { useState, useEffect } from 'react';
 import { handleLoadFile, handleSaveFile } from '../../../Scripts/Filehandler';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 
 function CreateProdukt({ kathname, disable, update, kathpath }) {
   const [price, setprice] = useState("");
@@ -66,25 +70,30 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
     <Modal open={true} onClose={() => disable(null)}>
       <ModalDialog
         variant="outlined"
+        role="alertdialog"
         sx={{
-          borderRadius: "md",
-          width: "63vh",
-          maxWidth: "90vw",
+          borderRadius: "xl",
+          width: "500px",
+          maxWidth: "95vw",
+          p: 0,
+          overflow: 'hidden',
+          bgcolor: 'white'
         }}
       >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            addprodukt();
-          }}
-          style={{ width: "100%" }}
-        >
-          <Typography level='h3' mb={1}>
+        {/* Header */}
+        <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: 'var(--md-sys-color-surface-container)' }}>
+          <Typography level='h4' fontWeight="lg">
             Produkt hinzufügen
           </Typography>
-          <Divider />
+          <IconButton onClick={() => disable(null)} variant="plain" color="neutral" sx={{ borderRadius: '50%' }}>
+            <CloseOutlinedIcon />
+          </IconButton>
+        </Box>
+        <Divider />
 
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+        {/* Body */}
+        <Box sx={{ p: 3 }}>
+          <Stack spacing={2}>
             {!kathname && (
               <FormControl>
                 <FormLabel>Kategorie</FormLabel>
@@ -96,7 +105,7 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
               </FormControl>
             )}
 
-            <FormControl>
+            <FormControl required error={error && !produktname}>
               <FormLabel>Produktname {'(Zeitbasierte Produkte müssen "stunde" enthalten)'}</FormLabel>
               <Input
                 placeholder="Bezeichnung..."
@@ -108,8 +117,8 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
               />
             </FormControl>
 
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <FormControl sx={{ flex: 1 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+              <FormControl required error={error && !price}>
                 <FormLabel>Netto Betrag (€)</FormLabel>
                 <Input
                   onChange={(e) => {
@@ -120,10 +129,10 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
                   type='number'
                   value={price}
                   placeholder="0.00"
-                  inputProps={{ step: "0.01" }}
+                  slotProps={{ input: { step: "0.01" } }}
                 />
               </FormControl>
-              <FormControl sx={{ flex: 1 }}>
+              <FormControl>
                 <FormLabel>MwSt (%)</FormLabel>
                 <Select value={mehrWertSteuer} onChange={(e, val) => setMehrWertSteuer(val)}>
                   <Option value={19}>19% (Standard)</Option>
@@ -132,39 +141,20 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
                 </Select>
               </FormControl>
             </Box>
-          </Box>
+            {error && (
+              <Typography color='danger' level="body-xs">
+                Bitte alle Felder überprüfen.
+              </Typography>
+            )}
+          </Stack>
+        </Box>
+        <Divider />
 
-          {error && (
-            <Typography color='danger' level="body-xs" mt={1}>
-              Bitte alle Felder überprüfen.
-            </Typography>
-          )}
-
-          <Box
-            sx={{
-              width: "100%",
-              mt: 3,
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Button
-              onClick={() => disable(null)}
-              variant='outlined'
-              color="neutral"
-            >
-              Abbrechen
-            </Button>
-
-            <Button
-              onClick={addprodukt}
-              color="success"
-              variant='solid'
-            >
-              Hinzufügen
-            </Button>
-          </Box>
-        </form>
+        {/* Footer */}
+        <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 1, bgcolor: 'var(--swiss-gray-50)' }}>
+          <Button variant="plain" color="neutral" onClick={() => disable(null)}>Abbrechen</Button>
+          <Button onClick={addprodukt} startDecorator={<AddCircleOutlineOutlinedIcon />}>Hinzufügen</Button>
+        </Box>
       </ModalDialog>
     </Modal>
   );

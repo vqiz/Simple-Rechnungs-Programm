@@ -1,6 +1,6 @@
 import { create } from "xmlbuilder2";
 
-export function createERechnung(rechnung, data, kunde, unternehmen) {
+export async function createERechnung(rechnung, data, kunde, unternehmen) {
     const doc = create({ version: "1.0", encoding: "UTF-8" })
         .ele("Invoice", {
             "xmlns": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2",
@@ -156,7 +156,35 @@ export function createERechnung(rechnung, data, kunde, unternehmen) {
 
     doc.up()
 
-    window.api.saveERechnung(doc.end({ prettyPrint: true }), rechnung + ".xml");
+    const xmlContent = doc.end({ prettyPrint: true });
+
+    try {
+        // Ask user where to save the file
+        const result = await window.api.showSaveDialog({
+            defaultPath: rechnung + ".xml",
+            filters: [
+                { name: 'XML Files', extensions: ['xml'] },
+                { name: 'All Files', extensions: ['*'] }
+            ]
+        });
+
+        if (result.canceled || !result.filePath) {
+            console.log("E-Rechnung export cancelled by user");
+            return;
+        }
+
+        // Save to selected path
+        await window.api.saveFileToPath({
+            content: xmlContent,
+            filePath: result.filePath
+        });
+
+        console.log("E-Rechnung XML exported successfully to:", result.filePath);
+        alert("E-Rechnung XML wurde erfolgreich exportiert!");
+    } catch (error) {
+        console.error("Error saving E-Rechnung:", error);
+        alert("Fehler beim Exportieren der E-Rechnung: " + error.message);
+    }
 }
 
 function getTaxamountbySatz(data, satz) {

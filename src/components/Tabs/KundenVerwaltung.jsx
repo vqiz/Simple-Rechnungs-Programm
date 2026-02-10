@@ -1,7 +1,6 @@
-import { Avatar, Box, Button, Chip, Input, Table, Typography } from '@mui/joy'
+import { Avatar, Box, Button, Chip, Input, Table, Typography, IconButton, Tooltip } from '@mui/joy'
 import React, { useEffect, useState } from 'react'
-import Headline from '../Headline'
-import InfoCard from '../InfoCard'
+import Headline from '../Headline' // Might be deprecated/refactored, but used for backnav if needed.
 import SearchIcon from '@mui/icons-material/Search';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import MaskProvider from '../MaskProvider';
@@ -9,7 +8,6 @@ import KundeErstellung from '../KundenVerwaltung/Masks/KundeErstellung';
 import { handleLoadFile } from '../../Scripts/Filehandler';
 import { rebuildKundenDB } from '../../Scripts/KundenDatenBank';
 import SyncIcon from '@mui/icons-material/Sync';
-import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
@@ -17,6 +15,7 @@ import debounce from 'lodash/debounce';
 import { useNavigate } from 'react-router-dom';
 import AvatarTabeUtil from '../AvatarTabeUtil';
 import { kundeErstellen } from '../../Scripts/KundenDatenBank';
+import '../../styles/swiss.css';
 
 function KundenVerwaltung() {
     const [createkunde, setcreatekunde] = useState(false);
@@ -39,8 +38,6 @@ function KundenVerwaltung() {
             setdata(JSON.parse(readjson));
         }
         readdata();
-
-
     }, []);
 
     useEffect(() => {
@@ -72,7 +69,6 @@ function KundenVerwaltung() {
             });
             setFilteredList(filtered);
         };
-        filterData();
         filterData();
     }, [data, debouncedSearchTerm]);
 
@@ -181,116 +177,113 @@ function KundenVerwaltung() {
     };
 
     return (
-        <Box
-            sx={{
-                height: '100vh',
-                display: 'block',
-                flexDirection: 'column',
-                gap: 2,
-                p: 0,
-                position: 'relative',
-                overflowY: "auto",
-
-            }}
-        >
-            <Headline>Kundenverwaltung</Headline>
-            <Box sx={{ p: 2 }}>
-                <InfoCard headline={"Information"}>In der Kundenverwaltung können sie nach Kunden suchen um vorgänge nachvollziehen zu können.</InfoCard>
+        <Box sx={{ p: 4, height: '100%', overflowY: 'auto' }}>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                    <Typography level="h2" sx={{ fontSize: '24px', fontWeight: 600 }}>Kunden</Typography>
+                    <Typography level="body-sm">Verwalten Sie Ihre Kundenkontakte und Firmen.</Typography>
+                </div>
+                <button
+                    className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+                    onClick={() => setcreatekunde(true)}
+                >
+                    <AddCircleOutlineOutlinedIcon sx={{ fontSize: '20px' }} />
+                    Neuer Kunde
+                </button>
             </Box>
 
-            {
-                createkunde && (
-                    <MaskProvider>
-                        <KundeErstellung submit={close} />
-                    </MaskProvider>
-                )
-            }
+            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Input
+                    placeholder="Suchen..."
+                    startDecorator={<SearchIcon />}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={{
+                        flexGrow: 1,
+                        maxWidth: '400px',
+                        borderRadius: '24px',
+                        '--Input-focusedHighlight': 'var(--md-sys-color-primary)'
+                    }}
+                />
 
+                <Tooltip title="CSV Import">
+                    <Button component="label" variant="outlined" color="neutral" sx={{ borderRadius: '12px' }}>
+                        <UploadFileOutlinedIcon />
+                        <input type="file" hidden accept=".csv" onChange={handleCSVImport} />
+                    </Button>
+                </Tooltip>
 
+                <Tooltip title="CSV Export">
+                    <IconButton variant="outlined" color="neutral" onClick={handleCSVExport} sx={{ borderRadius: '12px' }}>
+                        <DownloadOutlinedIcon />
+                    </IconButton>
+                </Tooltip>
 
-
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, width: "50%" }}>
-                    <Input
-                        placeholder="Kunden suchen..."
-                        variant="outlined"
-                        sx={{ flexGrow: 1, }}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-
-                        startDecorator={<SearchIcon />}
-                    />
-                </Box>
-                <Button onClick={() => setcreatekunde(true)} startDecorator={<AddCircleOutlineOutlinedIcon />} sx={{ mt: -1.8 }}>Kunde erstellen</Button>
-                <Button component="label" startDecorator={<UploadFileOutlinedIcon />} sx={{ mt: -1.8 }} variant="outlined">
-                    CSV Import
-                    <input type="file" hidden accept=".csv" onChange={handleCSVImport} />
-                </Button>
-                <Button onClick={handleCSVExport} startDecorator={<DownloadOutlinedIcon />} sx={{ mt: -1.8 }} variant="outlined">
-                    CSV Export
-                </Button>
-                <Button onClick={async () => {
-                    const list = await rebuildKundenDB();
-                    setdata({ list });
-                }} startDecorator={<SyncIcon />} sx={{ mt: -1.8 }} variant="soft">Index Neu laden</Button>
+                <Tooltip title="Liste neu laden">
+                    <IconButton variant="plain" color="neutral" onClick={async () => {
+                        const list = await rebuildKundenDB();
+                        setdata({ list });
+                    }} sx={{ borderRadius: '12px' }}>
+                        <SyncIcon />
+                    </IconButton>
+                </Tooltip>
             </Box>
-            <Box
-                sx={{
-                    px: 2,
-                    maxWidth: "100%",
-                    mb: 5,
-                    mx: "auto",
-                    width: "100%",
 
-                }}
-            >
-                <Table sx={{ borderRadius: "15px", maxWidth: "98%" }}>
+            <Box className="swiss-card" sx={{ p: 0, overflow: 'hidden' }}>
+                <Table hoverRow sx={{ '--TableCell-headBackground': 'var(--swiss-gray-50)' }}>
                     <thead>
                         <tr>
-                            <th>Kunden und Rechnungen</th>
-                            <th></th>
+                            <th style={{ width: '60px' }}></th>
+                            <th>Name</th>
+                            <th>Typ</th>
+                            <th>Email</th>
+                            <th>Ort</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {
-                            filteredList.map((item) => {
-                                const name = item.name;
-                                const id = item.id;
-                                const istfirma = item.istfirma;
-                                const email = item.email;
-
-                                return (
-                                    <Box
-                                        component="tr"
-                                        key={id}
-                                        sx={{
-                                            transition: 'background-color 0.2s',
-                                            '&:hover': {
-                                                bgcolor: 'neutral.plainHoverBg',
-                                            },
-                                            cursor: "pointer"
-                                        }}
-                                        onClick={() => navigate("/kunden-viewer/" + id)}
-                                    >
-                                        <AvatarTabeUtil email={email} name={name} istfirma={istfirma} />
-                                        <Box component="td" sx={{ padding: '12px 16px' }}>
-                                            {
-                                                istfirma ? (
-                                                    <Chip>Unternehmen</Chip>
-                                                ) : (
-                                                    <Chip>PrivatKunde</Chip>
-                                                )
-                                            }
-                                        </Box>
-                                    </Box>
-
-
-                                );
-
-                            })
-                        }
+                        {filteredList.map((item) => (
+                            <tr
+                                key={item.id}
+                                onClick={() => navigate("/kunden-viewer/" + item.id)}
+                                style={{ cursor: 'pointer' }}
+                            >
+                                <td style={{ textAlign: 'center' }}>
+                                    <AvatarTabeUtil istfirma={item.istfirma} />
+                                </td>
+                                <td>
+                                    <Typography fontWeight="md">{item.name}</Typography>
+                                    <Typography level="body-xs" sx={{ color: 'var(--swiss-gray-500)' }}>{item.id}</Typography>
+                                </td>
+                                <td>
+                                    {item.istfirma ?
+                                        <Chip size="sm" variant="soft" color="primary">Firma</Chip> :
+                                        <Chip size="sm" variant="soft" color="neutral">Privat</Chip>
+                                    }
+                                </td>
+                                <td>
+                                    <Typography level="body-sm">{item.email || "-"}</Typography>
+                                </td>
+                                <td>
+                                    <Typography level="body-sm">{item.plz} {item.ort}</Typography>
+                                </td>
+                            </tr>
+                        ))}
+                        {filteredList.length === 0 && (
+                            <tr>
+                                <td colSpan={5} style={{ textAlign: 'center', padding: '32px', color: 'var(--swiss-gray-500)' }}>
+                                    Keine Kunden gefunden
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </Table>
             </Box>
+
+            {createkunde && (
+                <MaskProvider>
+                    <KundeErstellung submit={close} />
+                </MaskProvider>
+            )}
         </Box>
     )
 }
