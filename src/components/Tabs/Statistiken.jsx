@@ -15,6 +15,8 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
 export default function Statistiken() {
     const [year, setYear] = useState(new Date().getFullYear());
     const [stats, setStats] = useState(null);
+    const [isExporting, setIsExporting] = useState(false);
+    const [exportProgress, setExportProgress] = useState("");
     const pdfRef = useRef();
 
     useEffect(() => {
@@ -25,17 +27,141 @@ export default function Statistiken() {
         fetch();
     }, [year]);
 
-    const handleExportEUR = () => {
-        if (!pdfRef.current) return;
-        const element = pdfRef.current;
-        const opt = {
-            margin: 0,
-            filename: `EÜR_${year}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save();
+    const handleZIPExport = async () => {
+        if (!stats) return;
+        setIsExporting(true);
+        setExportProgress("ZIP wird vorbereitet...");
+
+        try {
+            const JSZip = (await import('jszip')).default;
+            const zip = new JSZip();
+
+            // 1. Übersicht (EÜR)
+            setExportProgress("Generiere EÜR-Übersicht...");
+            if (pdfRef.current) {
+                const opt = {
+                    margin: 0,
+                    filename: `EUER_${year}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                const euerPdfBuffer = await html2pdf().set(opt).from(pdfRef.current).outputPdf('arraybuffer');
+                zip.folder("Übersicht").file(`EÜR_Übersicht_${year}.pdf`, euerPdfBuffer);
+            }
+
+            // Load settings and logo
+            const settingsStr = await window.api.readFile("settings/unternehmen.rechnix");
+            const unternehmen = settingsStr ? JSON.parse(settingsStr) : {};
+            let logoPath = null;
+            try { logoPath = "file://" + await window.api.getFullpath("logo.png"); } catch (e) { }
+
+            const { getKunde } = await import('../../Scripts/Filehandler');
+            const { generateInvoicePdfBuffer } = await import('../Export/generateInvoicePdfBuffer');
+
+            // --- Generate HTML Tables for Overviews ---
+            const generateTablePdf = async (htmlContent, filename) => {
+                const div = document.createElement('div');
+                div.innerHTML = htmlContent;
+                document.body.appendChild(div);
+                const opt = { margin: 10, filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                const buffer = await html2pdf().set(opt).from(div).outputPdf('arraybuffer');
+                document.body.removeChild(div);
+                return buffer;
+            };
+
+            const incomeList = stats.incomeList || [];
+            const expensesList = stats.expensesList || [];
+
+            // 1b. Überschussrechnung (Liste aller Rechnungen & Ausgaben)
+            setExportProgress("Generiere Überschussrechnung-Liste...");
+            let listHtml = `<h2>Einnahmenüberschussrechnung (Details) - ${year}</h2><table border="1" style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px;"><tr><th>Typ</th><th>Datum</th><th>Name/Bezeichnung</th><th>Betrag (€)</th></tr>`;
+            incomeList.forEach(i => listHtml += `<tr><td>Einnahme</td><td>${new Date(i.date).toLocaleDateString()}</td><td>${i.customerName} (Rechnung: ${i.id})</td><td style="text-align:right">${i.amount.toFixed(2)}</td></tr>`);
+            expensesList.forEach(e => listHtml += `<tr><td>Ausgabe</td><td>${new Date(e.date).toLocaleDateString()}</td><td>${e.title || e.category}</td><td style="text-align:right">-${e.amount.toFixed(2)}</td></tr>`);
+            listHtml += `<tr><td colspan="3"><b>Gewinn/Verlust:</b></td><td style="text-align:right"><b>${stats.summary.profit?.toFixed(2)}</b></td></tr></table>`;
+
+            const ueberschussBuffer = await generateTablePdf(listHtml, 'Ueberschussrechnung_Details.pdf');
+            zip.folder("Überschuss rechnung").file(`Details_${year}.pdf`, ueberschussBuffer);
+
+            // 2. Kunden Rechnungen
+            const kundenCache = {};
+
+            for (let i = 0; i < incomeList.length; i++) {
+                const inv = incomeList[i];
+                setExportProgress(`Generiere Rechnung ${i + 1} von ${incomeList.length}...`);
+
+                try {
+                    let kunde = kundenCache[inv.data.kundenId];
+                    if (!kunde) {
+                        try {
+                            kunde = await getKunde(inv.data.kundenId);
+                            kundenCache[inv.data.kundenId] = kunde;
+                        } catch (e) {
+                            kunde = { name: inv.customerName || "Unbekannt" };
+                        }
+                    }
+
+                    const pdfBuffer = await generateInvoicePdfBuffer(inv.id, inv.data, kunde, unternehmen, logoPath);
+                    const safeKundenName = (kunde.name || "Unbekannt").replace(/[/\\?%*:|"<>]/g, '-');
+                    const safeInvName = (inv.id).replace(/[/\\?%*:|"<>]/g, '-');
+
+                    zip.folder("Kunden").folder(safeKundenName).file(`${safeInvName}.pdf`, pdfBuffer);
+                } catch (e) {
+                    console.error("Failed to generate PDF for invoice", inv.id, e);
+                }
+            }
+
+            // 3. Ausgaben Belege & Übersicht
+            setExportProgress("Generiere Ausgaben-Übersicht...");
+            let ausgabenHtml = `<h2>Ausgabenübersicht - ${year}</h2><table border="1" style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px;"><tr><th>Datum</th><th>Kategorie</th><th>Titel/Empfänger</th><th>Betrag (€)</th></tr>`;
+            expensesList.forEach(e => ausgabenHtml += `<tr><td>${new Date(e.date).toLocaleDateString()}</td><td>${e.category}</td><td>${e.title || 'Unbekannt'}</td><td style="text-align:right">${e.amount.toFixed(2)}</td></tr>`);
+            ausgabenHtml += `</table>`;
+            const ausgabenUebersichtBuffer = await generateTablePdf(ausgabenHtml, 'Ausgabenuebersicht.pdf');
+            zip.folder("Ausgaben").file(`Ausgaben_Übersicht_${year}.pdf`, ausgabenUebersichtBuffer);
+
+            for (let j = 0; j < expensesList.length; j++) {
+                const exp = expensesList[j];
+                if (exp.attachmentPath) {
+                    setExportProgress(`Lade Beleg ${j + 1} von ${expensesList.length}...`);
+                    try {
+                        const attachmentDataUrl = await window.api.readAttachment(exp.attachmentPath);
+                        if (attachmentDataUrl) {
+                            const base64Data = attachmentDataUrl.split(',')[1];
+                            const safeTitle = (exp.title || "Beleg_" + j).replace(/[/\\?%*:|"<>]/g, '-');
+                            const mimeMap = { 'image/jpeg': '.jpg', 'image/png': '.png', 'application/pdf': '.pdf', 'text/xml': '.xml' };
+                            const mimeMatch = attachmentDataUrl.match(/data:([a-zA-Z0-9/+-]+);/);
+                            const ext = mimeMatch && mimeMap[mimeMatch[1]] ? mimeMap[mimeMatch[1]] : '.png';
+
+                            zip.folder("Ausgaben").folder(safeTitle).file(`Beleg_${safeTitle}${ext}`, base64Data, { base64: true });
+                        }
+                    } catch (e) {
+                        console.error("Failed to add attachment for expense", exp.title, e);
+                    }
+                }
+            }
+
+            // 4. Save Dialog
+            setExportProgress("Wähle Speicherort...");
+            const { filePath } = await window.api.showSaveDialog({
+                title: 'Jahresabschluss Exportieren',
+                defaultPath: `Jahresabschluss_${year}.zip`,
+                filters: [{ name: 'ZIP Archive', extensions: ['zip'] }]
+            });
+
+            if (filePath) {
+                setExportProgress("Speichere ZIP-Datei...");
+                const content = await zip.generateAsync({ type: 'uint8array' });
+                await window.api.saveFileToPath({ filePath, content });
+                setExportProgress("Erfolgreich gespeichert!");
+                setTimeout(() => setIsExporting(false), 2000);
+            } else {
+                setIsExporting(false); // Cancelled
+            }
+        } catch (error) {
+            console.error("Export error", error);
+            alert("Fehler beim Exportieren: " + error.message);
+            setIsExporting(false);
+        }
     };
 
     if (!stats) {
@@ -64,7 +190,7 @@ export default function Statistiken() {
     const currentMonthStats = (isCurrentYear && chartData && chartData[currentMonthIndex]) ? chartData[currentMonthIndex] : null;
 
     return (
-        <div className="h-full overflow-y-auto bg-background">
+        <div className="h-full overflow-y-auto bg-background" ref={pdfRef}>
             <div className="max-w-7xl mx-auto p-6 space-y-6">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -84,10 +210,19 @@ export default function Statistiken() {
                             <Option value={2025}>2025</Option>
                             <Option value={2026}>2026</Option>
                         </Select>
-                        <Button onClick={handleExportEUR} className="gap-2">
-                            <Download className="h-4 w-4" />
-                            EÜR Exportieren
-                        </Button>
+                        {isExporting ? (
+                            <div className="flex items-center gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 px-4 py-2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors">
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent mr-2"></div>
+                                {exportProgress}
+                            </div>
+                        ) : (
+                            <div className="flex gap-2">
+                                <Button onClick={handleZIPExport} className="gap-2">
+                                    <Download className="h-4 w-4" />
+                                    Jahresabschluss ZIP
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
 

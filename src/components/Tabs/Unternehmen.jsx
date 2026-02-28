@@ -1,13 +1,15 @@
-import { Alert, Avatar, Box, Button, Divider, FormControl, FormLabel, Input, Switch, Typography, Select, Option } from '@mui/joy'
-import React, { useCallback, useEffect, useState } from 'react'
-import Headline from '../Headline'
-import InfoCard from '../InfoCard'
-import FactoryIcon from '@mui/icons-material/Factory';
+import React, { useCallback, useEffect, useState } from 'react';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
-import BrokenImageOutlinedIcon from '@mui/icons-material/BrokenImageOutlined';
 import Cropper from "react-easy-crop";
-const labelstyle = { color: "gray" }
-const boxlinestyle = { display: "flex", width: "auto", flexDirection: "row", gap: 2 }
+import { Building2, Save, Image as ImageIcon, AlertCircle, Info } from 'lucide-react';
+
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
+import { Button } from '../ui/button';
+import { Separator } from '../ui/separator';
+
 function Unternehmen() {
   const [formData, setFormData] = React.useState({
     unternehmensname: "",
@@ -37,13 +39,15 @@ function Unternehmen() {
     invoiceSeparator: "-",
     waehrung: "€"
   });
+
   const [oldjson, setoldjson] = useState();
   const [changes, setchanges] = useState(false);
+
   useEffect(() => {
     const fetch = async () => {
       const jsonstring = await handleLoadFile("settings/unternehmen.rechnix");
       const phrased = JSON.parse(jsonstring);
-      if (jsonstring === "{}") {
+      if (jsonstring === "{}" || !phrased) {
         return;
       }
       setFormData(phrased);
@@ -51,13 +55,15 @@ function Unternehmen() {
     }
     fetch();
   }, []);
+
   useEffect(() => {
-    if (JSON.stringify(formData) !== JSON.stringify(oldjson)) {
+    if (oldjson && JSON.stringify(formData) !== JSON.stringify(oldjson)) {
       setchanges(true);
     } else {
       setchanges(false);
     }
-  }, [formData])
+  }, [formData, oldjson]);
+
   const save = async () => {
     handleSaveFile("settings/unternehmen.rechnix", JSON.stringify(formData));
     setchanges(false);
@@ -74,7 +80,6 @@ function Unternehmen() {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  // Load image from input
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -83,7 +88,6 @@ function Unternehmen() {
     reader.readAsDataURL(file);
   };
 
-  // Get cropped image blob
   async function getCroppedImage(imageSrc, cropPixels) {
     const image = new Image();
     image.src = imageSrc;
@@ -114,7 +118,7 @@ function Unternehmen() {
     });
   }
 
-  const handleSave = async () => {
+  const handleSaveImage = async () => {
     if (!imageSrc || !croppedAreaPixels) {
       alert("Please select and crop an image first");
       return;
@@ -127,7 +131,7 @@ function Unternehmen() {
       const arrayBuffer = await blob.arrayBuffer();
       const uint8 = new Uint8Array(arrayBuffer);
 
-      const savePath = "logo.png"; // Stored in userData, not public
+      const savePath = "logo.png";
 
       const fullPath = await window.api.getFullpath(savePath);
       const result = await window.api.saveFileToPath(uint8, fullPath);
@@ -143,374 +147,321 @@ function Unternehmen() {
     }
   };
 
-
-
-
-
-
-
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   return (
-    <Box
-      sx={{
-        height: '100vh',
-        display: 'block',
-        flexDirection: 'column',
-        gap: 2,
-        p: 0,
-        position: 'relative',
-        overflowY: "auto"
-      }}
-    >
-      <Headline>Unternehmensdaten Verwalten</Headline>
-      <Box sx={{ p: 2 }}>
-        <InfoCard headline={"Information"}>Hier werden die Unternehmensdaten ihres <Typography sx={{ fontWeight: "bold" }}>eigenen</Typography> Unternehmens bearbeitet. Diese werden später auf Rechnungen bei <Typography sx={{ fontWeight: "bold" }}>Verkäufer</Typography> angezeigt. <br />
-          Alle Pflichtfelder sind für eine E-Rechnung bzw. XRechnung nach geltendem Gesetzlichen Standart <Typography sx={{ fontWeight: "bold" }}>Unverzichtbar</Typography>! </InfoCard>
-      </Box>
-      {
-        changes && (
-          <Box sx={{ p: 2 }}>
-            <Alert sx={{ mb: 2 }} variant='soft' color="primary" endDecorator={<Button onClick={() => save()}>Speichern</Button>}>
-              Es wurden änderungen vorgenommen die noch nicht Gespeichert sind.
-            </Alert>
-          </Box>
+    <div className="flex-1 space-y-6 p-8 pt-6 h-screen overflow-y-auto w-full max-w-6xl mx-auto">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Einstellungen</h2>
+      </div>
 
-        )
-      }
-      <Typography sx={{ color: "gray", ml: 2 }} level="title-md">Unternehmensdaten {"(Pflichtdaten)"}</Typography>
-      <Divider orientation="horizontal"></Divider>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "74.6%" }}>
-            <FormLabel sx={labelstyle}>Unternehmensname {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. Mustermann & Landes GMBH'
-              value={formData.unternehmensname}
-              onChange={e => setFormData({ ...formData, unternehmensname: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "auto" }}>
-            <FormLabel sx={labelstyle}>Postleitzahl {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              type='number'
-              placeholder='z.B. 94315'
-              value={formData.postleitzahl}
-              onChange={e => setFormData({ ...formData, postleitzahl: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "50%" }}>
-            <FormLabel sx={labelstyle}>Straße {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. Musterstraße'
-              value={formData.strasse}
-              onChange={e => setFormData({ ...formData, strasse: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "23.5%" }}>
-            <FormLabel sx={labelstyle}>Hausnummer {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. 92'
-              value={formData.hausnummer}
-              onChange={e => setFormData({ ...formData, hausnummer: e.target.value })}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel sx={labelstyle}>Stadt | Ort {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. Straubing'
-              value={formData.stadt}
-              onChange={e => setFormData({ ...formData, stadt: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-        <Box sx={boxlinestyle}>
-          <FormControl>
-            <FormLabel sx={labelstyle}>Länder Code | ISO-Code {"(Pflichtfeld)"} </FormLabel>
-            <Input
-              placeholder='z.B. DE'
-              value={formData.laenderCode}
-              onChange={e => setFormData({ ...formData, laenderCode: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "27.5%" }}>
-            <FormLabel sx={labelstyle}>Umsatzsteuer-ID {""}</FormLabel>
-            <Input
-              placeholder='z.B. DE123456789'
-              value={formData.umsatzsteuerId}
-              onChange={e => setFormData({ ...formData, umsatzsteuerId: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "31%" }}>
-            <FormLabel sx={labelstyle}>Steuer-Nr {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. 12/345/67890'
-              value={formData.steuernr}
-              onChange={e => setFormData({ ...formData, steuernr: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "31%" }}>
-            <FormLabel sx={labelstyle}>Inhaber {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. Max Mustermann'
-              value={formData.inhaber}
-              onChange={e => setFormData({ ...formData, inhaber: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "31%" }}>
-            <FormLabel sx={labelstyle}>Bundesland {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. Bayern'
-              value={formData.bundesland}
-              onChange={e => setFormData({ ...formData, bundesland: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-      </Box>
-      <Typography sx={{ color: "gray", ml: 2 }} level="title-md">BankVerbindung {"(Pflichtdaten)"}</Typography>
-      <Divider orientation="horizontal"></Divider>
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "17.5%" }}>
-            <FormLabel sx={labelstyle}>BIC {"(Pflichtfeld)"} </FormLabel>
-            <Input
-              placeholder='z.B. COBADEHDXXX'
-              value={formData.bic}
-              onChange={e => setFormData({ ...formData, bic: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "39.5%" }}>
-            <FormLabel sx={labelstyle}>Bankverbindung | für Sepa Lastschriften etc. {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. DE21 3704 0044 0532 0130 00'
-              value={formData.bankverbindung}
-              onChange={e => setFormData({ ...formData, bankverbindung: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "50%" }}>
-            <FormLabel sx={labelstyle}>Bankname {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. Sparkasse Niederbayern-Mitte'
-              value={formData.bankname}
-              onChange={e => setFormData({ ...formData, bankname: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "39.5%" }}>
-            <FormLabel sx={labelstyle}>Kontoinhaber {"(Pflichtfeld)"}</FormLabel>
-            <Input
-              placeholder='z.B. Max Mustermann'
-              value={formData.kontoinhaber}
-              onChange={e => setFormData({ ...formData, kontoinhaber: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-      </Box>
+      {/* Information Banner */}
+      <div className="flex items-start gap-4 rounded-lg border border-blue-200 bg-blue-50/50 p-4 shadow-sm dark:bg-blue-900/20 dark:border-blue-800">
+        <Info className="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0" />
+        <div className="flex-1">
+          <h3 className="font-semibold text-blue-900 dark:text-blue-300">Information</h3>
+          <div className="mt-1 text-sm text-blue-800/90 dark:text-blue-200/90">
+            Hier werden die Unternehmensdaten ihres <strong>eigenen</strong> Unternehmens bearbeitet. Diese werden später auf Rechnungen bei <strong>Verkäufer</strong> angezeigt.<br />
+            Alle Pflichtfelder sind für eine E-Rechnung bzw. XRechnung nach geltendem gesetzlichen Standard <strong>unverzichtbar</strong>!
+          </div>
+        </div>
+      </div>
 
+      {changes && (
+        <div className="sticky top-0 z-10 flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 shadow-md dark:bg-orange-900/20 dark:border-orange-800 transition-all duration-300 ease-in-out">
+          <div className="flex items-center gap-3 text-orange-800 dark:text-orange-300">
+            <AlertCircle className="h-5 w-5 shrink-0" />
+            <p className="text-sm font-medium">Es wurden Änderungen vorgenommen, die noch nicht gespeichert sind.</p>
+          </div>
+          <Button onClick={save} className="bg-orange-600 hover:bg-orange-700 text-white shrink-0 ml-4">
+            <Save className="mr-2 h-4 w-4" />
+            Speichern
+          </Button>
+        </div>
+      )}
 
-      <Typography sx={{ color: "gray", ml: 2 }}>Kontaktperson</Typography>
-      <Divider orientation="horizontal" />
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "50%" }}>
-            <FormLabel sx={labelstyle}>Name</FormLabel>
-            <Input
-              placeholder='z.B Max Mustermann'
-              value={formData.kontaktName}
-              onChange={e => setFormData({ ...formData, kontaktName: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "39.5%" }}>
-            <FormLabel sx={labelstyle}>Emailadresse</FormLabel>
-            <Input
-              placeholder='z.B max.musterman@t-online.de'
-              value={formData.kontaktEmail}
-              onChange={e => setFormData({ ...formData, kontaktEmail: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "50%" }}>
-            <FormLabel sx={labelstyle}>Telefonnummer</FormLabel>
-            <Input
-              placeholder='+49 1515 1145345'
-              value={formData.kontaktTelefon}
-              onChange={e => setFormData({ ...formData, kontaktTelefon: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-      </Box>
+      <div className="grid gap-6">
+        {/* Unternehmensdaten */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-muted-foreground" />
+              Unternehmensdaten <span className="text-sm font-normal text-muted-foreground ml-2">(Pflichtdaten)</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <div className="md:col-span-9 space-y-2">
+                <Label htmlFor="unternehmensname">Unternehmensname*</Label>
+                <Input id="unternehmensname" placeholder="z.B. Mustermann & Landes GMBH" value={formData.unternehmensname} onChange={(e) => handleChange('unternehmensname', e.target.value)} />
+              </div>
+              <div className="md:col-span-3 space-y-2">
+                <Label htmlFor="postleitzahl">Postleitzahl*</Label>
+                <Input id="postleitzahl" type="number" placeholder="z.B. 94315" value={formData.postleitzahl} onChange={(e) => handleChange('postleitzahl', e.target.value)} />
+              </div>
+            </div>
 
-      <Typography sx={{ color: "gray", ml: 2 }}>Sonstiges</Typography>
-      <Divider orientation="horizontal" />
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "50%" }}>
-            <FormLabel sx={labelstyle}>Handelsregisternummer {"(Pflichtfeld)"}</FormLabel>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <div className="md:col-span-6 space-y-2">
+                <Label htmlFor="strasse">Straße*</Label>
+                <Input id="strasse" placeholder="z.B. Musterstraße" value={formData.strasse} onChange={(e) => handleChange('strasse', e.target.value)} />
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                <Label htmlFor="hausnummer">Hausnummer*</Label>
+                <Input id="hausnummer" placeholder="z.B. 92" value={formData.hausnummer} onChange={(e) => handleChange('hausnummer', e.target.value)} />
+              </div>
+              <div className="md:col-span-4 space-y-2">
+                <Label htmlFor="stadt">Stadt | Ort*</Label>
+                <Input id="stadt" placeholder="z.B. Straubing" value={formData.stadt} onChange={(e) => handleChange('stadt', e.target.value)} />
+              </div>
+            </div>
 
-            <Input
-              placeholder='HRA 12345'
-              value={formData.handelsregisternummer}
-              onChange={e => setFormData({ ...formData, handelsregisternummer: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "39.5%" }}>
-            <FormLabel sx={labelstyle}>Telefonnummer {"(Firma)"}</FormLabel>
-            <Input
-              placeholder='+49 1515 1145345'
-              value={formData.sonstigeTelefonnummer}
-              onChange={e => setFormData({ ...formData, sonstigeTelefonnummer: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-        <Box sx={{ ...boxlinestyle, mb: 5 }}>
-          <FormControl sx={{ width: "49%" }}>
-            <FormLabel sx={labelstyle}>Emailadresse {"Pflichtfeld"}</FormLabel>
-            <Input
-              placeholder='z.B. org.example@firma.com'
-              value={formData.sonstigeEmail}
-              onChange={e => setFormData({ ...formData, sonstigeEmail: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "40.5%" }}>
-            <FormLabel sx={labelstyle}>Website</FormLabel>
-            <Input
-              placeholder='z.B. www.test.de'
-              value={formData.website}
-              onChange={e => setFormData({ ...formData, website: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-      </Box>
-      <Typography sx={{ color: "gray", ml: 2 }}>Gewerbeart</Typography>
-      <Divider orientation="horizontal" />
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-        <FormControl>
-          <Box sx={{ display: "flex", width: "100%", flexDirection: "row", gap: 2, justifyContent: "center" }}>
-            <Typography sx={labelstyle}>Kleingewerbe</Typography>
-            <Switch checked={formData.mwst} onChange={(e) => setFormData({ ...formData, mwst: e.target.checked })} />
-            <Typography sx={labelstyle}>Gewerbe</Typography>
-          </Box>
-        </FormControl>
-      </Box>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <div className="md:col-span-4 space-y-2">
+                <Label htmlFor="laenderCode">Länder Code | ISO-Code*</Label>
+                <Input id="laenderCode" placeholder="z.B. DE" value={formData.laenderCode} onChange={(e) => handleChange('laenderCode', e.target.value)} />
+              </div>
+              <div className="md:col-span-4 space-y-2">
+                <Label htmlFor="umsatzsteuerId">Umsatzsteuer-ID</Label>
+                <Input id="umsatzsteuerId" placeholder="z.B. DE123456789" value={formData.umsatzsteuerId} onChange={(e) => handleChange('umsatzsteuerId', e.target.value)} />
+              </div>
+              <div className="md:col-span-4 space-y-2">
+                <Label htmlFor="steuernr">Steuer-Nr*</Label>
+                <Input id="steuernr" placeholder="z.B. 12/345/67890" value={formData.steuernr} onChange={(e) => handleChange('steuernr', e.target.value)} />
+              </div>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="inhaber">Inhaber*</Label>
+                <Input id="inhaber" placeholder="z.B. Max Mustermann" value={formData.inhaber} onChange={(e) => handleChange('inhaber', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bundesland">Bundesland*</Label>
+                <Input id="bundesland" placeholder="z.B. Bayern" value={formData.bundesland} onChange={(e) => handleChange('bundesland', e.target.value)} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-      <Typography sx={{ color: "gray", ml: 2 }}>Rechnungsnummer Format</Typography>
-      <Divider orientation="horizontal" />
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-        <Box sx={boxlinestyle}>
-          <FormControl sx={{ width: "30%" }}>
-            <FormLabel sx={labelstyle}>Präfix</FormLabel>
-            <Input
-              placeholder='z.B. R'
-              value={formData.invoicePrefix || ""}
-              onChange={e => setFormData({ ...formData, invoicePrefix: e.target.value })}
-            />
-          </FormControl>
-          <FormControl sx={{ width: "30%" }}>
-            <FormLabel sx={labelstyle}>Datumsformat</FormLabel>
-            <Select
-              value={formData.invoiceDateFormat || "YYYY-MM-DD"}
-              onChange={(e, val) => setFormData({ ...formData, invoiceDateFormat: val })}
-            >
-              <Option value="YYYY-MM-DD">2024-03-01</Option>
-              <Option value="YYYYMMDD">20240301</Option>
-              <Option value="YYYY-MM">2024-03</Option>
-              <Option value="YYYY">2024</Option>
-              <Option value="NONE">Kein Datum</Option>
-            </Select>
-          </FormControl>
-          <FormControl sx={{ width: "30%" }}>
-            <FormLabel sx={labelstyle}>Trennzeichen</FormLabel>
-            <Input
-              placeholder='z.B. -'
-              value={formData.invoiceSeparator || ""}
-              onChange={e => setFormData({ ...formData, invoiceSeparator: e.target.value })}
-            />
-          </FormControl>
-        </Box>
-        <Typography level="body-xs" sx={{ ml: 1, color: 'neutral.500' }}>
-          Vorschau: {formData.invoicePrefix || "R"}{formData.invoiceDateFormat !== "NONE" ? (formData.invoiceSeparator || "-") + "2024..." : ""}{formData.invoiceSeparator || "-"}123
-        </Typography>
-      </Box>
+        {/* Bankverbindung */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Bankverbindung <span className="text-sm font-normal text-muted-foreground ml-2">(Pflichtdaten)</span></CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <div className="md:col-span-3 space-y-2">
+                <Label htmlFor="bic">BIC*</Label>
+                <Input id="bic" placeholder="z.B. COBADEHDXXX" value={formData.bic} onChange={(e) => handleChange('bic', e.target.value)} />
+              </div>
+              <div className="md:col-span-9 space-y-2">
+                <Label htmlFor="bankverbindung">Bankverbindung | IBAN*</Label>
+                <Input id="bankverbindung" placeholder="z.B. DE21 3704 0044 0532 0130 00" value={formData.bankverbindung} onChange={(e) => handleChange('bankverbindung', e.target.value)} />
+              </div>
+            </div>
 
-      <Typography sx={{ color: "gray", ml: 2 }}>Währung</Typography>
-      <Divider orientation="horizontal" />
-      <Box sx={{ p: 2 }}>
-        <FormControl sx={{ width: "20%" }}>
-          <FormLabel sx={labelstyle}>Währungssymbol</FormLabel>
-          <Select
-            value={formData.waehrung || "€"}
-            onChange={(e, val) => setFormData({ ...formData, waehrung: val })}
-          >
-            <Option value="€">Euro (€)</Option>
-            <Option value="$">Dollar ($)</Option>
-            <Option value="£">Pfund (£)</Option>
-            <Option value="CHF">Schweizer Franken (CHF)</Option>
-          </Select>
-        </FormControl>
-      </Box>
-      <Typography sx={{ color: "gray", ml: 2 }}>Logo</Typography>
-      <Divider orientation="horizontal" />
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2, mb: 15 }}>
-        {
-          showcrop ? (
-            <FormControl>
-              <div style={{ padding: "20px" }}>
-                <input type="file" accept="image/*" onChange={handleFileChange} />
-                <div
-                  style={{
-                    position: "relative",
-                    width: 400,
-                    height: 400,
-                    marginTop: 20,
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="bankname">Bankname*</Label>
+                <Input id="bankname" placeholder="z.B. Sparkasse Niederbayern-Mitte" value={formData.bankname} onChange={(e) => handleChange('bankname', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="kontoinhaber">Kontoinhaber*</Label>
+                <Input id="kontoinhaber" placeholder="z.B. Max Mustermann" value={formData.kontoinhaber} onChange={(e) => handleChange('kontoinhaber', e.target.value)} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
+        {/* Kontaktperson */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Kontaktperson</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="kontaktName">Name</Label>
+                <Input id="kontaktName" placeholder="z.B Max Mustermann" value={formData.kontaktName} onChange={(e) => handleChange('kontaktName', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="kontaktEmail">Emailadresse</Label>
+                <Input id="kontaktEmail" type="email" placeholder="z.B max.musterman@t-online.de" value={formData.kontaktEmail} onChange={(e) => handleChange('kontaktEmail', e.target.value)} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="kontaktTelefon">Telefonnummer</Label>
+                <Input id="kontaktTelefon" placeholder="+49 1515 1145345" value={formData.kontaktTelefon} onChange={(e) => handleChange('kontaktTelefon', e.target.value)} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sonstiges */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Sonstiges & Gewerbeart</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="handelsregisternummer">Handelsregisternummer*</Label>
+                <Input id="handelsregisternummer" placeholder="HRA 12345" value={formData.handelsregisternummer} onChange={(e) => handleChange('handelsregisternummer', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sonstigeTelefonnummer">Telefonnummer (Firma)</Label>
+                <Input id="sonstigeTelefonnummer" placeholder="+49 1515 1145345" value={formData.sonstigeTelefonnummer} onChange={(e) => handleChange('sonstigeTelefonnummer', e.target.value)} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="sonstigeEmail">Emailadresse (Firma)*</Label>
+                <Input id="sonstigeEmail" type="email" placeholder="z.B. org.example@firma.com" value={formData.sonstigeEmail} onChange={(e) => handleChange('sonstigeEmail', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="website">Website</Label>
+                <Input id="website" placeholder="z.B. www.test.de" value={formData.website} onChange={(e) => handleChange('website', e.target.value)} />
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center gap-4 py-4 rounded-lg bg-muted/40 p-4 border border-border">
+              <Label htmlFor="gewerbeart" className={!formData.mwst ? "font-bold text-primary" : "text-muted-foreground cursor-pointer"}>Kleingewerbe</Label>
+              <Switch
+                id="gewerbeart"
+                checked={formData.mwst}
+                onCheckedChange={(checked) => handleChange('mwst', checked)}
+              />
+              <Label htmlFor="gewerbeart" className={formData.mwst ? "font-bold text-primary" : "text-muted-foreground cursor-pointer"}>Gewerbe (Mit MwSt)</Label>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Formatierungen */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Rechnungs- & Währungsformat</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="invoicePrefix">Präfix</Label>
+                <Input id="invoicePrefix" placeholder="z.B. R" value={formData.invoicePrefix || ""} onChange={(e) => handleChange('invoicePrefix', e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="invoiceDateFormat">Datumsformat</Label>
+                <select
+                  id="invoiceDateFormat"
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={formData.invoiceDateFormat || "YYYY-MM-DD"}
+                  onChange={(e) => handleChange('invoiceDateFormat', e.target.value)}
+                >
+                  <option value="YYYY-MM-DD">2024-03-01</option>
+                  <option value="YYYYMMDD">20240301</option>
+                  <option value="YYYY-MM">2024-03</option>
+                  <option value="YYYY">2024</option>
+                  <option value="NONE">Kein Datum</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="invoiceSeparator">Trennzeichen</Label>
+                <Input id="invoiceSeparator" placeholder="z.B. -" value={formData.invoiceSeparator || ""} onChange={(e) => handleChange('invoiceSeparator', e.target.value)} />
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md border border-border">
+              Vorschau: <span className="font-mono text-primary bg-background px-2 py-0.5 rounded ml-2 shadow-sm border border-border">{formData.invoicePrefix || "R"}{formData.invoiceDateFormat !== "NONE" ? (formData.invoiceSeparator || "-") + new Date().getFullYear() + "..." : ""}{formData.invoiceSeparator || "-"}123</span>
+            </p>
+
+            <Separator />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="waehrung">Währungssymbol</Label>
+                <select
+                  id="waehrung"
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={formData.waehrung || "€"}
+                  onChange={(e) => handleChange('waehrung', e.target.value)}
+                >
+                  <option value="€">Euro (€)</option>
+                  <option value="$">Dollar ($)</option>
+                  <option value="£">Pfund (£)</option>
+                  <option value="CHF">Schweizer Franken (CHF)</option>
+                </select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Logo */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-xl flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-muted-foreground" />
+              Firmenlogo
+            </CardTitle>
+            <CardDescription>Dieses Logo wird auf Ihren Rechnungen rechts oben abgebildet.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {showcrop ? (
+              <div className="space-y-4 rounded-lg border border-border p-6 bg-muted/10">
+                <div className="max-w-xs space-y-2">
+                  <Label htmlFor="logoUpload">Bild auswählen</Label>
+                  <Input id="logoUpload" type="file" accept="image/*" onChange={handleFileChange} />
+                </div>
+
+                {imageSrc && (
+                  <div className="space-y-4 mt-6">
+                    <div className="relative w-full max-w-[400px] h-[400px] rounded-lg overflow-hidden border border-border bg-black/5 mx-auto md:mx-0">
+                      <Cropper
+                        image={imageSrc}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={1}
+                        onCropChange={setCrop}
+                        onZoomChange={setZoom}
+                        onCropComplete={onCropComplete}
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      <Button onClick={handleSaveImage} className="bg-primary text-primary-foreground min-w-[150px]">
+                        <Save className="mr-2 h-4 w-4" /> Logo speichern
+                      </Button>
+                      <Button variant="outline" onClick={() => setShowCrop(false)} className="min-w-[150px]">
+                        Abbrechen
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-4 pt-2">
+                <Button onClick={() => setShowCrop(true)} className="w-full sm:w-auto min-w-[140px]">
+                  Logo Ändern
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="w-full sm:w-auto min-w-[140px]"
+                  onClick={() => {
+                    window.api.delFile("logo.png");
+                    alert("Logo wurde entfernt");
                   }}
                 >
-                  {imageSrc && (
-                    <Cropper
-                      image={imageSrc}
-                      crop={crop}
-                      zoom={zoom}
-                      aspect={1} // 1:1 square
-                      onCropChange={setCrop}
-                      onZoomChange={setZoom}
-                      onCropComplete={onCropComplete}
-                    />
-                  )}
-                </div>
-                {
-                  imageSrc && (
-                    <Button
-                      onClick={handleSave}
-                      sx={{ mt: 4 }}
-                    >
-                      Logo speichern
-                    </Button>
-                  )
-                }
+                  Logo Entfernen
+                </Button>
               </div>
-            </FormControl>
+            )}
+          </CardContent>
+        </Card>
 
-          ) : (
-            <>
-              <Button onClick={() => setShowCrop(true)} sx={{ width: "10%" }}>Logo Ändern</Button>
-              <Button sx={{ width: "10%" }} onClick={() => {
-                window.api.delFile("logo.png");
-                alert("Logo wurde entfernt");
-              }} color='danger'>Logo Entfernen</Button>
-            </>
-          )
-        }
-
-      </Box>
-    </Box >
-
-  )
+      </div>
+    </div>
+  );
 }
 
-export default Unternehmen
+export default Unternehmen;

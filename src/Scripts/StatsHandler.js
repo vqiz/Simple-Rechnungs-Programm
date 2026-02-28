@@ -88,7 +88,8 @@ export const getFinancialData = async (yearFilter = new Date().getFullYear()) =>
                 netto: netto,
                 tax: tax,
                 type: 'income',
-                customerName: invoiceToCustomerMap[inv.id] || "Unbekannt"
+                customerName: invoiceToCustomerMap[inv.id] || "Unbekannt",
+                data: inv.data
             };
         });
 
@@ -102,7 +103,9 @@ export const getFinancialData = async (yearFilter = new Date().getFullYear()) =>
             // We don't have separate tax field in expenses yet, assuming 0 or full calc later if needed.
             // For now, let's just assume amount is amount.
             type: 'expense',
-            category: e.category
+            category: e.category,
+            title: e.title,
+            attachmentPath: e.attachmentPath
         }));
 
         // 3. Filter by Year and Aggregate
