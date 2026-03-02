@@ -12,13 +12,13 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Vibrant Blue Primary */
-    --primary: 221 83% 53%;
+    /* Rechnix Purple Primary (Matches Documentation) */
+    --primary: 262 80% 50%;
     --primary-foreground: 0 0% 100%;
 
-    /* Soft Purple Secondary */
-    --secondary: 262 52% 96%;
-    --secondary-foreground: 262 52% 46%;
+    /* Soft Blue Secondary */
+    --secondary: 221 52% 96%;
+    --secondary-foreground: 221 52% 46%;
 
     /* Muted Gray with slight blue tint */
     --muted: 220 14% 96%;
@@ -35,7 +35,7 @@
     /* Borders and Inputs */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 221 83% 53%;
+    --ring: 262 80% 50%;
     --radius: 0.5rem;
 
     /* Success Green */
@@ -59,12 +59,12 @@
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    /* Bright Blue Primary for dark mode */
-    --primary: 217 91% 60%;
+    /* Bright Purple Primary for dark mode (Matches Documentation) */
+    --primary: 262 90% 65%;
     --primary-foreground: 222 47% 11%;
 
-    /* Purple Secondary */
-    --secondary: 262 30% 25%;
+    /* Blue Secondary */
+    --secondary: 221 30% 25%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217 33% 17%;
@@ -79,7 +79,7 @@
 
     --border: 217 33% 17%;
     --input: 217 33% 17%;
-    --ring: 224 76% 48%;
+    --ring: 262 90% 65%;
 
     --success: 142 71% 45%;
     --success-foreground: 210 40% 98%;

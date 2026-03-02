@@ -1,30 +1,25 @@
-import {
-  Box,
-  Button,
-  Divider,
-  FormControl,
-  FormLabel,
-  Input,
-  Typography,
-  Modal,
-  ModalDialog,
-  Select,
-  Option,
-  Stack,
-  IconButton
-} from '@mui/joy';
+import { Modal, ModalDialog, Box } from '@mui/joy';
 import React, { useState, useEffect } from 'react';
 import { handleLoadFile, handleSaveFile } from '../../../Scripts/Filehandler';
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import { CheckCircle2, Package, Tag, Calculator } from "lucide-react";
+
+// Shadcn UI
+import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../ui/card';
 
 function CreateProdukt({ kathname, disable, update, kathpath }) {
   const [price, setprice] = useState("");
   const [produktname, setproduktname] = useState("");
-  const [mehrWertSteuer, setMehrWertSteuer] = useState(19);
+  const [mehrWertSteuer, setMehrWertSteuer] = useState("19");
   const [selectedCategory, setSelectedCategory] = useState(kathname || "");
   const [categories, setCategories] = useState([]);
   const [error, seterror] = useState(false);
+
+  // Simple reactive calculation for the UI
+  const brutto = (parseFloat(price || 0) * (1 + parseFloat(mehrWertSteuer || 0) / 100)).toFixed(2);
 
   useEffect(() => {
     if (!kathname) {
@@ -57,8 +52,8 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
 
     kath.content.push({
       name: produktname,
-      price: parseFloat(price),
-      steuer: parseFloat(price) > 0 ? mehrWertSteuer : 0,
+      price: parseFloat(price.replace(',', '.')),
+      steuer: parseFloat(price) > 0 ? parseFloat(mehrWertSteuer) : 0,
     });
 
     await handleSaveFile(kathpath, JSON.stringify(json));
@@ -67,94 +62,132 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
   }
 
   return (
-    <Modal open={true} onClose={() => disable(null)}>
+    <Modal open={true} onClose={() => disable(null)} sx={{ backdropFilter: 'blur(2px)' }}>
       <ModalDialog
-        variant="outlined"
-        role="alertdialog"
+        variant="plain"
         sx={{
-          borderRadius: "xl",
-          width: "500px",
-          maxWidth: "95vw",
           p: 0,
-          overflow: 'hidden',
-          bgcolor: 'white'
+          border: 'none',
+          bgcolor: 'transparent',
+          boxShadow: 'none',
+          maxWidth: '95vw',
         }}
       >
-        {/* Header */}
-        <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: 'var(--md-sys-color-surface-container)' }}>
-          <Typography level='h4' fontWeight="lg">
-            Produkt hinzufügen
-          </Typography>
-          <IconButton onClick={() => disable(null)} variant="plain" color="neutral" sx={{ borderRadius: '50%' }}>
-            <CloseOutlinedIcon />
-          </IconButton>
-        </Box>
-        <Divider />
+        <div className="w-[700px] max-w-full">
+          <Card className="shadow-2xl border-muted bg-white overflow-hidden">
+            <CardHeader className="bg-muted/30 border-b border-muted">
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                Artikel Details
+              </CardTitle>
+              <CardDescription>Tragen Sie Stammdaten für das Inventar ein.</CardDescription>
+            </CardHeader>
 
-        {/* Body */}
-        <Box sx={{ p: 3 }}>
-          <Stack spacing={2}>
-            {!kathname && (
-              <FormControl>
-                <FormLabel>Kategorie</FormLabel>
-                <Select value={selectedCategory} onChange={(e, val) => setSelectedCategory(val)}>
-                  {categories.map(c => (
-                    <Option key={c.name} value={c.name}>{c.name}</Option>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
+            <CardContent className="space-y-6 pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div className="space-y-2 relative pb-5">
+                  <Label htmlFor="name">Produktname <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="name"
+                    placeholder="z.B. Webdesign Basic Paket"
+                    value={produktname}
+                    onChange={(e) => { setproduktname(e.target.value); seterror(false); }}
+                    className={error && !produktname ? "border-red-500" : ""}
+                  />
+                  <p className="absolute bottom-0 left-0 text-[10px] text-muted-foreground leading-tight">
+                    (Zeitbasierte Produkte müssen "stunde" enthalten)
+                  </p>
+                </div>
 
-            <FormControl required error={error && !produktname}>
-              <FormLabel>Produktname {'(Zeitbasierte Produkte müssen "stunde" enthalten)'}</FormLabel>
-              <Input
-                placeholder="Bezeichnung..."
-                value={produktname}
-                onChange={(e) => {
-                  setproduktname(e.target.value);
-                  seterror(false);
-                }}
-              />
-            </FormControl>
+                <div className="space-y-2">
+                  <Label htmlFor="category" className="flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-muted-foreground" />
+                    Kategorie <span className="text-red-500">*</span>
+                  </Label>
+                  <Select
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                    disabled={!!kathname}
+                  >
+                    <SelectTrigger className={error && !selectedCategory ? "border-red-500" : ""}>
+                      <SelectValue placeholder="Kategorie wählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {kathname ? (
+                        <SelectItem value={kathname}>{kathname}</SelectItem>
+                      ) : (
+                        categories.map(c => (
+                          <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-              <FormControl required error={error && !price}>
-                <FormLabel>Netto Betrag (€)</FormLabel>
-                <Input
-                  onChange={(e) => {
-                    const value = e.target.value.replace(',', '.');
-                    setprice(value);
-                    seterror(false);
-                  }}
-                  type='number'
-                  value={price}
-                  placeholder="0.00"
-                  slotProps={{ input: { step: "0.01" } }}
-                />
-              </FormControl>
-              <FormControl>
-                <FormLabel>MwSt (%)</FormLabel>
-                <Select value={mehrWertSteuer} onChange={(e, val) => setMehrWertSteuer(val)}>
-                  <Option value={19}>19% (Standard)</Option>
-                  <Option value={7}>7% (Ermäßigt)</Option>
-                  <Option value={0}>0% (Steuerfrei)</Option>
-                </Select>
-              </FormControl>
-            </Box>
-            {error && (
-              <Typography color='danger' level="body-xs">
-                Bitte alle Felder überprüfen.
-              </Typography>
-            )}
-          </Stack>
-        </Box>
-        <Divider />
+              <div className="p-5 rounded-lg border bg-card/50 space-y-6">
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                  <Calculator className="h-4 w-4" />
+                  Preisgestaltung
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="netto">Nettopreis (€) <span className="text-red-500">*</span></Label>
+                    <Input
+                      id="netto"
+                      type="number"
+                      step="0.01"
+                      value={price}
+                      onChange={(e) => {
+                        setprice(e.target.value);
+                        seterror(false);
+                      }}
+                      className={"font-mono " + (error && !price ? "border-red-500" : "")}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tax">Steuersatz (%) <span className="text-red-500">*</span></Label>
+                    <Select value={mehrWertSteuer.toString()} onValueChange={setMehrWertSteuer}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="19">19% (Standard)</SelectItem>
+                        <SelectItem value="7">7% (Ermäßigt)</SelectItem>
+                        <SelectItem value="0">0% (Steuerfrei)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="brutto">Bruttopreis (€)</Label>
+                    <Input
+                      id="brutto"
+                      value={brutto !== "NaN" ? brutto : "0.00"}
+                      disabled
+                      className="bg-muted/50 font-mono font-semibold"
+                    />
+                  </div>
+                </div>
+              </div>
 
-        {/* Footer */}
-        <Box sx={{ p: 2, display: "flex", justifyContent: "flex-end", gap: 1, bgcolor: 'var(--swiss-gray-50)' }}>
-          <Button variant="plain" color="neutral" onClick={() => disable(null)}>Abbrechen</Button>
-          <Button onClick={addprodukt} startDecorator={<AddCircleOutlineOutlinedIcon />}>Hinzufügen</Button>
-        </Box>
+              {error && (
+                <div className="text-sm font-medium text-red-500 text-center">
+                  Bitte alle Pflichtfelder überprüfen.
+                </div>
+              )}
+
+            </CardContent>
+
+            <CardFooter className="bg-muted/30 border-t border-muted px-6 py-4 flex justify-between items-center">
+              <Button variant="ghost" onClick={() => disable(null)}>Abbrechen</Button>
+              <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={addprodukt}>
+                <CheckCircle2 className="h-4 w-4" />
+                Produkt speichern
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
       </ModalDialog>
     </Modal>
   );

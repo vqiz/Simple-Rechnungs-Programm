@@ -124,10 +124,10 @@ const Dashboard = () => {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {/* Total Revenue Card - Blue Gradient */}
-                <Card className="border-0 bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg hover:shadow-xl transition-shadow">
+                {/* Total Revenue Card - Primary Color */}
+                <Card className="border-0 bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-shadow">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-white/90">Gesamter Umsatz</CardTitle>
+                        <CardTitle className="text-sm font-medium text-primary-foreground/90">Gesamter Umsatz</CardTitle>
                         <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
                             <Euro className="h-6 w-6 text-white" />
                         </div>

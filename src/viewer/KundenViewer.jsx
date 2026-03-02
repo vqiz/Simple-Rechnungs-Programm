@@ -1,38 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { change_PayStatus, get_uRechnungen, getKunde } from '../Scripts/Filehandler';
-import { Avatar, Box, Button, Chip, Dropdown, IconButton, Input, ListItem, ListItemDecorator, Menu, MenuButton, MenuItem, Table, Tooltip, Typography, Divider } from '@mui/joy';
-import Headline from '../components/Headline'; // Check if needed or if we use custom header
-import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
-import FactoryOutlinedIcon from '@mui/icons-material/FactoryOutlined';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
-import ListPart from '../components/ListPart'; // Might replace with custom
-import NavigationOutlinedIcon from '@mui/icons-material/NavigationOutlined';
-import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
-import LocalPhoneOutlinedIcon from '@mui/icons-material/LocalPhoneOutlined';
-import AlternateEmailOutlinedIcon from '@mui/icons-material/AlternateEmailOutlined';
-import DateRangeOutlinedIcon from '@mui/icons-material/DateRangeOutlined';
-import FormatListNumberedOutlinedIcon from '@mui/icons-material/FormatListNumberedOutlined';
-import PersonPinCircleOutlinedIcon from '@mui/icons-material/PersonPinCircleOutlined';
-import SearchIcon from '@mui/icons-material/Search';
-import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
-import DangerousOutlinedIcon from '@mui/icons-material/DangerousOutlined';
-import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Info, ArrowLeft, Building2, MapPin, Phone, Mail, User, Search, PlusCircle, Receipt, DollarSign } from "lucide-react";
+
 import PaymentStatusBadge from '../components/Payment/PaymentStatusBadge';
 import PaymentModal from '../components/Payment/PaymentModal';
 import { getbrutto } from '../Scripts/ERechnungInterpretter';
 import { handleLoadFile } from '../Scripts/Filehandler';
 import debounce from 'lodash/debounce';
-import InfoCard from '../components/InfoCard';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
-import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
-import IosShareOutlinedIcon from '@mui/icons-material/IosShareOutlined';
-import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import MaskProvider from '../components/MaskProvider';
 import KundenEditor from '../components/KundenVerwaltung/Masks/KundenEditor';
-import AvatarTabeUtil from '../components/AvatarTabeUtil'; // Reuse for consistent avatars
 import '../styles/swiss.css';
 
 function KundenViewer() {
@@ -105,141 +84,135 @@ function KundenViewer() {
     fetch();
   }
 
-  if (!kunde) return <Box sx={{ p: 4 }}>Lade Kundendaten...</Box>;
+  if (!kunde) return <div className="p-4">Lade Kundendaten...</div>;
 
   return (
-    <Box sx={{ display: 'flex', height: '100%', overflow: 'hidden', bgcolor: 'var(--md-sys-color-background)' }}>
+    <div className="flex h-full overflow-hidden bg-background">
 
       {/* LEFT SIDEBAR: PROFILE */}
-      <Box sx={{
-        width: '320px',
-        bgcolor: 'var(--md-sys-color-surface)',
-        borderRight: '1px solid var(--md-sys-color-outline)',
-        display: 'flex',
-        flexDirection: 'column',
-        overflowY: 'auto',
-        p: 3,
-        gap: 3
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton onClick={() => navigate('/clients')} variant="plain" sx={{ ml: -1 }}>
-            <ArrowCircleLeftOutlinedIcon />
-          </IconButton>
-          <Typography level="title-sm" sx={{ color: 'var(--md-sys-color-on-surface-variant)' }}>Zurück zur Übersicht</Typography>
-        </Box>
+      <div className="w-[320px] border-r bg-background flex flex-col overflow-y-auto p-6 gap-6 shrink-0">
+        {/* Back Button */}
+        <div className="flex items-center gap-2 -ml-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('/clients')}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <span className="text-sm text-muted-foreground">Zurück zur Übersicht</span>
+        </div>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <Avatar sx={{ width: 80, height: 80, fontSize: 32, mb: 2 }}>{kunde.name.charAt(0)}</Avatar>
-          <Typography level="h3" sx={{ fontWeight: 600, mb: 0.5 }}>{kunde.name}</Typography>
-          <Chip variant="soft" color={kunde.istfirma ? 'primary' : 'neutral'} size="sm">
+        {/* Avatar & Name */}
+        <div className="flex flex-col items-center text-center">
+          <div className="w-20 h-20 rounded-full bg-primary/10 text-primary text-3xl font-semibold flex items-center justify-center mb-4">
+            {kunde.name.charAt(0).toUpperCase()}
+          </div>
+          <h3 className="text-xl font-semibold mb-1">{kunde.name}</h3>
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${kunde.istfirma ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
             {kunde.istfirma ? 'Firmenkunde' : 'Privatkunde'}
-          </Chip>
-        </Box>
+          </span>
+        </div>
 
-        <Divider />
+        <hr className="border-border" />
 
-        <Box>
-          <Typography level="title-sm" sx={{ mb: 1, color: 'var(--md-sys-color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '11px' }}>Kontakt</Typography>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <ApartmentOutlinedIcon sx={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: 20 }} />
+        {/* KONTAKT Section */}
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.5px] text-primary mb-3">Kontakt</p>
+          <div className="space-y-3">
+            <div className="flex gap-3 items-start">
+              <Building2 className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
               <div>
-                <Typography level="body-sm">{kunde.street} {kunde.number}</Typography>
-                <Typography level="body-sm">{kunde.plz} {kunde.ort}</Typography>
+                <p className="text-sm font-medium">{kunde.street} {kunde.number}</p>
+                <p className="text-sm text-muted-foreground">{kunde.plz} {kunde.ort}</p>
               </div>
             </div>
             {kunde.tel && (
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <LocalPhoneOutlinedIcon sx={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: 20 }} />
-                <Typography level="body-sm">{kunde.tel}</Typography>
+              <div className="flex gap-3 items-center">
+                <Phone className="h-5 w-5 text-muted-foreground shrink-0" />
+                <p className="text-sm">{kunde.tel}</p>
               </div>
             )}
             {kunde.email && (
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <AlternateEmailOutlinedIcon sx={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: 20 }} />
-                <Typography level="body-sm" sx={{ wordBreak: 'break-all' }}>{kunde.email}</Typography>
+              <div className="flex gap-3 items-center">
+                <Mail className="h-5 w-5 text-muted-foreground shrink-0" />
+                <p className="text-sm break-all">{kunde.email}</p>
               </div>
             )}
           </div>
-        </Box>
+        </div>
 
-        {kunde.istfirma && (
-          <Box>
-            <Typography level="title-sm" sx={{ mb: 1, color: 'var(--md-sys-color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '11px' }}>Ansprechpartner</Typography>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <PersonPinCircleOutlinedIcon sx={{ color: 'var(--md-sys-color-on-surface-variant)', fontSize: 20 }} />
-              <Typography level="body-sm">{kunde.ansprechpartner || 'Keine Angabe'}</Typography>
-            </div>
-          </Box>
-        )}
-
-        <Box>
-          <Typography level="title-sm" sx={{ mb: 1, color: 'var(--md-sys-color-primary)', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '11px' }}>Meta</Typography>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <Typography level="body-xs" sx={{ color: 'var(--md-sys-color-on-surface-variant)', width: '80px' }}>Kunden-Nr</Typography>
-              <Typography level="body-xs">{kunde.id}</Typography>
-            </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <Typography level="body-xs" sx={{ color: 'var(--md-sys-color-on-surface-variant)', width: '80px' }}>Seit</Typography>
-              <Typography level="body-xs">{new Date(kunde.erstellt).toLocaleDateString("de-DE")}</Typography>
+        {/* ANSPRECHPARTNER */}
+        {kunde.istfirma && kunde.ansprechpartner && (
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.5px] text-primary mb-3">Ansprechpartner</p>
+            <div className="flex gap-3 items-center">
+              <User className="h-5 w-5 text-muted-foreground shrink-0" />
+              <p className="text-sm font-medium">{kunde.ansprechpartner}</p>
             </div>
           </div>
-        </Box>
+        )}
 
-        <Box sx={{ mt: 'auto', display: 'flex', flexDirection: 'column', gap: 1 }}>
-          <Button variant="outlined" color="primary" startDecorator={<EditOutlinedIcon />} onClick={() => setEditKunde(true)}>
-            Bearbeiten
+        {/* META Section */}
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.5px] text-primary mb-3">Kunden-Akte</p>
+          <div className="space-y-2">
+            <div className="flex gap-3 items-center">
+              <span className="text-xs text-muted-foreground w-20">Kunden-Nr.</span>
+              <span className="text-xs font-mono font-medium">{kunde.id}</span>
+            </div>
+            <div className="flex gap-3 items-center">
+              <span className="text-xs text-muted-foreground w-20">Seit</span>
+              <span className="text-xs font-medium">{new Date(kunde.erstellt).toLocaleDateString("de-DE")}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Edit Button */}
+        <div className="mt-auto flex flex-col gap-2">
+          <Button variant="outline" className="w-full gap-2 border" onClick={() => setEditKunde(true)}>
+            Kunde bearbeiten
           </Button>
-        </Box>
-      </Box>
-
+        </div>
+      </div>
 
       {/* MAIN CONTENT: INVOICES & HISTORY */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {/* Header/Toolbar */}
-        <Box sx={{
-          p: 3,
-          borderBottom: '1px solid var(--md-sys-color-outline)',
-          bgcolor: 'var(--md-sys-color-surface)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <Typography level="h4">Rechnungen</Typography>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Input
-              placeholder="Rechnung suchen..."
-              startDecorator={<SearchIcon />}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{ minWidth: '250px', borderRadius: '20px' }}
-            />
-            <Button startDecorator={<AddCircleOutlineOutlinedIcon />} onClick={() => navigate("/invoices/create/" + id)}>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Toolbar Header */}
+        <div className="p-6 border-b bg-background flex items-center justify-between shrink-0">
+          <h4 className="text-xl font-semibold">Rechnungen</h4>
+          <div className="flex gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechnung suchen..."
+                className="pl-9 min-w-[250px] rounded-[20px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Button className="gap-2" onClick={() => navigate("/invoices/create/" + id)}>
+              <PlusCircle className="h-4 w-4" />
               Neue Rechnung
             </Button>
-          </Box>
-        </Box>
+          </div>
+        </div>
 
         {/* List */}
-        <Box sx={{ p: 4, overflowY: 'auto', flex: 1 }}>
+        <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-6">
           {(!kunde.rechnungen || kunde.rechnungen.length === 0) ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 8, opacity: 0.6 }}>
-              <ReceiptLongOutlinedIcon sx={{ fontSize: 64, mb: 2 }} />
-              <Typography>Keine Rechnungen vorhanden</Typography>
-            </Box>
+            <div className="flex flex-col items-center justify-center mt-12 opacity-60">
+              <Receipt className="h-16 w-16 mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-medium text-muted-foreground">Keine Rechnungen vorhanden</h3>
+            </div>
           ) : (
-            <div className="swiss-card" style={{ padding: 0, overflow: 'hidden' }}>
-              <Table hoverRow sx={{ '--TableCell-headBackground': 'var(--swiss-gray-50)' }}>
-                <thead>
+            <div className="rounded-xl border shadow-sm bg-card overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-[#FAFAFA] dark:bg-muted/50 border-b">
                   <tr>
-                    <th style={{ width: '60px' }}></th>
-                    <th>Rechnung Nr.</th>
-                    <th>Datum</th>
-                    <th>Status</th>
+                    <th className="w-[60px] py-3 px-4 text-left text-muted-foreground font-semibold"></th>
+                    <th className="py-3 px-4 text-left text-muted-foreground font-semibold">Rechnung Nr.</th>
+                    <th className="py-3 px-4 text-left text-muted-foreground font-semibold">Datum</th>
+                    <th className="py-3 px-4 text-left text-muted-foreground font-semibold">Status</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y">
                   {(kunde?.rechnungen || [])
                     .filter((i) => i.includes(debouncedSearchTerm))
                     .slice().reverse()
@@ -258,31 +231,27 @@ function KundenViewer() {
                           key={item}
                           onClick={() => navigate("/invoices/" + item)}
                           onContextMenu={(e) => handleContextMenu(e, item, !isUnpaid)}
-                          style={{ cursor: 'pointer' }}
+                          className="hover:bg-muted/30 transition-colors cursor-pointer"
                         >
-                          <td style={{ textAlign: 'center', color: 'var(--swiss-gray-400)' }}>
-                            <ReceiptLongOutlinedIcon fontSize="small" />
+                          <td className="py-3 px-4 text-center text-muted-foreground">
+                            <Receipt className="h-5 w-5 mx-auto" />
                           </td>
-                          <td>
-                            <Typography fontWeight="md">{item}</Typography>
+                          <td className="py-3 px-4 font-medium">{item}</td>
+                          <td className="py-3 px-4 text-muted-foreground">
+                            {kunde?.rechnungsDatum?.[item] ? new Date(kunde.rechnungsDatum[item]).toLocaleDateString("de-DE") : "-"}
                           </td>
-                          <td>
-                            <Typography level="body-sm">
-                              {kunde?.rechnungsDatum?.[item] ? new Date(kunde.rechnungsDatum[item]).toLocaleDateString("de-DE") : "-"}
-                            </Typography>
-                          </td>
-                          <td>
+                          <td className="py-3 px-4">
                             <PaymentStatusBadge invoiceNumber={item} />
                           </td>
                         </tr>
                       )
                     })}
                 </tbody>
-              </Table>
+              </table>
             </div>
           )}
-        </Box>
-      </Box>
+        </div>
+      </div>
 
       {/* Modals & Menus */}
       {editkunde && (
@@ -292,32 +261,27 @@ function KundenViewer() {
       )}
 
       {anchor && (
-        <Box
-          sx={{
+        <div
+          style={{
             position: "absolute",
             top: anchor.mouseY,
             left: anchor.mouseX,
-            bgcolor: "white",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
             zIndex: 1300,
-            p: 1,
-            minWidth: '150px'
           }}
+          className="bg-white border rounded shadow-lg p-1 min-w-[150px]"
           onMouseLeave={handleClose}
         >
-          <Box
-            sx={{ display: "flex", alignItems: "center", p: 1, cursor: "pointer", "&:hover": { bgcolor: "#f5f5f5" }, borderRadius: '4px' }}
+          <div
+            className="flex items-center p-2 cursor-pointer hover:bg-gray-100 rounded"
             onClick={() => {
               openPaymentModal(target.item);
               handleClose();
             }}
           >
-            <AttachMoneyOutlinedIcon fontSize="small" sx={{ mr: 1, color: 'var(--swiss-success)' }} />
-            <Typography level="body-sm">Zahlung erfassen</Typography>
-          </Box>
-        </Box>
+            <DollarSign className="h-4 w-4 mr-2 text-green-600" />
+            <span className="text-sm font-medium">Zahlung erfassen</span>
+          </div>
+        </div>
       )}
 
       {paymentModalOpen && (
@@ -332,7 +296,7 @@ function KundenViewer() {
           }}
         />
       )}
-    </Box>
+    </div>
   )
 }
 

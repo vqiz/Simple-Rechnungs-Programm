@@ -14,6 +14,7 @@ const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
 
 export default function Statistiken() {
     const [year, setYear] = useState(new Date().getFullYear());
+    const [exportMonth, setExportMonth] = useState("all");
     const [stats, setStats] = useState(null);
     const [isExporting, setIsExporting] = useState(false);
     const [exportProgress, setExportProgress] = useState("");
@@ -36,20 +37,6 @@ export default function Statistiken() {
             const JSZip = (await import('jszip')).default;
             const zip = new JSZip();
 
-            // 1. Übersicht (EÜR)
-            setExportProgress("Generiere EÜR-Übersicht...");
-            if (pdfRef.current) {
-                const opt = {
-                    margin: 0,
-                    filename: `EUER_${year}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-                const euerPdfBuffer = await html2pdf().set(opt).from(pdfRef.current).outputPdf('arraybuffer');
-                zip.folder("Übersicht").file(`EÜR_Übersicht_${year}.pdf`, euerPdfBuffer);
-            }
-
             // Load settings and logo
             const settingsStr = await window.api.readFile("settings/unternehmen.rechnix");
             const unternehmen = settingsStr ? JSON.parse(settingsStr) : {};
@@ -59,92 +46,202 @@ export default function Statistiken() {
             const { getKunde } = await import('../../Scripts/Filehandler');
             const { generateInvoicePdfBuffer } = await import('../Export/generateInvoicePdfBuffer');
 
-            // --- Generate HTML Tables for Overviews ---
+            // --- Helper: Generate PDF from an HTML table string ---
             const generateTablePdf = async (htmlContent, filename) => {
-                const div = document.createElement('div');
-                div.innerHTML = htmlContent;
-                document.body.appendChild(div);
-                const opt = { margin: 10, filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                const buffer = await html2pdf().set(opt).from(div).outputPdf('arraybuffer');
-                document.body.removeChild(div);
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = "font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; padding: 20px; color: #111;";
+                wrapper.innerHTML = htmlContent;
+                document.body.appendChild(wrapper);
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, backgroundColor: '#ffffff' },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                const buffer = await html2pdf().set(opt).from(wrapper).outputPdf('arraybuffer');
+                document.body.removeChild(wrapper);
                 return buffer;
             };
 
-            const incomeList = stats.incomeList || [];
-            const expensesList = stats.expensesList || [];
+            let incomeList = stats.incomeList || [];
+            let expensesList = stats.expensesList || [];
 
-            // 1b. Überschussrechnung (Liste aller Rechnungen & Ausgaben)
-            setExportProgress("Generiere Überschussrechnung-Liste...");
-            let listHtml = `<h2>Einnahmenüberschussrechnung (Details) - ${year}</h2><table border="1" style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px;"><tr><th>Typ</th><th>Datum</th><th>Name/Bezeichnung</th><th>Betrag (€)</th></tr>`;
-            incomeList.forEach(i => listHtml += `<tr><td>Einnahme</td><td>${new Date(i.date).toLocaleDateString()}</td><td>${i.customerName} (Rechnung: ${i.id})</td><td style="text-align:right">${i.amount.toFixed(2)}</td></tr>`);
-            expensesList.forEach(e => listHtml += `<tr><td>Ausgabe</td><td>${new Date(e.date).toLocaleDateString()}</td><td>${e.title || e.category}</td><td style="text-align:right">-${e.amount.toFixed(2)}</td></tr>`);
-            listHtml += `<tr><td colspan="3"><b>Gewinn/Verlust:</b></td><td style="text-align:right"><b>${stats.summary.profit?.toFixed(2)}</b></td></tr></table>`;
+            if (exportMonth !== "all") {
+                incomeList = incomeList.filter(i => new Date(i.date).getMonth() === exportMonth);
+                expensesList = expensesList.filter(e => new Date(e.date).getMonth() === exportMonth);
+            }
 
-            const ueberschussBuffer = await generateTablePdf(listHtml, 'Ueberschussrechnung_Details.pdf');
-            zip.folder("Überschuss rechnung").file(`Details_${year}.pdf`, ueberschussBuffer);
+            const filteredProfit = incomeList.reduce((acc, curr) => acc + curr.amount, 0)
+                - expensesList.reduce((acc, curr) => acc + curr.amount, 0);
 
-            // 2. Kunden Rechnungen
+            const periodName = exportMonth === "all"
+                ? `${year}`
+                : `${new Date(year, exportMonth, 1).toLocaleString('de-DE', { month: 'long' })} ${year}`;
+            const safePeriodName = exportMonth === "all" ? `${year}` : `${(exportMonth + 1).toString().padStart(2, '0')}_${year}`;
+
+            // ── 1. Einnahmen-Überschuss-Rechnung (EÜR) as a crisp PDF table ──
+            setExportProgress("Generiere EÜR-Tabelle...");
+            const tdStyle = "padding:8px 10px; border-bottom:1px solid #e0e0e0;";
+            const thStyle = "padding:8px 10px; background:#f4f4f8; font-weight:600; text-align:left; border-bottom:2px solid #c0c0d0;";
+
+            let euerHtml = `
+                <h2 style="margin-bottom:4px; font-size:16px;">Einnahmen-Überschuss-Rechnung — ${periodName}</h2>
+                <p style="color:#555; margin-bottom:16px; font-size:11px;">Erstellt am ${new Date().toLocaleDateString('de-DE')}</p>
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead><tr>
+                        <th style="${thStyle}">Typ</th>
+                        <th style="${thStyle}">Datum</th>
+                        <th style="${thStyle}">Bezeichnung</th>
+                        <th style="${thStyle} text-align:right;">Betrag (€)</th>
+                    </tr></thead>
+                    <tbody>`;
+
+            incomeList.forEach(i => {
+                euerHtml += `<tr>
+                    <td style="${tdStyle} color:#16a34a; font-weight:500;">Einnahme</td>
+                    <td style="${tdStyle}">${new Date(i.date).toLocaleDateString('de-DE')}</td>
+                    <td style="${tdStyle}">${i.customerName || ''} – ${i.id}</td>
+                    <td style="${tdStyle} text-align:right;">+${i.amount.toFixed(2)}</td>
+                </tr>`;
+            });
+
+            expensesList.forEach(e => {
+                euerHtml += `<tr>
+                    <td style="${tdStyle} color:#dc2626; font-weight:500;">Ausgabe</td>
+                    <td style="${tdStyle}">${new Date(e.date).toLocaleDateString('de-DE')}</td>
+                    <td style="${tdStyle}">${e.title || e.category || 'Unbekannt'}${e.provider ? ' / ' + e.provider : ''}</td>
+                    <td style="${tdStyle} text-align:right;">−${e.amount.toFixed(2)}</td>
+                </tr>`;
+            });
+
+            const profitColor = filteredProfit >= 0 ? '#16a34a' : '#dc2626';
+            euerHtml += `
+                    </tbody>
+                    <tfoot>
+                        <tr style="background:#f8f8fc;">
+                            <td colspan="3" style="padding:10px; font-weight:700; font-size:13px;">Ergebnis (Gewinn/Verlust)</td>
+                            <td style="padding:10px; text-align:right; font-weight:700; font-size:13px; color:${profitColor};">${filteredProfit >= 0 ? '+' : ''}${filteredProfit.toFixed(2)} €</td>
+                        </tr>
+                    </tfoot>
+                </table>`;
+
+            const euerBuffer = await generateTablePdf(euerHtml, `EÜR_${safePeriodName}.pdf`);
+            zip.folder("Übersicht").file(`EÜR_${safePeriodName}.pdf`, euerBuffer);
+
+            // ── 2. Ausgaben-Übersicht ──
+            setExportProgress("Generiere Ausgaben-Übersicht...");
+            let ausgabenHtml = `
+                <h2 style="margin-bottom:4px; font-size:16px;">Ausgabenübersicht — ${periodName}</h2>
+                <p style="color:#555; margin-bottom:16px; font-size:11px;">Erstellt am ${new Date().toLocaleDateString('de-DE')}</p>
+                <table style="width:100%; border-collapse:collapse;">
+                    <thead><tr>
+                        <th style="${thStyle}">Datum</th>
+                        <th style="${thStyle}">Kategorie</th>
+                        <th style="${thStyle}">Titel / Empfänger</th>
+                        <th style="${thStyle}">Abo</th>
+                        <th style="${thStyle} text-align:right;">Betrag (€)</th>
+                        <th style="${thStyle}">Belege</th>
+                    </tr></thead>
+                    <tbody>`;
+
+            const totalAusgaben = expensesList.reduce((s, e) => s + e.amount, 0);
+
+            expensesList.forEach((e, idx) => {
+                // Collect all attachment names for this expense
+                const attNames = [];
+                if (e.attachments && e.attachments.length > 0) {
+                    e.attachments.forEach(a => attNames.push(a.name || 'Anhang'));
+                } else if (e.attachmentPath) {
+                    attNames.push(e.file || 'Anhang');
+                }
+                const attCell = attNames.length > 0 ? attNames.join(', ') : '—';
+
+                ausgabenHtml += `<tr style="background:${idx % 2 === 0 ? '#fff' : '#fafafa'};">
+                    <td style="${tdStyle}">${new Date(e.date).toLocaleDateString('de-DE')}</td>
+                    <td style="${tdStyle}">${e.category || '—'}</td>
+                    <td style="${tdStyle}">${e.title || '—'}${e.provider ? ' / ' + e.provider : ''}</td>
+                    <td style="${tdStyle}">${e.isRecurring ? 'Ja' : '—'}</td>
+                    <td style="${tdStyle} text-align:right;">${e.amount.toFixed(2)}</td>
+                    <td style="${tdStyle} font-size:10px; color:#555;">${attCell}</td>
+                </tr>`;
+            });
+
+            ausgabenHtml += `
+                    </tbody>
+                    <tfoot>
+                        <tr style="background:#f8f8fc;">
+                            <td colspan="4" style="padding:10px; font-weight:700;">Gesamt</td>
+                            <td style="padding:10px; text-align:right; font-weight:700; color:#dc2626;">−${totalAusgaben.toFixed(2)} €</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>`;
+
+            const ausgabenUebersichtBuffer = await generateTablePdf(ausgabenHtml, 'Ausgaben_Übersicht.pdf');
+            zip.folder("Ausgaben").file(`Ausgaben_Übersicht_${safePeriodName}.pdf`, ausgabenUebersichtBuffer);
+
+            // ── 3. Ausgaben Anhänge ──
+            for (let j = 0; j < expensesList.length; j++) {
+                const exp = expensesList[j];
+                const safeTitle = (exp.title || "Beleg_" + j).replace(/[/\\?%*:|"<>]/g, '-');
+                const safeCategory = (exp.category || "Sonstiges").replace(/[/\\?%*:|"<>]/g, '-');
+                const mimeMap = { 'image/jpeg': '.jpg', 'image/png': '.png', 'application/pdf': '.pdf', 'text/xml': '.xml', 'application/xml': '.xml' };
+
+                // Combine both legacy (attachmentPath) and new (attachments[]) formats
+                const allAttachments = [];
+                if (exp.attachments && exp.attachments.length > 0) {
+                    exp.attachments.forEach(a => { if (a.path) allAttachments.push({ path: a.path, name: a.name }); });
+                } else if (exp.attachmentPath) {
+                    allAttachments.push({ path: exp.attachmentPath, name: exp.file || null });
+                }
+
+                if (allAttachments.length === 0) continue;
+
+                setExportProgress(`Lade Belege für "${exp.title || 'Ausgabe'}" (${j + 1}/${expensesList.length})...`);
+
+                for (let k = 0; k < allAttachments.length; k++) {
+                    const att = allAttachments[k];
+                    try {
+                        const dataUrl = await window.api.readAttachment(att.path);
+                        if (!dataUrl) continue;
+                        const base64Data = dataUrl.split(',')[1];
+                        const mimeMatch = dataUrl.match(/data:([a-zA-Z0-9/+.-]+);/);
+                        const ext = mimeMatch && mimeMap[mimeMatch[1]] ? mimeMap[mimeMatch[1]] : '.bin';
+                        const attName = att.name ? att.name.replace(/[/\\?%*:|"<>]/g, '-') : `Beleg_${k + 1}${ext}`;
+                        // Structure: Ausgaben/Details/[Kategorie]/[Ausgabe Name]/Beleg
+                        zip.folder("Ausgaben").folder("Details").folder(safeCategory).folder(safeTitle).file(attName, base64Data, { base64: true });
+                    } catch (e) {
+                        console.error("Failed to add attachment", att.path, e);
+                    }
+                }
+            }
+
+            // ── 4. Kundendaten & Rechnungen ──
             const kundenCache = {};
-
             for (let i = 0; i < incomeList.length; i++) {
                 const inv = incomeList[i];
                 setExportProgress(`Generiere Rechnung ${i + 1} von ${incomeList.length}...`);
-
                 try {
                     let kunde = kundenCache[inv.data.kundenId];
                     if (!kunde) {
-                        try {
-                            kunde = await getKunde(inv.data.kundenId);
-                            kundenCache[inv.data.kundenId] = kunde;
-                        } catch (e) {
-                            kunde = { name: inv.customerName || "Unbekannt" };
-                        }
+                        try { kunde = await getKunde(inv.data.kundenId); kundenCache[inv.data.kundenId] = kunde; }
+                        catch (e) { kunde = { name: inv.customerName || "Unbekannt" }; }
                     }
-
                     const pdfBuffer = await generateInvoicePdfBuffer(inv.id, inv.data, kunde, unternehmen, logoPath);
                     const safeKundenName = (kunde.name || "Unbekannt").replace(/[/\\?%*:|"<>]/g, '-');
                     const safeInvName = (inv.id).replace(/[/\\?%*:|"<>]/g, '-');
-
-                    zip.folder("Kunden").folder(safeKundenName).file(`${safeInvName}.pdf`, pdfBuffer);
+                    zip.folder("Rechnungen").folder(safeKundenName).file(`${safeInvName}.pdf`, pdfBuffer);
                 } catch (e) {
                     console.error("Failed to generate PDF for invoice", inv.id, e);
                 }
             }
 
-            // 3. Ausgaben Belege & Übersicht
-            setExportProgress("Generiere Ausgaben-Übersicht...");
-            let ausgabenHtml = `<h2>Ausgabenübersicht - ${year}</h2><table border="1" style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px;"><tr><th>Datum</th><th>Kategorie</th><th>Titel/Empfänger</th><th>Betrag (€)</th></tr>`;
-            expensesList.forEach(e => ausgabenHtml += `<tr><td>${new Date(e.date).toLocaleDateString()}</td><td>${e.category}</td><td>${e.title || 'Unbekannt'}</td><td style="text-align:right">${e.amount.toFixed(2)}</td></tr>`);
-            ausgabenHtml += `</table>`;
-            const ausgabenUebersichtBuffer = await generateTablePdf(ausgabenHtml, 'Ausgabenuebersicht.pdf');
-            zip.folder("Ausgaben").file(`Ausgaben_Übersicht_${year}.pdf`, ausgabenUebersichtBuffer);
-
-            for (let j = 0; j < expensesList.length; j++) {
-                const exp = expensesList[j];
-                if (exp.attachmentPath) {
-                    setExportProgress(`Lade Beleg ${j + 1} von ${expensesList.length}...`);
-                    try {
-                        const attachmentDataUrl = await window.api.readAttachment(exp.attachmentPath);
-                        if (attachmentDataUrl) {
-                            const base64Data = attachmentDataUrl.split(',')[1];
-                            const safeTitle = (exp.title || "Beleg_" + j).replace(/[/\\?%*:|"<>]/g, '-');
-                            const mimeMap = { 'image/jpeg': '.jpg', 'image/png': '.png', 'application/pdf': '.pdf', 'text/xml': '.xml' };
-                            const mimeMatch = attachmentDataUrl.match(/data:([a-zA-Z0-9/+-]+);/);
-                            const ext = mimeMatch && mimeMap[mimeMatch[1]] ? mimeMap[mimeMatch[1]] : '.png';
-
-                            zip.folder("Ausgaben").folder(safeTitle).file(`Beleg_${safeTitle}${ext}`, base64Data, { base64: true });
-                        }
-                    } catch (e) {
-                        console.error("Failed to add attachment for expense", exp.title, e);
-                    }
-                }
-            }
-
-            // 4. Save Dialog
+            // ── 5. Save Dialog ──
             setExportProgress("Wähle Speicherort...");
             const { filePath } = await window.api.showSaveDialog({
-                title: 'Jahresabschluss Exportieren',
-                defaultPath: `Jahresabschluss_${year}.zip`,
+                title: 'Export Speichern',
+                defaultPath: `Buchhaltung_${safePeriodName}.zip`,
                 filters: [{ name: 'ZIP Archive', extensions: ['zip'] }]
             });
 
@@ -152,10 +249,10 @@ export default function Statistiken() {
                 setExportProgress("Speichere ZIP-Datei...");
                 const content = await zip.generateAsync({ type: 'uint8array' });
                 await window.api.saveFileToPath({ filePath, content });
-                setExportProgress("Erfolgreich gespeichert!");
+                setExportProgress("Erfolgreich gespeichert! ✓");
                 setTimeout(() => setIsExporting(false), 2000);
             } else {
-                setIsExporting(false); // Cancelled
+                setIsExporting(false);
             }
         } catch (error) {
             console.error("Export error", error);
@@ -190,7 +287,8 @@ export default function Statistiken() {
     const currentMonthStats = (isCurrentYear && chartData && chartData[currentMonthIndex]) ? chartData[currentMonthIndex] : null;
 
     return (
-        <div className="h-full overflow-y-auto bg-background" ref={pdfRef}>
+        <div className="h-full overflow-y-auto bg-background">
+
             <div className="max-w-7xl mx-auto p-6 space-y-6">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -202,24 +300,42 @@ export default function Statistiken() {
                         <Select
                             value={year}
                             onChange={(e, val) => setYear(val)}
-                            sx={{ minWidth: 140 }}
+                            sx={{ minWidth: 100 }}
                         >
-                            <Option value={2022}>2022</Option>
                             <Option value={2023}>2023</Option>
                             <Option value={2024}>2024</Option>
                             <Option value={2025}>2025</Option>
                             <Option value={2026}>2026</Option>
                         </Select>
+                        <Select
+                            value={exportMonth}
+                            onChange={(e, val) => setExportMonth(val)}
+                            sx={{ minWidth: 140 }}
+                        >
+                            <Option value="all">Ganzes Jahr</Option>
+                            <Option value={0}>Januar</Option>
+                            <Option value={1}>Februar</Option>
+                            <Option value={2}>März</Option>
+                            <Option value={3}>April</Option>
+                            <Option value={4}>Mai</Option>
+                            <Option value={5}>Juni</Option>
+                            <Option value={6}>Juli</Option>
+                            <Option value={7}>August</Option>
+                            <Option value={8}>September</Option>
+                            <Option value={9}>Oktober</Option>
+                            <Option value={10}>November</Option>
+                            <Option value={11}>Dezember</Option>
+                        </Select>
                         {isExporting ? (
-                            <div className="flex items-center gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 px-4 py-2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors">
+                            <div className="flex items-center gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 px-4 py-2 inline-flex justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors">
                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent mr-2"></div>
                                 {exportProgress}
                             </div>
                         ) : (
                             <div className="flex gap-2">
-                                <Button onClick={handleZIPExport} className="gap-2">
+                                <Button onClick={handleZIPExport} className="gap-2 bg-primary hover:bg-primary/90">
                                     <Download className="h-4 w-4" />
-                                    Jahresabschluss ZIP
+                                    Exportieren (ZIP)
                                 </Button>
                             </div>
                         )}
@@ -254,15 +370,15 @@ export default function Statistiken() {
                         </CardContent>
                     </Card>
 
-                    <Card className={`border-l-4 ${summary.profit >= 0 ? 'border-l-blue-500' : 'border-l-orange-500'}`}>
+                    <Card className={`border-l-4 ${summary.profit >= 0 ? 'border-l-primary' : 'border-l-orange-500'}`}>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Gewinn / Verlust</CardTitle>
-                            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${summary.profit >= 0 ? 'bg-blue-500/10' : 'bg-orange-500/10'}`}>
-                                <Euro className={`h-4 w-4 ${summary.profit >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
+                            <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${summary.profit >= 0 ? 'bg-primary/10' : 'bg-orange-500/10'}`}>
+                                <Euro className={`h-4 w-4 ${summary.profit >= 0 ? 'text-primary' : 'text-orange-600'}`} />
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div className={`text-2xl font-bold ${summary.profit >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+                            <div className={`text-2xl font-bold ${summary.profit >= 0 ? 'text-primary' : 'text-orange-600'}`}>
                                 {summary.profit?.toFixed(2)} €
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">{summary.profit >= 0 ? 'Jahresüberschuss' : 'Jahresfehlbetrag'}</p>

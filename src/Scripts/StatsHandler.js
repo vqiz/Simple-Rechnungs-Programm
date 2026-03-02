@@ -99,13 +99,16 @@ export const getFinancialData = async (yearFilter = new Date().getFullYear()) =>
             id: e.id,
             date: e.date,
             amount: parseFloat(e.amount),
-            // Assuming expenses amount is Gross
-            // We don't have separate tax field in expenses yet, assuming 0 or full calc later if needed.
-            // For now, let's just assume amount is amount.
             type: 'expense',
             category: e.category,
             title: e.title,
-            attachmentPath: e.attachmentPath
+            provider: e.provider,
+            isRecurring: e.isRecurring,
+            // Multi-file attachments (new format)
+            attachments: e.attachments || [],
+            // Legacy single-file fields (kept for backwards compat)
+            attachmentPath: e.attachmentPath,
+            file: e.file,
         }));
 
         // 3. Filter by Year and Aggregate

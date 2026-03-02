@@ -5,17 +5,18 @@ import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 
 function DeleteConfirmation({ title, confirmfunction, disable, buttontitle, description, parameter }) {
   return (
-    <Modal open={true} onClose={() => disable(null)}>
+    <Modal open={true} onClose={() => disable(null)} sx={{ backdropFilter: 'blur(2px)' }}>
       <ModalDialog
         variant="outlined"
         role="alertdialog"
         sx={{
-          borderRadius: "xl",
+          borderRadius: "12px",
           width: "450px",
           maxWidth: "95vw",
           p: 0,
           overflow: 'hidden',
-          bgcolor: 'var(--md-sys-color-surface)'
+          bgcolor: '#ffffff',
+          boxShadow: '0 10px 40px -10px rgba(0,0,0,0.1)'
         }}
       >
         <Box sx={{ p: 3, display: 'flex', gap: 2, alignItems: 'center' }}>

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { LayoutDashboard, FileText, Users, Settings, HardDrive, UserCircle, Receipt, UserPlus } from "lucide-react"
+import { LayoutDashboard, FileText, Users, Settings, HardDrive, UserCircle, Receipt, UserPlus, BarChart3, Wallet } from "lucide-react"
 
 import MockDashboard from "../components/demos/MockDashboard"
 import MockRechnungErstellen from "../components/demos/MockRechnungErstellen"
@@ -13,6 +13,12 @@ import MockBackup from "../components/demos/MockBackup"
 import MockRechnungsViewer from "../components/demos/MockRechnungsViewer"
 import MockKundenViewer from "../components/demos/MockKundenViewer"
 import MockKundeErstellen from "../components/demos/MockKundeErstellen"
+import MockStatistiken from "../components/demos/MockStatistiken"
+import MockAusgaben from "../components/demos/MockAusgaben"
+import MockProdukte from "../components/demos/MockProdukte"
+import MockProduktAnlegen from "../components/demos/MockProduktAnlegen"
+import MockAusgabeAnlegen from "../components/demos/MockAusgabeAnlegen"
+import { Package, PlusCircle } from "lucide-react"
 
 const SECTIONS = [
     {
@@ -34,6 +40,21 @@ const SECTIONS = [
             { id: "kunden", label: "Kundenverwaltung", icon: Users, component: MockKunden },
             { id: "kundenviewer", label: "Kunden-Viewer", icon: UserCircle, component: MockKundenViewer },
             { id: "kundeerstellen", label: "Kunde anlegen", icon: UserPlus, component: MockKundeErstellen },
+        ]
+    },
+    {
+        title: "Katalog",
+        tabs: [
+            { id: "produkte", label: "Produkte", icon: Package, component: MockProdukte },
+            { id: "produkt_anlegen", label: "Produkt anlegen", icon: PlusCircle, component: MockProduktAnlegen },
+        ]
+    },
+    {
+        title: "Auswertungen",
+        tabs: [
+            { id: "statistiken", label: "Statistiken", icon: BarChart3, component: MockStatistiken },
+            { id: "ausgaben", label: "Ausgaben", icon: Wallet, component: MockAusgaben },
+            { id: "ausgabe_anlegen", label: "Ausgabe erfassen", icon: PlusCircle, component: MockAusgabeAnlegen },
         ]
     },
     {

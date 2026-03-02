@@ -1,23 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Button, Input, Table, IconButton, Chip, Dropdown, Menu, MenuButton, MenuItem, ListItemDecorator, Tooltip, Stack } from '@mui/joy';
-import Headline from '../Headline';
-import InfoCard from '../InfoCard';
+import { Box, Dropdown, Menu, MenuButton, MenuItem, ListItemDecorator } from '@mui/joy';
 import { handleLoadFile, handleSaveFile } from '../../Scripts/Filehandler';
 import MaskProvider from '../MaskProvider';
 import CreateProdukt from '../Produktedit/Masks/CreateProdukt';
 import CreateProduktKathegorie from '../Produktedit/Masks/CreateProduktKathegorie';
 import DeleteConfirmation from '../Produktedit/Masks/DeleteConfirmation';
 import SingleLineinput from '../Produktedit/Masks/SingleLineinput';
-import SyncIcon from '@mui/icons-material/Sync';
-import SearchIcon from '@mui/icons-material/Search';
-import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import EuroSymbolOutlinedIcon from '@mui/icons-material/EuroSymbolOutlined';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
 import '../../styles/swiss.css';
+
+// Shadcn UI & Icons
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { PlusCircle, Search, RefreshCw, MoreVertical, Layers, Edit2, Wallet, Trash2 } from "lucide-react";
 
 const KATH_PATH = 'kathegories/kathegories.rechnix';
 
@@ -105,103 +100,102 @@ export default function ProdukteVerwalten() {
     );
 
     return (
-        <Box sx={{ p: 4, height: '100%', overflowY: 'auto' }}>
-            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="flex-1 space-y-6 p-8 pt-6 h-full overflow-y-auto w-full bg-background">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <Typography level="h2" sx={{ fontSize: '24px', fontWeight: 600 }}>Produkte</Typography>
-                    <Typography level="body-sm">Verwalten Sie Ihr Inventar und Dienstleistungen.</Typography>
+                    <h2 className="text-3xl font-bold tracking-tight">Produkte</h2>
+                    <p className="text-muted-foreground mt-1">Verwalten Sie Ihr Inventar und Dienstleistungen.</p>
                 </div>
-                <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Button
-                        variant="outlined"
-                        color="neutral"
-                        startDecorator={<CategoryOutlinedIcon />}
-                        onClick={() => setIsCreateCategoryStart(true)}
-                        sx={{ borderRadius: '20px' }}
-                    >
+
+                <div className="flex flex-wrap items-center gap-3">
+                    <Button variant="outline" className="gap-2 rounded-full" onClick={() => setIsCreateCategoryStart(true)}>
+                        <Layers className="h-4 w-4" />
                         Kategorie erstellen
                     </Button>
-                    <button
-                        className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                        onClick={() => setIsCreateProductStart(true)}
-                    >
-                        <AddCircleOutlineOutlinedIcon sx={{ fontSize: '20px' }} />
+                    <Button className="gap-2 bg-primary hover:bg-primary/90 rounded-md" onClick={() => setIsCreateProductStart(true)}>
+                        <PlusCircle className="h-4 w-4" />
                         Neues Produkt
-                    </button>
-                </Box>
-            </Box>
+                    </Button>
+                </div>
+            </div>
 
-            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Input
-                    placeholder="Produkt suchen..."
-                    startDecorator={<SearchIcon />}
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    sx={{
-                        flexGrow: 1,
-                        maxWidth: '400px',
-                        borderRadius: '24px',
-                        '--Input-focusedHighlight': 'var(--md-sys-color-primary)'
-                    }}
-                />
-                <Tooltip title="Neu laden">
-                    <IconButton variant="plain" color="neutral" onClick={fetchData} sx={{ borderRadius: '12px' }}>
-                        <SyncIcon />
-                    </IconButton>
-                </Tooltip>
-            </Box>
+            <div className="flex items-center gap-2 mb-4">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Produkt suchen..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="pl-8 rounded-full focus-visible:ring-primary"
+                    />
+                </div>
+                <Button variant="ghost" size="icon" className="rounded-xl" onClick={fetchData} title="Neu laden">
+                    <RefreshCw className="h-4 w-4 text-muted-foreground" />
+                </Button>
+            </div>
 
-            <Box className="swiss-card" sx={{ p: 0, overflow: 'hidden' }}>
-                <Table hoverRow sx={{ '--TableCell-headBackground': 'var(--swiss-gray-50)' }}>
-                    <thead>
-                        <tr>
-                            <th style={{ width: '30%' }}>Produktname</th>
-                            <th style={{ width: '20%' }}>Kategorie</th>
-                            <th style={{ width: '15%', textAlign: 'right' }}>Netto (€)</th>
-                            <th style={{ width: '15%', textAlign: 'right' }}>Steuer (%)</th>
-                            <th style={{ width: '10%', textAlign: 'right' }}>Aktionen</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div className="rounded-md border bg-card shadow-sm overflow-hidden">
+                <Table>
+                    <TableHeader className="bg-muted/50">
+                        <TableRow>
+                            <TableHead className="font-semibold w-[30%]">Produktname</TableHead>
+                            <TableHead className="font-semibold w-[20%]">Kategorie</TableHead>
+                            <TableHead className="text-right font-semibold w-[15%]">Netto (€)</TableHead>
+                            <TableHead className="text-right font-semibold w-[15%]">Steuer (%)</TableHead>
+                            <TableHead className="text-right font-semibold w-[10%]">Aktionen</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
                         {filteredProducts.map((p, idx) => (
-                            <tr key={`${p.categoryName}-${p.name}-${idx}`}>
-                                <td><Typography fontWeight="md">{p.name}</Typography></td>
-                                <td><Chip size="sm" variant="soft" color="neutral">{p.categoryName}</Chip></td>
-                                <td style={{ textAlign: 'right' }}><Typography fontFamily="monospace">{parseFloat(p.price).toFixed(2)} €</Typography></td>
-                                <td style={{ textAlign: 'right' }}>{p.steuer} %</td>
-                                <td style={{ textAlign: 'right' }}>
-                                    <Dropdown>
-                                        <MenuButton slots={{ root: IconButton }} slotProps={{ root: { variant: 'plain', color: 'neutral', size: 'sm' } }}>
-                                            <MoreVertIcon />
-                                        </MenuButton>
-                                        <Menu placement="bottom-end" size="sm">
-                                            <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'name', value: p.name })}>
-                                                <ListItemDecorator><EditOutlinedIcon /></ListItemDecorator> Titel bearbeiten
-                                            </MenuItem>
-                                            <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'price', value: p.price })}>
-                                                <ListItemDecorator><EuroSymbolOutlinedIcon /></ListItemDecorator> Preis bearbeiten
-                                            </MenuItem>
-                                            <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'steuer', value: p.steuer })}>
-                                                <ListItemDecorator><AccountBalanceIcon /></ListItemDecorator> Steuer bearbeiten
-                                            </MenuItem>
-                                            <MenuItem color="danger" onClick={() => setDeleteProductConfirm({ product: p, categoryName: p.categoryName })}>
-                                                <ListItemDecorator><DeleteOutlineOutlinedIcon /></ListItemDecorator> Löschen
-                                            </MenuItem>
-                                        </Menu>
-                                    </Dropdown>
-                                </td>
-                            </tr>
+                            <TableRow key={`${p.categoryName}-${p.name}-${idx}`} className="hover:bg-muted/50 transition-colors cursor-default">
+                                <TableCell className="font-medium">
+                                    <div className="flex items-center gap-2">
+                                        {p.name}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-muted/20">
+                                        {p.categoryName}
+                                    </span>
+                                </TableCell>
+                                <TableCell className="text-right font-mono font-medium">{parseFloat(p.price).toFixed(2)} €</TableCell>
+                                <TableCell className="text-right">{p.steuer} %</TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex items-center justify-end gap-2">
+                                        <Dropdown>
+                                            <MenuButton slots={{ root: 'button' }} slotProps={{ root: { className: 'inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 text-muted-foreground' } }}>
+                                                <MoreVertical className="h-4 w-4" />
+                                            </MenuButton>
+                                            <Menu placement="bottom-end" size="sm">
+                                                <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'name', value: p.name })}>
+                                                    <ListItemDecorator><Edit2 className="h-4 w-4" /></ListItemDecorator> Titel bearbeiten
+                                                </MenuItem>
+                                                <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'price', value: p.price })}>
+                                                    <ListItemDecorator><Wallet className="h-4 w-4" /></ListItemDecorator> Preis bearbeiten
+                                                </MenuItem>
+                                                <MenuItem onClick={() => setEditField({ product: p, categoryName: p.categoryName, field: 'steuer', value: p.steuer })}>
+                                                    <ListItemDecorator><Wallet className="h-4 w-4" /></ListItemDecorator> Steuer bearbeiten
+                                                </MenuItem>
+                                                <MenuItem color="danger" onClick={() => setDeleteProductConfirm({ product: p, categoryName: p.categoryName })}>
+                                                    <ListItemDecorator><Trash2 className="h-4 w-4 text-red-500" /></ListItemDecorator> <span className="text-red-500">Löschen</span>
+                                                </MenuItem>
+                                            </Menu>
+                                        </Dropdown>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
                         ))}
                         {filteredProducts.length === 0 && (
-                            <tr>
-                                <td colSpan={5} style={{ textAlign: 'center', padding: '32px', color: 'var(--swiss-gray-500)' }}>
+                            <TableRow>
+                                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                                     Keine Produkte gefunden
-                                </td>
-                            </tr>
+                                </TableCell>
+                            </TableRow>
                         )}
-                    </tbody>
+                    </TableBody>
                 </Table>
-            </Box>
+            </div>
 
             {/* Create Product Modal */}
             {isCreateProductStart && (
@@ -229,28 +223,27 @@ export default function ProdukteVerwalten() {
             {editField && (
                 <MaskProvider>
                     <SingleLineinput
+                        startvalue={editField.value}
                         title={editField.field === 'name' ? "Titel bearbeiten" : editField.field === 'price' ? "Preis bearbeiten" : "Steuer bearbeiten"}
-                        val={editField.value}
                         inputtype={editField.field === 'name' ? "text" : "number"}
-                        onClose={() => setEditField(null)}
-                        onSave={handleEditProduct}
+                        save={handleEditProduct}
+                        cancel={() => setEditField(null)}
                     />
                 </MaskProvider>
             )}
 
-            {/* Delete Confirmation */}
+            {/* Delete Confirmation Modal */}
             {deleteProductConfirm && (
                 <MaskProvider>
                     <DeleteConfirmation
-                        title="Produkt löschen"
+                        title={`"${deleteProductConfirm.product.name}" unwiderruflich löschen?`}
                         description={`Möchten Sie das Produkt "${deleteProductConfirm.product.name}" wirklich löschen?`}
                         buttontitle="Löschen"
                         confirmfunction={handleDeleteProduct}
-                        disable={setDeleteProductConfirm}
+                        cancel={() => setDeleteProductConfirm(null)}
                     />
                 </MaskProvider>
             )}
-
-        </Box>
+        </div>
     );
 }

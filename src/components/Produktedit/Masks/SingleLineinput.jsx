@@ -42,21 +42,22 @@ function SingleLineinput({ title, onClose, onSave, val, inputtype }) {
     };
 
     return (
-        <Modal open={true} onClose={() => onClose(null)}>
+        <Modal open={true} onClose={() => onClose(null)} sx={{ backdropFilter: 'blur(2px)' }}>
             <ModalDialog
                 variant="outlined"
                 role="alertdialog"
                 sx={{
-                    borderRadius: "xl",
+                    borderRadius: "12px",
                     width: "400px",
                     maxWidth: "95vw",
                     p: 0,
                     overflow: 'hidden',
-                    bgcolor: 'var(--md-sys-color-surface)'
+                    bgcolor: '#ffffff',
+                    boxShadow: '0 10px 40px -10px rgba(0,0,0,0.1)'
                 }}
             >
                 {/* Header */}
-                <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: 'var(--md-sys-color-surface-container)' }}>
+                <Box sx={{ p: 3, display: "flex", justifyContent: "space-between", alignItems: "center", bgcolor: 'var(--swiss-gray-50)', borderBottom: '1px solid var(--swiss-gray-200)' }}>
                     <Typography level='h4' fontWeight="lg">
                         {title}
                     </Typography>

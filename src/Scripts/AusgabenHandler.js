@@ -96,6 +96,14 @@ export const checkRecurringExpenses = async () => {
         while (nextDue <= now) {
             modified = true;
 
+            // Handle potential legacy file attachments from rules created before the multi-file update
+            let generatedAttachments = rule.attachments ? [...rule.attachments] : [];
+            if (generatedAttachments.length === 0 && rule.file) {
+                // Historically, recurring rules only saved the filename (no path). 
+                // We add it just so there's a record of the historical name.
+                generatedAttachments.push({ name: rule.file, path: null });
+            }
+
             // Create the expense
             const newExpense = {
                 title: rule.title,
@@ -106,7 +114,7 @@ export const checkRecurringExpenses = async () => {
                 description: "Automatisch generiert: " + rule.title,
                 isRecurring: true,
                 recurringId: rule.id,
-                file: rule.file || null
+                attachments: generatedAttachments
             };
 
             await saveAusgabe(newExpense);

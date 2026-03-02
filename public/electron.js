@@ -112,43 +112,6 @@ function setupMenu() {
     {
       label: 'Datei',
       submenu: [
-        {
-          label: 'Backup erstellen...',
-          accelerator: 'CmdOrCtrl+B',
-          click: async () => {
-            const result = await createBackup();
-            if (result.success) {
-              dialog.showMessageBox({
-                type: 'info',
-                title: 'Backup erstellt',
-                message: 'Backup wurde erfolgreich erstellt!',
-                detail: `Gespeichert unter: ${result.path}`
-              });
-            } else {
-              dialog.showErrorBox('Backup Fehler', result.error || 'Fehler beim Erstellen des Backups');
-            }
-          }
-        },
-        {
-          label: 'Backup wiederherstellen...',
-          accelerator: 'CmdOrCtrl+Shift+B',
-          click: async () => {
-            const result = await restoreBackup();
-            if (result.success) {
-              dialog.showMessageBox({
-                type: 'info',
-                title: 'Backup wiederhergestellt',
-                message: 'Backup wurde erfolgreich wiederhergestellt!',
-                detail: 'Bitte starten Sie Rechnix neu, um die Änderungen zu übernehmen.'
-              });
-            } else if (result.cancelled) {
-              // User cancelled - no error
-            } else {
-              dialog.showErrorBox('Restore Fehler', result.error || 'Fehler beim Wiederherstellen des Backups');
-            }
-          }
-        },
-        { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' }
       ]
     }
@@ -157,6 +120,15 @@ function setupMenu() {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 }
+
+// Expose Backup functions via IPC for the React UI
+ipcMain.handle('create-backup', async () => {
+  return await createBackup();
+});
+
+ipcMain.handle('restore-backup', async () => {
+  return await restoreBackup();
+});
 
 ipcMain.handle("list-files", async (_, relativePath) => {
   try {

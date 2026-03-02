@@ -19,4 +19,6 @@ contextBridge.exposeInMainWorld('api', {
   saveAttachment: (data) => ipcRenderer.invoke("save-attachment", data),
   readAttachment: (path) => ipcRenderer.invoke("read-attachment", path),
   openExternal: (path) => ipcRenderer.invoke("open-external", path),
+  createBackup: () => ipcRenderer.invoke('create-backup'),
+  restoreBackup: () => ipcRenderer.invoke('restore-backup'),
 });

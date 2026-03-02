@@ -16,6 +16,7 @@ import LieferantenVerwaltung from './components/Tabs/LieferantenVerwaltung';
 import AusgabenVerwaltung from './components/Tabs/AusgabenVerwaltung';
 import Statistiken from './components/Tabs/Statistiken';
 import Mahnungen from './components/Tabs/Mahnungen';
+import Datensicherung from './components/Tabs/Datensicherung';
 
 // Keep old viewers for specific item views (might need adjustment to work within Layout or standalone)
 import KundenViewer from "./viewer/KundenViewer.jsx";
@@ -87,6 +88,13 @@ function App() {
           <Route path="/settings" element={
             <Layout>
               <Unternehmen />
+            </Layout>
+          } />
+
+          {/* Backup */}
+          <Route path="/backup" element={
+            <Layout>
+              <Datensicherung />
             </Layout>
           } />
 

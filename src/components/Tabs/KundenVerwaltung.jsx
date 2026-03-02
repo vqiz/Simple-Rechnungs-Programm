@@ -1,20 +1,17 @@
-import { Avatar, Box, Button, Chip, Input, Table, Typography, IconButton, Tooltip } from '@mui/joy'
-import React, { useEffect, useState } from 'react'
-import Headline from '../Headline' // Might be deprecated/refactored, but used for backnav if needed.
-import SearchIcon from '@mui/icons-material/Search';
-import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import React, { useEffect, useState } from 'react';
 import MaskProvider from '../MaskProvider';
 import KundeErstellung from '../KundenVerwaltung/Masks/KundeErstellung';
 import { handleLoadFile } from '../../Scripts/Filehandler';
-import { rebuildKundenDB } from '../../Scripts/KundenDatenBank';
-import SyncIcon from '@mui/icons-material/Sync';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
-import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
+import { rebuildKundenDB, kundeErstellen } from '../../Scripts/KundenDatenBank';
 import debounce from 'lodash/debounce';
 import { useNavigate } from 'react-router-dom';
-import AvatarTabeUtil from '../AvatarTabeUtil';
-import { kundeErstellen } from '../../Scripts/KundenDatenBank';
+
+// Shadcn UI & Icons
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Search, PlusCircle, Upload, Download, RefreshCw, Building2, User } from "lucide-react";
+
 import '../../styles/swiss.css';
 
 function KundenVerwaltung() {
@@ -177,114 +174,110 @@ function KundenVerwaltung() {
     };
 
     return (
-        <Box sx={{ p: 4, height: '100%', overflowY: 'auto' }}>
-            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="flex-1 w-full h-full overflow-y-auto bg-background p-8">
+            <div className="mb-8 flex justify-between items-center">
                 <div>
-                    <Typography level="h2" sx={{ fontSize: '24px', fontWeight: 600 }}>Kunden</Typography>
-                    <Typography level="body-sm">Verwalten Sie Ihre Kundenkontakte und Firmen.</Typography>
+                    <h2 className="text-[24px] font-semibold tracking-tight text-foreground">Kunden</h2>
+                    <p className="text-sm text-muted-foreground">Verwalten Sie Ihre Kundenkontakte und Firmen.</p>
                 </div>
-                <button
-                    className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
-                    onClick={() => setcreatekunde(true)}
-                >
-                    <AddCircleOutlineOutlinedIcon sx={{ fontSize: '20px' }} />
+                <Button className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 h-10 shadow rounded-md font-medium" onClick={() => setcreatekunde(true)}>
+                    <PlusCircle className="h-5 w-5" />
                     Neuer Kunde
-                </button>
-            </Box>
+                </Button>
+            </div>
 
-            <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Input
-                    placeholder="Suchen..."
-                    startDecorator={<SearchIcon />}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    sx={{
-                        flexGrow: 1,
-                        maxWidth: '400px',
-                        borderRadius: '24px',
-                        '--Input-focusedHighlight': 'var(--md-sys-color-primary)'
-                    }}
-                />
+            <div className="mb-6 flex gap-4 items-center mt-6">
+                <div className="relative flex-grow max-w-[400px]">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                        placeholder="Suchen..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 h-10 rounded-[24px] border-input focus-visible:ring-primary shadow-sm"
+                    />
+                </div>
 
-                <Tooltip title="CSV Import">
-                    <Button component="label" variant="outlined" color="neutral" sx={{ borderRadius: '12px' }}>
-                        <UploadFileOutlinedIcon />
-                        <input type="file" hidden accept=".csv" onChange={handleCSVImport} />
+                <div className="flex gap-2">
+                    <div className="relative">
+                        <Button variant="outline" size="icon" className="h-10 w-10 text-muted-foreground rounded-xl hover:bg-accent border-input shadow-sm" onClick={() => document.getElementById('csv-import').click()} title="CSV Import">
+                            <Upload className="h-5 w-5" />
+                        </Button>
+                        <input id="csv-import" type="file" hidden accept=".csv" onChange={handleCSVImport} />
+                    </div>
+
+                    <Button variant="outline" size="icon" className="h-10 w-10 text-muted-foreground rounded-xl hover:bg-accent border-input shadow-sm" onClick={handleCSVExport} title="CSV Export">
+                        <Download className="h-5 w-5" />
                     </Button>
-                </Tooltip>
-
-                <Tooltip title="CSV Export">
-                    <IconButton variant="outlined" color="neutral" onClick={handleCSVExport} sx={{ borderRadius: '12px' }}>
-                        <DownloadOutlinedIcon />
-                    </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Liste neu laden">
-                    <IconButton variant="plain" color="neutral" onClick={async () => {
+                    <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground rounded-xl hover:bg-accent" onClick={async () => {
                         const list = await rebuildKundenDB();
                         setdata({ list });
-                    }} sx={{ borderRadius: '12px' }}>
-                        <SyncIcon />
-                    </IconButton>
-                </Tooltip>
-            </Box>
+                    }} title="Liste neu laden">
+                        <RefreshCw className="h-5 w-5" />
+                    </Button>
+                </div>
+            </div>
 
-            <Box className="swiss-card" sx={{ p: 0, overflow: 'hidden' }}>
-                <Table hoverRow sx={{ '--TableCell-headBackground': 'var(--swiss-gray-50)' }}>
-                    <thead>
+            <div className="rounded-xl border shadow-sm bg-card overflow-hidden">
+                <table className="w-full text-left text-sm">
+                    <thead className="bg-[#FAFAFA] dark:bg-muted/50 border-b">
                         <tr>
-                            <th style={{ width: '60px' }}></th>
-                            <th>Name</th>
-                            <th>Typ</th>
-                            <th>Email</th>
-                            <th>Ort</th>
+                            <th className="w-[60px] py-3 px-4 font-semibold text-muted-foreground"></th>
+                            <th className="py-3 px-4 font-semibold text-muted-foreground">Name</th>
+                            <th className="py-3 px-4 font-semibold text-muted-foreground">Typ</th>
+                            <th className="py-3 px-4 font-semibold text-muted-foreground">Email</th>
+                            <th className="py-3 px-4 font-semibold text-muted-foreground">Ort</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y text-sm">
                         {filteredList.map((item) => (
-                            <tr
-                                key={item.id}
-                                onClick={() => navigate("/kunden-viewer/" + item.id)}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                <td style={{ textAlign: 'center' }}>
-                                    <AvatarTabeUtil istfirma={item.istfirma} />
+                            <tr key={item.id} onClick={() => navigate("/kunden-viewer/" + item.id)} className="hover:bg-muted/40 transition-colors cursor-pointer group">
+                                <td className="py-3 px-4 text-center">
+                                    {item.istfirma ? (
+                                        <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                                            <Building2 className="h-5 w-5" />
+                                        </div>
+                                    ) : (
+                                        <div className="h-10 w-10 rounded-full bg-muted text-muted-foreground flex items-center justify-center mx-auto">
+                                            <User className="h-5 w-5" />
+                                        </div>
+                                    )}
                                 </td>
-                                <td>
-                                    <Typography fontWeight="md">{item.name}</Typography>
-                                    <Typography level="body-xs" sx={{ color: 'var(--swiss-gray-500)' }}>{item.id}</Typography>
+                                <td className="py-3 px-4">
+                                    <div className="font-medium text-[15px] group-hover:text-primary transition-colors">{item.name}</div>
+                                    <div className="text-xs text-muted-foreground">{item.id}</div>
                                 </td>
-                                <td>
-                                    {item.istfirma ?
-                                        <Chip size="sm" variant="soft" color="primary">Firma</Chip> :
-                                        <Chip size="sm" variant="soft" color="neutral">Privat</Chip>
-                                    }
+                                <td className="py-3 px-4">
+                                    {item.istfirma ? (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-primary/10 text-primary">
+                                            Firma
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-muted text-foreground">
+                                            Privat
+                                        </span>
+                                    )}
                                 </td>
-                                <td>
-                                    <Typography level="body-sm">{item.email || "-"}</Typography>
-                                </td>
-                                <td>
-                                    <Typography level="body-sm">{item.plz} {item.ort}</Typography>
-                                </td>
+                                <td className="py-3 px-4 text-muted-foreground">{item.email || "-"}</td>
+                                <td className="py-3 px-4 text-muted-foreground">{item.plz} {item.ort}</td>
                             </tr>
                         ))}
                         {filteredList.length === 0 && (
                             <tr>
-                                <td colSpan={5} style={{ textAlign: 'center', padding: '32px', color: 'var(--swiss-gray-500)' }}>
+                                <td colSpan={5} className="text-center py-8 text-muted-foreground">
                                     Keine Kunden gefunden
                                 </td>
                             </tr>
                         )}
                     </tbody>
-                </Table>
-            </Box>
+                </table>
+            </div>
 
             {createkunde && (
                 <MaskProvider>
                     <KundeErstellung submit={close} />
                 </MaskProvider>
             )}
-        </Box>
+        </div>
     )
 }
 
