@@ -1,7 +1,7 @@
 import React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Info, User, Trash2, FileText, Printer, Send, DollarSign, Mail, Bell, ArrowLeft } from "lucide-react"
+import { Info, User, Trash2, FileText, Printer, Send, DollarSign, Mail, Bell, ArrowLeft, Clock } from "lucide-react"
 
 const DocInfo = ({ title, children }) => (
     <div className="mb-4 p-4 border border-blue-200 bg-blue-50/50 rounded-lg text-sm text-blue-900 shadow-sm dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-100">
@@ -158,7 +158,10 @@ export default function MockRechnungsViewer() {
                     <CardContent className="pt-6">
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium text-muted-foreground">Status</span>
-                            <span className="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-0.5">Offen</span>
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F3F4] text-[#5F6368] text-[12px] font-medium px-3 py-1">
+                                <Clock className="h-4 w-4" />
+                                Ausstehend
+                            </span>
                         </div>
                         <div className="text-3xl font-bold">678.30€</div>
                     </CardContent>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, ModalDialog } from '@mui/joy';
-import { saveAusgabe, saveRecurringRule } from '../../Scripts/AusgabenHandler';
+import { saveAusgabe } from '../../Scripts/AusgabenHandler';
 import { parseERechnung } from '../../Scripts/ERechnungInterpretter';
 
 import { Button } from '../ui/button';
@@ -24,11 +24,11 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
         interval: 'monthly',
         attachments: []
     });
-    const [pendingAttachments, setPendingAttachments] = useState([]); // [{ name, data, type, fileObj }]
+    const [pendingAttachments, setPendingAttachments] = useState([]);
 
     useEffect(() => {
         if (ausgabeToEdit) {
-            // Upgrade legacy single attachments to array
+
             let upgradedAttachments = ausgabeToEdit.attachments || [];
             if (!ausgabeToEdit.attachments && ausgabeToEdit.attachmentPath) {
                 upgradedAttachments = [{ path: ausgabeToEdit.attachmentPath, name: ausgabeToEdit.file || "Anhang" }];
@@ -58,7 +58,7 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
     }, [ausgabeToEdit, open]);
 
     const handleChange = async (field, value, fileObj = null) => {
-        // If uploading a file
+
         if (field === 'file' && fileObj) {
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -72,7 +72,7 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
 
                 setPendingAttachments(prev => [...prev, newPending]);
 
-                // If E-Rechnung (XML), try to parse (only for the first one or if empty)
+
                 if (fileObj.name.toLowerCase().endsWith('.xml') && !formData.title) {
                     try {
                         const textReader = new FileReader();
@@ -100,7 +100,7 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
             return;
         }
 
-        // Normal field update
+
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -116,54 +116,65 @@ export default function AusgabenEditor({ open, onClose, ausgabeToEdit = null, on
     };
 
     const handleSave = async () => {
-        if (!formData.title || !formData.amount) return;
+        if (window.api?.logMessage) window.api.logMessage('info', 'AusgabenEditor: Starting handleSave', formData);
 
-        let finalAttachments = [...(formData.attachments || [])];
-
-        // Upload all pending attachments
-        for (const pending of pendingAttachments) {
-            const result = await window.api.saveAttachment(pending);
-            if (result.success) {
-                finalAttachments.push({ path: result.path, name: pending.name });
-            } else {
-                alert("Fehler beim Speichern des Anhangs: " + result.error);
+        try {
+            if (!formData.title || !formData.amount) {
+                if (window.api?.logMessage) window.api.logMessage('error', 'AusgabenEditor: Validation failed - missing title or amount');
                 return;
             }
-        }
 
-        const expenseData = {
-            ...formData,
-            amount: parseFloat(formData.amount.toString().replace(',', '.')),
-            date: new Date(formData.date).getTime(),
-            attachments: finalAttachments,
-            // Clean up legacy
-            file: undefined,
-            attachmentPath: undefined
-        };
+            let finalAttachments = [...(formData.attachments || [])];
 
-        if (formData.isRecurring) {
-            let nextDue = new Date(formData.date);
-            if (formData.interval === "monthly") nextDue.setMonth(nextDue.getMonth() + 1);
-            else if (formData.interval === "yearly") nextDue.setFullYear(nextDue.getFullYear() + 1);
-            else if (formData.interval === "weekly") nextDue.setDate(nextDue.getDate() + 7);
-            else if (formData.interval === "quarterly") nextDue.setMonth(nextDue.getMonth() + 3);
+            if (window.api?.logMessage) window.api.logMessage('info', `AusgabenEditor: Processing ${pendingAttachments.length} attachments`);
 
-            const rule = {
-                title: formData.title,
+
+            for (const pending of pendingAttachments) {
+                if (window.api?.logMessage) window.api.logMessage('info', `AusgabenEditor: Saving attachment ${pending.name}`);
+                const result = await window.api.saveAttachment(pending);
+                if (result && result.success) {
+                    finalAttachments.push({ path: result.path, name: pending.name });
+                } else {
+                    const errStr = result?.error || "Unknown";
+                    if (window.api?.logMessage) window.api.logMessage('error', `AusgabenEditor: Attachment save failed: ${errStr}`);
+                    alert("Fehler beim Speichern des Anhangs: " + errStr);
+                    return;
+                }
+            }
+
+            const expenseData = {
+                ...formData,
                 amount: parseFloat(formData.amount.toString().replace(',', '.')),
-                category: formData.category,
-                provider: formData.provider,
-                interval: formData.interval,
+                date: new Date(formData.date).getTime(),
                 attachments: finalAttachments,
-                active: true,
-                nextDueDate: nextDue.getTime()
-            };
-            await saveRecurringRule(rule);
-        }
 
-        await saveAusgabe(expenseData);
-        if (onSave) onSave();
-        onClose();
+                file: undefined,
+                attachmentPath: undefined
+            };
+
+            if (formData.isRecurring) {
+                let nextDue = new Date(formData.date);
+                if (formData.interval === "monthly") nextDue.setMonth(nextDue.getMonth() + 1);
+                else if (formData.interval === "yearly") nextDue.setFullYear(nextDue.getFullYear() + 1);
+                else if (formData.interval === "weekly") nextDue.setDate(nextDue.getDate() + 7);
+                else if (formData.interval === "quarterly") nextDue.setMonth(nextDue.getMonth() + 3);
+
+
+                expenseData.interval = formData.interval;
+            }
+
+            if (window.api?.logMessage) window.api.logMessage('info', 'AusgabenEditor: Calling saveAusgabe with:', expenseData);
+            await saveAusgabe(expenseData);
+
+            if (window.api?.logMessage) window.api.logMessage('info', 'AusgabenEditor: Save successful!');
+
+            if (onSave) onSave();
+            onClose();
+        } catch (err) {
+            console.error(err);
+            if (window.api?.logMessage) window.api.logMessage('error', 'AusgabenEditor: Exception in handleSave', err.message);
+            alert("Error saving: " + err.message);
+        }
     };
 
     return (

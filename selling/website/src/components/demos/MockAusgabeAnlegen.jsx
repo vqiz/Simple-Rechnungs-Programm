@@ -124,48 +124,7 @@ export default function MockAusgabeAnlegen() {
                             )}
                         </div>
 
-                        <div className="space-y-2">
-                            <Label>Beleg anhängen (PDF, JPG, PNG)</Label>
 
-                            <div className="space-y-3">
-                                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer">
-                                    <UploadCloud className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                                    <div className="text-sm font-medium">Dateien hinzufügen (PDF, JPG, PNG, XML)</div>
-                                </div>
-
-                                {/* Mock Pending File 1 */}
-                                <div className="p-3 border rounded-md bg-muted/30 relative flex items-center justify-between">
-                                    <div className="flex items-center gap-3 overflow-hidden">
-                                        <div className="h-10 w-10 flex items-center justify-center bg-background rounded border text-muted-foreground">
-                                            📄
-                                        </div>
-                                        <div className="flex flex-col truncate">
-                                            <span className="text-sm font-medium truncate">Server-Miete-Januar.pdf</span>
-                                            <span className="text-xs text-muted-foreground">Neue Datei</span>
-                                        </div>
-                                    </div>
-                                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50">
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-
-                                {/* Mock Pending File 2 */}
-                                <div className="p-3 border rounded-md bg-muted/30 relative flex items-center justify-between">
-                                    <div className="flex items-center gap-3 overflow-hidden">
-                                        <div className="h-10 w-10 flex items-center justify-center bg-background rounded border text-muted-foreground">
-                                            📄
-                                        </div>
-                                        <div className="flex flex-col truncate">
-                                            <span className="text-sm font-medium truncate">Server-Miete-Februar.pdf</span>
-                                            <span className="text-xs text-muted-foreground">Neue Datei</span>
-                                        </div>
-                                    </div>
-                                    <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600 hover:bg-red-50">
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
 
                     </CardContent>
                     <CardFooter className="bg-muted/30 border-t border-muted px-6 py-4 flex justify-between items-center">

@@ -22,7 +22,7 @@ export default function PaymentModal({ open, onClose, invoiceNumber, invoiceTota
     const [paymentAmount, setPaymentAmount] = useState(invoiceTotal || 0);
     const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
     const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
-    const [paymentType, setPaymentType] = useState('full'); // 'full' or 'partial'
+    const [paymentType, setPaymentType] = useState('full');
     const [history, setHistory] = useState([]);
     const [showHistory, setShowHistory] = useState(false);
 

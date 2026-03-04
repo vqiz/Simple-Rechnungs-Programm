@@ -200,6 +200,58 @@ export default function MockDashboard() {
                         Dieses Modul bietet direkten Schnellzugriff auf die aktuellsten offenen Posten. Ein Klick auf einen Listeneintrag bringt Dich im echten Programm sofort zur Detailansicht des jeweiligen Kunden.
                     </DocInfo>
                 </div>
+
+                {/* 1:1 Recent Expenses List */}
+                <div className="col-span-4 lg:col-span-7 flex flex-col mt-4">
+                    <Card className="flex-1">
+                        <CardHeader>
+                            <CardTitle>Aktuelle Ausgaben Aktivitäten</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {/* Dummy content for Activities */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border bg-card text-card-foreground shadow-sm cursor-pointer hover:border-primary transition-colors">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/50">
+                                            <TrendingUp className="h-5 w-5 text-red-500" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-medium leading-none">Adobe Creative Cloud</p>
+                                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                                02.03.2026 • Adobe Systems
+                                                <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
+                                                    Abo
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 sm:mt-0 font-medium text-red-500 text-right">
+                                        -59.49 €
+                                    </div>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border bg-card text-card-foreground shadow-sm cursor-pointer hover:border-primary transition-colors">
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/50">
+                                            <TrendingUp className="h-5 w-5 text-red-500" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-medium leading-none">Büromaterial Nachschub</p>
+                                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                                28.02.2026 • Amazon Business
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 sm:mt-0 font-medium text-red-500 text-right">
+                                        -34.90 €
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <DocInfo title="Aktuelle Ausgaben Aktivitäten">
+                        Dieses dynamische Widget listet alle kürzlich verarbeiteten Ausgaben. Zudem visualisiert es "Virtualisierte Abos": Durch die neue Rechnix Engine werden Abo-Raten pro-rata in Echtzeit berechnet und lassen sich genau hier klicken, um zur jeweiligen Datei-Ansicht (`AusgabenViewer`) eines Monats zu springen.
+                    </DocInfo>
+                </div>
             </div>
         </div>
     )

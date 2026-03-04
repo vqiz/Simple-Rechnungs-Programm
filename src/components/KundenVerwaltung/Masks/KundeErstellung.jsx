@@ -14,7 +14,7 @@ function KundeErstellung({ submit }) {
         hausnummer: "",
         plz: "",
         stadt: "",
-        laenderCode: "DE", // Default
+        laenderCode: "DE",
         email: "",
         tel: "",
         ansprechpartner: "",

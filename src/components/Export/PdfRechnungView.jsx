@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getbrutto, getTaxAmount, getNetto } from '../../Scripts/ERechnungInterpretter';
-import { formatPrice } from '../../lib/utils'; // wait, does formatPrice exist in utils?
+import { formatPrice } from '../../lib/utils';
 
-// Constants from RechnungsViewer
+
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
 const PAGE_PADDING_MM = 15;
@@ -13,7 +13,7 @@ function formatPriceLocal(value, currency = '€') {
 }
 
 export default function PdfRechnungView({ rechnungId, data, kunde, unternehmen, logoPath }) {
-    // Helper to get invoice date from filename
+
     function getInvoiceDate() {
         const parts = rechnungId.split("-");
         if (parts.length >= 4) {
@@ -25,7 +25,7 @@ export default function PdfRechnungView({ rechnungId, data, kunde, unternehmen, 
         return rechnungId;
     }
 
-    // Calculate all positions as array
+
     function getPositions() {
         if (!data?.positionen || !data?.items?.list) return [];
         return Object.entries(data.positionen).map(([key, amount]) => {
@@ -63,7 +63,7 @@ export default function PdfRechnungView({ rechnungId, data, kunde, unternehmen, 
         return totals;
     }
 
-    // Table columns
+
     const columns = [
         { key: 'position', label: 'Pos', style: { width: '8%', textAlign: 'center' } },
         { key: 'bezeichnung', label: 'Bezeichnung', style: { width: '42%', textAlign: 'left' } },

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { handleLoadFile, handleSaveFile } from '../../../Scripts/Filehandler';
 import { CheckCircle2, Package, Tag, Calculator } from "lucide-react";
 
-// Shadcn UI
+
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
@@ -18,12 +18,12 @@ function CreateProdukt({ kathname, disable, update, kathpath }) {
   const [categories, setCategories] = useState([]);
   const [error, seterror] = useState(false);
 
-  // Simple reactive calculation for the UI
+
   const brutto = (parseFloat(price || 0) * (1 + parseFloat(mehrWertSteuer || 0) / 100)).toFixed(2);
 
   useEffect(() => {
     if (!kathname) {
-      // Load categories if not provided
+
       const loadCats = async () => {
         const jsonString = await handleLoadFile(kathpath);
         const json = JSON.parse(jsonString);

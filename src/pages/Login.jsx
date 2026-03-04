@@ -11,9 +11,9 @@ function Login() {
   function submit(e) {
     if (e) e.preventDefault();
 
-    if (passwordinput === "login") { // Simple password check from original code
+    if (passwordinput === "login") {
       Key.set("login");
-      navigate("/"); // Navigate to new Dashboard
+      navigate("/");
     } else {
       console.log("falsches passwort");
       setAlert(true);

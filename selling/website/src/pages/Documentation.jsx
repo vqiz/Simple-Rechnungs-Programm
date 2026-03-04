@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { LayoutDashboard, FileText, Users, Settings, HardDrive, UserCircle, Receipt, UserPlus, BarChart3, Wallet } from "lucide-react"
+import { LayoutDashboard, FileText, Users, Settings, HardDrive, UserCircle, Receipt, UserPlus, BarChart3, Wallet, AlertCircle } from "lucide-react"
 
 import MockDashboard from "../components/demos/MockDashboard"
 import MockRechnungErstellen from "../components/demos/MockRechnungErstellen"
@@ -12,13 +12,15 @@ import MockUnternehmen from "../components/demos/MockUnternehmen"
 import MockBackup from "../components/demos/MockBackup"
 import MockRechnungsViewer from "../components/demos/MockRechnungsViewer"
 import MockKundenViewer from "../components/demos/MockKundenViewer"
+import MockMahnungen from "../components/demos/MockMahnungen"
 import MockKundeErstellen from "../components/demos/MockKundeErstellen"
 import MockStatistiken from "../components/demos/MockStatistiken"
 import MockAusgaben from "../components/demos/MockAusgaben"
 import MockProdukte from "../components/demos/MockProdukte"
 import MockProduktAnlegen from "../components/demos/MockProduktAnlegen"
 import MockAusgabeAnlegen from "../components/demos/MockAusgabeAnlegen"
-import { Package, PlusCircle } from "lucide-react"
+import MockAusgabenViewer from "../components/demos/MockAusgabenViewer"
+import { Package, PlusCircle, Eye } from "lucide-react"
 
 const SECTIONS = [
     {
@@ -32,6 +34,7 @@ const SECTIONS = [
         tabs: [
             { id: "rechnungen", label: "Rechnung erstellen", icon: FileText, component: MockRechnungErstellen },
             { id: "rechnungsviewer", label: "Rechnungs-Viewer", icon: Receipt, component: MockRechnungsViewer },
+            { id: "mahnungen", label: "Mahnwesen", icon: AlertCircle, component: MockMahnungen },
         ]
     },
     {
@@ -54,6 +57,7 @@ const SECTIONS = [
         tabs: [
             { id: "statistiken", label: "Statistiken", icon: BarChart3, component: MockStatistiken },
             { id: "ausgaben", label: "Ausgaben", icon: Wallet, component: MockAusgaben },
+            { id: "ausgaben_viewer", label: "Ausgabe ansehen", icon: Eye, component: MockAusgabenViewer },
             { id: "ausgabe_anlegen", label: "Ausgabe erfassen", icon: PlusCircle, component: MockAusgabeAnlegen },
         ]
     },

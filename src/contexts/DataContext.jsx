@@ -8,7 +8,7 @@ export const DataProvider = ({ children }) => {
     const [companyData, setCompanyData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Load initial data
+
     useEffect(() => {
         loadData();
     }, []);
@@ -16,8 +16,7 @@ export const DataProvider = ({ children }) => {
     const loadData = async () => {
         setLoading(true);
         try {
-            // Load 'Unternehmen' data
-            // Note: We use window.api expecting it to be available (defined in preload.js)
+
             if (window.api) {
                 const companyJson = await window.api.readFile("settings/unternehmen.rechnix");
                 setCompanyData(companyJson ? JSON.parse(companyJson) : {});

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { change_PayStatus, get_uRechnungen, getKunde } from '../Scripts/Filehandler';
+import { change_PayStatus, getKunde } from '../Scripts/Filehandler';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Info, ArrowLeft, Building2, MapPin, Phone, Mail, User, Search, PlusCircle, Receipt, DollarSign } from "lucide-react";
@@ -8,7 +8,7 @@ import { Info, ArrowLeft, Building2, MapPin, Phone, Mail, User, Search, PlusCirc
 import PaymentStatusBadge from '../components/Payment/PaymentStatusBadge';
 import PaymentModal from '../components/Payment/PaymentModal';
 import { getbrutto } from '../Scripts/ERechnungInterpretter';
-import { handleLoadFile } from '../Scripts/Filehandler';
+import { handleLoadFile, getInvoicePaymentStatus } from '../Scripts/Filehandler';
 import debounce from 'lodash/debounce';
 import MaskProvider from '../components/MaskProvider';
 import KundenEditor from '../components/KundenVerwaltung/Masks/KundenEditor';
@@ -17,7 +17,8 @@ import '../styles/swiss.css';
 function KundenViewer() {
   const { id } = useParams();
   const [kunde, setkunde] = useState();
-  const [u_Rechnungen, set_uRechnungen] = useState();
+  const [invoiceDates, setInvoiceDates] = useState({});
+  const [invoiceStatuses, setInvoiceStatuses] = useState({});
   const [editkunde, setEditKunde] = useState();
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedInvoiceForPayment, setSelectedInvoiceForPayment] = useState(null);
@@ -61,8 +62,38 @@ function KundenViewer() {
     const fkunde = await getKunde(id);
     setkunde(fkunde);
 
-    const u_R = await get_uRechnungen();
-    set_uRechnungen(u_R);
+    // Fetch real dates and statuses from invoice files
+    if (fkunde && fkunde.rechnungen) {
+      const datesObj = {};
+      const statusesObj = {};
+      for (const inv of fkunde.rechnungen) {
+        try {
+          const invString = await handleLoadFile("rechnungen/" + inv);
+          if (invString) {
+            const parsed = JSON.parse(invString);
+            if (parsed.datum) {
+              datesObj[inv] = new Date(parsed.datum).toLocaleDateString("de-DE");
+            }
+          }
+        } catch (e) {
+          // Fallback to filename parsing
+          const parts = inv.split("-");
+          if (parts.length >= 4) {
+            datesObj[inv] = `${parts[2]}.${parts[1]}.${parts[0].replace("R", "")}`;
+          }
+        }
+
+        // Fetch payment status natively
+        try {
+          const s = await getInvoicePaymentStatus(inv);
+          statusesObj[inv] = s;
+        } catch (e) {
+          statusesObj[inv] = 'unpaid';
+        }
+      }
+      setInvoiceDates(datesObj);
+      setInvoiceStatuses(statusesObj);
+    }
   }
 
   useEffect(() => {
@@ -217,15 +248,24 @@ function KundenViewer() {
                     .filter((i) => i.includes(debouncedSearchTerm))
                     .slice().reverse()
                     .sort((a, b) => {
-                      const isAUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === a);
-                      const isBUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === b);
+                      const isAUnpaid = invoiceStatuses[a] !== 'paid';
+                      const isBUnpaid = invoiceStatuses[b] !== 'paid';
                       if (isAUnpaid && !isBUnpaid) return -1;
                       if (!isAUnpaid && isBUnpaid) return 1;
-                      const dateA = kunde?.rechnungsDatum?.[a] ? new Date(kunde.rechnungsDatum[a]) : new Date(0);
-                      const dateB = kunde?.rechnungsDatum?.[b] ? new Date(kunde.rechnungsDatum[b]) : new Date(0);
+
+                      const parseToDate = (invId) => {
+                        if (invoiceDates[invId]) {
+                          const [d, m, y] = invoiceDates[invId].split('.');
+                          return new Date(y, m - 1, d);
+                        }
+                        return kunde?.rechnungsDatum?.[invId] ? new Date(kunde.rechnungsDatum[invId]) : new Date(0);
+                      };
+
+                      const dateA = parseToDate(a);
+                      const dateB = parseToDate(b);
                       return dateB - dateA;
                     }).map((item) => {
-                      const isUnpaid = u_Rechnungen?.list?.some(r => r.id === id && r.rechnung === item);
+                      const isUnpaid = invoiceStatuses[item] !== 'paid';
                       return (
                         <tr
                           key={item}
@@ -238,7 +278,7 @@ function KundenViewer() {
                           </td>
                           <td className="py-3 px-4 font-medium">{item}</td>
                           <td className="py-3 px-4 text-muted-foreground">
-                            {kunde?.rechnungsDatum?.[item] ? new Date(kunde.rechnungsDatum[item]).toLocaleDateString("de-DE") : "-"}
+                            {invoiceDates[item] || (kunde?.rechnungsDatum?.[item] ? new Date(kunde.rechnungsDatum[item]).toLocaleDateString("de-DE") : "-")}
                           </td>
                           <td className="py-3 px-4">
                             <PaymentStatusBadge invoiceNumber={item} />

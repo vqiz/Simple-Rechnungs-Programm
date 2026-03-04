@@ -37,7 +37,7 @@ export default function PaymentStatusBadge({ status: providedStatus, invoiceNumb
             case 'paid':
                 return {
                     label: 'Bezahlt',
-                    // Google Green
+
                     bgcolor: '#CEEAD6',
                     color: '#0D652D',
                     icon: <CheckCircleOutlineIcon style={{ fontSize: '18px' }} />
@@ -45,7 +45,7 @@ export default function PaymentStatusBadge({ status: providedStatus, invoiceNumb
             case 'partial':
                 return {
                     label: 'Teilzahlung',
-                    // Google Yellow/Orange
+
                     bgcolor: '#FEF7E0',
                     color: '#E37400',
                     icon: <HourglassEmptyOutlinedIcon style={{ fontSize: '18px' }} />
@@ -53,7 +53,7 @@ export default function PaymentStatusBadge({ status: providedStatus, invoiceNumb
             case 'overdue':
                 return {
                     label: 'Überfällig',
-                    // Google Red
+
                     bgcolor: '#FAD2CF',
                     color: '#A50E0E',
                     icon: <ErrorOutlineIcon style={{ fontSize: '18px' }} />
@@ -71,7 +71,7 @@ export default function PaymentStatusBadge({ status: providedStatus, invoiceNumb
             default:
                 return {
                     label: 'Ausstehend',
-                    // Google Grey
+
                     bgcolor: '#F1F3F4',
                     color: '#5F6368',
                     icon: <PendingOutlinedIcon style={{ fontSize: '18px' }} />
@@ -87,7 +87,7 @@ export default function PaymentStatusBadge({ status: providedStatus, invoiceNumb
             alignItems: 'center',
             gap: '8px',
             padding: '4px 12px 4px 8px',
-            borderRadius: '16px', // Full pill
+            borderRadius: '16px',
             backgroundColor: config.bgcolor,
             color: config.color,
             fontSize: '12px',

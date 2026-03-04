@@ -8,7 +8,7 @@ function Headline({ children, back, onback }) {
     <Box
       sx={{
         width: '100%',
-        minHeight: '64px', // Standard height
+        minHeight: '64px',
         display: 'flex',
         alignItems: 'center',
         borderBottom: '1px solid var(--md-sys-color-outline)',
@@ -37,7 +37,7 @@ function Headline({ children, back, onback }) {
       <Typography
         sx={{
           fontSize: '22px',
-          fontWeight: 400, // Google Sans Regular
+          fontWeight: 400,
           color: 'var(--md-sys-color-on-surface)',
           cursor: "default",
           userSelect: "none",

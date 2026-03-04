@@ -63,14 +63,15 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     fetchKunde();
   }, [data]);
 
-  // Helper to get invoice date from filename
+  // Helper to get invoice date from filename or data
   function getInvoiceDate() {
+    if (data?.datum) {
+      return new Date(data.datum).toLocaleDateString("de-DE");
+    }
+    // Fallback if legacy JSON without datum
     const parts = rechnung.split("-");
-    if (parts.length >= 4) {
-      const jahr = parts[0].replace("R", "");
-      const monat = parts[1];
-      const tag = parts[2];
-      return `${tag}.${monat}.${jahr}`;
+    if (parts.length >= 3) {
+      return `${parts[2]}.${parts[1]}.${parts[0].replace("R", "")}`;
     }
     return rechnung;
   }
@@ -199,7 +200,12 @@ function RechnungsViewer({ rechnung, unternehmen }) {
     }
 
     window.api.deleteFile("rechnungen/" + rechnung);
-    navigate("/invoices");
+
+    if (kunde) {
+      navigate("/kunden-viewer/" + kunde.id);
+    } else {
+      navigate("/invoices");
+    }
   };
 
   // Actions List
@@ -251,7 +257,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
           </div>
           <div style={{ minWidth: 150, textAlign: 'right' }}>
             <h4 style={{ fontSize: '16px', margin: '0 0 4px 0', color: '#000' }}>Rechnung</h4>
-            <p style={{ fontSize: '9pt', margin: 0, color: '#555' }}>Nr: {rechnung.split("-")[3]}</p>
+            <p style={{ fontSize: '9pt', margin: 0, color: '#555' }}>Nr: {rechnung.split("-").pop()}</p>
             <p style={{ fontSize: '9pt', margin: 0, color: '#555' }}>Datum: {getInvoiceDate()}</p>
             <p style={{ fontSize: '9pt', margin: 0, color: '#555' }}>Kundennr: {data?.kundenId}</p>
             <p style={{ fontSize: '9pt', margin: 0, color: '#555' }}>Seite {page} / {of}</p>
@@ -396,7 +402,7 @@ function RechnungsViewer({ rechnung, unternehmen }) {
           <CardContent className="pt-6">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-muted-foreground">Status</span>
-              <PaymentStatusBadge status={getInvoicePaymentStatus(rechnung) || 'unknown'} invoiceNumber={rechnung} />
+              <PaymentStatusBadge invoiceNumber={rechnung} />
             </div>
             <div className="text-3xl font-bold">
               {invoiceAmount}{unternehmen?.waehrung || '€'}

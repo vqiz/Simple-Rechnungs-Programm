@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Euro, TrendingUp, PiggyBank, FileText } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Scripts
-import { get_uRechnungen, handleLoadFile } from '../Scripts/Filehandler';
-import { getNetto } from '../Scripts/ERechnungInterpretter';
-import { checkRecurringExpenses, getAusgaben } from '../Scripts/AusgabenHandler';
 
-// Components
+import { get_uRechnungen, handleLoadFile } from '../Scripts/Filehandler';
+import { getNetto, getbrutto } from '../Scripts/ERechnungInterpretter';
+import { getAusgaben } from '../Scripts/AusgabenHandler';
+
+
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Badge } from '../components/ui/badge';
@@ -24,11 +24,12 @@ const Dashboard = () => {
     const [yearGewinn, setYearGewinn] = useState(0);
     const [expensesSum, setExpensesSum] = useState(0);
     const [chartData, setChartData] = useState([]);
+    const [isKlein, setIsKlein] = useState(true);
+
+    const [recentExpenses, setRecentExpenses] = useState([]);
 
     useEffect(() => {
         const loadData = async () => {
-            await checkRecurringExpenses();
-
             try {
                 const data = await get_uRechnungen();
                 setURechnung(data);
@@ -41,6 +42,14 @@ const Dashboard = () => {
             } catch (e) { console.error(e); }
 
             try {
+                let isKleinunternehmer = false;
+                try {
+                    const settingsStr = await handleLoadFile("settings/unternehmen.rechnix");
+                    const settings = JSON.parse(settingsStr);
+                    isKleinunternehmer = !settings.mwst;
+                } catch (e) { }
+                setIsKlein(isKleinunternehmer);
+
                 const filedata = await window.api.listfiles("rechnungen/");
                 if (!filedata) return;
 
@@ -56,7 +65,7 @@ const Dashboard = () => {
                     try {
                         const string = await handleLoadFile("rechnungen/" + file.name);
                         const json = JSON.parse(string);
-                        amount = Number(getNetto(json)) || 0;
+                        amount = isKleinunternehmer ? (Number(getNetto(json)) || 0) : (Number(getbrutto(json)) || 0);
                     } catch (e) { console.error(e); }
 
                     const parts = file.name.split("-");
@@ -75,7 +84,7 @@ const Dashboard = () => {
                         if (u.fileMonth === currentMonth) {
                             month += u.amount;
                         }
-                        // Aggregate for chart
+
                         if (u.fileMonth >= 1 && u.fileMonth <= 12) {
                             if (!monthlyData[u.fileMonth]) {
                                 monthlyData[u.fileMonth] = 0;
@@ -85,7 +94,7 @@ const Dashboard = () => {
                     }
                 }
 
-                // Prepare chart data for all 12 months
+
                 const months = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
                 const chartArray = months.map((name, idx) => ({
                     month: name,
@@ -94,10 +103,18 @@ const Dashboard = () => {
                 setChartData(chartArray);
 
                 let expSum = 0;
+                let recentActs = [];
                 try {
                     const expensesData = await getAusgaben();
                     if (expensesData && expensesData.list) {
                         const now = new Date();
+
+
+                        const sortedExps = [...expensesData.list]
+                            .filter(e => new Date(e.date) <= now)
+                            .sort((a, b) => b.date - a.date);
+                        recentActs = sortedExps.slice(0, 5);
+
                         expensesData.list.forEach(exp => {
                             const d = new Date(exp.date);
                             if (d.getFullYear() === currentYear && d <= now) {
@@ -106,6 +123,8 @@ const Dashboard = () => {
                         });
                     }
                 } catch (err) { console.error(err); }
+
+                setRecentExpenses(recentActs);
 
                 setGes(total.toFixed(2));
                 setYearUmsatz(year.toFixed(2));
@@ -124,10 +143,9 @@ const Dashboard = () => {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {/* Total Revenue Card - Primary Color */}
                 <Card className="border-0 bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-shadow">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-primary-foreground/90">Gesamter Umsatz</CardTitle>
+                        <CardTitle className="text-sm font-medium text-primary-foreground/90">{isKlein ? 'Gesamter Umsatz' : 'Gesamter Umsatz inkl. Steuer'}</CardTitle>
                         <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
                             <Euro className="h-6 w-6 text-white" />
                         </div>
@@ -138,10 +156,9 @@ const Dashboard = () => {
                     </CardContent>
                 </Card>
 
-                {/* Yearly Revenue - Purple Gradient */}
                 <Card className="border-0 bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-shadow">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-white/90">Jahresumsatz</CardTitle>
+                        <CardTitle className="text-sm font-medium text-white/90">{isKlein ? 'Jahresumsatz' : 'Jahresumsatz inkl. Steuer'}</CardTitle>
                         <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
                             <TrendingUp className="h-6 w-6 text-white" />
                         </div>
@@ -152,10 +169,9 @@ const Dashboard = () => {
                     </CardContent>
                 </Card>
 
-                {/* Profit - Green Gradient */}
                 <Card className="border-0 bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl transition-shadow">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-white/90">Jahresgewinn</CardTitle>
+                        <CardTitle className="text-sm font-medium text-white/90">{isKlein ? 'Jahresgewinn' : 'Jahresgewinn inkl. Steuer'}</CardTitle>
                         <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
                             <PiggyBank className="h-6 w-6 text-white" />
                         </div>
@@ -166,7 +182,6 @@ const Dashboard = () => {
                     </CardContent>
                 </Card>
 
-                {/* Invoice Count - Orange Gradient */}
                 <Card className="border-0 bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg hover:shadow-xl transition-shadow">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium text-white/90">Rechnungen</CardTitle>
@@ -246,6 +261,44 @@ const Dashboard = () => {
                             ))}
                             {(!u_rechnungen?.list || u_rechnungen?.list?.length === 0) && (
                                 <p className="text-center text-sm text-muted-foreground p-4">Keine offenen Rechnungen.</p>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                <Card className="col-span-7">
+                    <CardHeader>
+                        <CardTitle>Aktuelle Ausgaben Aktivitäten</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {recentExpenses.map((exp) => (
+                                <div key={exp.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg border bg-card text-card-foreground shadow-sm cursor-pointer hover:border-primary transition-colors" onClick={() => navigate(exp.isVirtual ? `/ausgaben-viewer/${exp.masterId}` : `/ausgaben-viewer/${exp.id}`)}>
+                                    <div className="flex items-center gap-4">
+                                        <div className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/50">
+                                            <TrendingUp className="h-5 w-5 text-red-500" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-medium leading-none">{exp.title}</p>
+                                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                                {new Date(exp.date).toLocaleDateString("de-DE")} • {exp.provider || exp.category}
+                                                {exp.isVirtual && (
+                                                    <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
+                                                        Abo
+                                                    </span>
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 sm:mt-0 font-medium text-red-500 text-right">
+                                        -{parseFloat(exp.amount).toFixed(2)} €
+                                    </div>
+                                </div>
+                            ))}
+                            {recentExpenses.length === 0 && (
+                                <p className="text-center text-sm text-muted-foreground p-4">Es gibt keine kürzlichen Ausgaben.</p>
                             )}
                         </div>
                     </CardContent>

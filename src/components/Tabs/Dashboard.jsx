@@ -4,7 +4,7 @@ import Headline from '../Headline'
 import { get_uRechnungen, handleLoadFile } from '../../Scripts/Filehandler';
 import FiberManualRecordOutlinedIcon from '@mui/icons-material/FiberManualRecordOutlined';
 import { useNavigate } from 'react-router-dom';
-import { getNetto } from '../../Scripts/ERechnungInterpretter';
+import { getNetto, getbrutto } from '../../Scripts/ERechnungInterpretter';
 import EuroIcon from '@mui/icons-material/Euro';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -17,6 +17,7 @@ function Dashboard() {
     const [ges, setGes] = useState(0);
     const [monthUmsatz, setMonthUmsatz] = useState(0);
     const [yearUmsatz, setYearUmsatz] = useState(0);
+    const [isKlein, setIsKlein] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -42,11 +43,11 @@ function Dashboard() {
         fetchcount();
 
         // Helper to calculate Umsatz per invoice
-        const get_Umsatz = async (item) => {
+        const get_Umsatz = async (item, isKleinunternehmer) => {
             try {
                 const string = await handleLoadFile("rechnungen/" + item.name);
                 const json = JSON.parse(string);
-                return Number(getNetto(json)) || 0;
+                return isKleinunternehmer ? (Number(getNetto(json)) || 0) : (Number(getbrutto(json)) || 0);
             } catch (e) {
                 console.error("Error reading invoice file", item.name, e);
                 return 0;
@@ -56,6 +57,14 @@ function Dashboard() {
         // Calculate total, yearly, and monthly Umsatz
         const fetchGesammtUmsatz = async () => {
             try {
+                let isKleinunternehmer = false;
+                try {
+                    const settingsStr = await handleLoadFile("settings/unternehmen.rechnix");
+                    const settings = JSON.parse(settingsStr);
+                    isKleinunternehmer = !settings.mwst;
+                } catch (e) { }
+                setIsKlein(isKleinunternehmer);
+
                 const filedata = await window.api.listfiles("rechnungen/");
                 if (!filedata) return;
 
@@ -77,7 +86,7 @@ function Dashboard() {
                    We read all and sort results.
                 */
                 const updates = await Promise.all(uniqueFiles.map(async (file) => {
-                    const amount = await get_Umsatz(file);
+                    const amount = await get_Umsatz(file, isKleinunternehmer);
 
                     // Parse date from filename
                     // name: R2024-5-21-12
@@ -159,19 +168,19 @@ function Dashboard() {
                 px: 2 // Keep some internal padding so cards don't touch edge of container/headline
             }}>
                 <StatCard
-                    title="Gesamter Umsatz"
+                    title={isKlein ? "Gesamter Umsatz" : "Gesamter Umsatz inkl. Steuer"}
                     value={`${ges}€`}
                     icon={<EuroIcon fontSize="large" />}
                     color="success"
                 />
                 <StatCard
-                    title="Jahresumsatz"
+                    title={isKlein ? "Jahresumsatz" : "Jahresumsatz inkl. Steuer"}
                     value={`${yearUmsatz}€`}
                     icon={<TrendingUpIcon fontSize="large" />}
                     color="warning"
                 />
                 <StatCard
-                    title="Monatlicher Umsatz"
+                    title={isKlein ? "Monatlicher Umsatz" : "Monatlicher Umsatz inkl. Steuer"}
                     value={`${monthUmsatz}€`}
                     icon={<CalendarTodayIcon fontSize="large" />}
                     color="neutral"

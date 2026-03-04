@@ -1,0 +1,9 @@
+type Query {
+    getagbs: String
+    getdatenschutz: String
+    getimpressum: String
+}
+type Mutation {
+    registerUser(username: String!, password: String!, email: String!): String
+    loginUser(email: String!, password: String!): String
+}

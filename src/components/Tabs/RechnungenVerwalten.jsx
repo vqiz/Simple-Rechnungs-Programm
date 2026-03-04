@@ -64,7 +64,17 @@ export default function RechnungenVerwalten() {
                     details.customerName = json.items?.list?.find(i => i.name === "Kunde")?.content?.[0]?.name || "Unbekannt";
                     details.kundenId = json.kundenId;
                     details.amount = getNetto(json);
-                    details.date = json.date || file.time;
+                    // Dynamically acquire the creation date 
+                    let dateStr = json.datum;
+                    if (!dateStr) {
+                        const parts = file.name.split("-"); // Fallback to filename (R-YYYY-MM-DD-ID)
+                        if (parts.length >= 4) {
+                            dateStr = `${parts[1]}-${parts[2]}-${parts[3]}`;
+                        } else {
+                            dateStr = file.time;
+                        }
+                    }
+                    details.date = new Date(dateStr).getTime() || file.time;
                 } catch (e) {
                     console.warn("Failed to parse invoice", file.name, e);
                 }
@@ -154,8 +164,8 @@ export default function RechnungenVerwalten() {
                 <button
                     onClick={() => setSelectedTab("overview")}
                     className={`flex-shrink-0 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors border-b-2 ${selectedTab === "overview"
-                            ? "bg-background border-primary text-foreground"
-                            : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                        ? "bg-background border-primary text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/60"
                         }`}
                 >
                     Übersicht
@@ -165,8 +175,8 @@ export default function RechnungenVerwalten() {
                         key={tabId}
                         onClick={() => setSelectedTab(tabId)}
                         className={`group flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-t-lg transition-colors cursor-pointer border-b-2 flex-shrink-0 max-w-[200px] ${selectedTab === tabId
-                                ? "bg-background border-primary text-foreground"
-                                : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                            ? "bg-background border-primary text-foreground"
+                            : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/60"
                             }`}
                         title={tabId}
                     >

@@ -4,6 +4,34 @@ const fs = require('fs');
 const fsPromises = require('fs').promises;
 const { encrypt, decrypt, isEncrypted, encryptWithPassword, decryptWithPassword } = require('./encryptionUtils');
 
+// --- PERSISTENT LOGGING ---
+let logFilePath = '';
+
+function initLogging() {
+  logFilePath = path.join(app.getPath('userData'), 'logs.txt');
+
+  // Clear the log file on every fresh start
+  fs.writeFileSync(logFilePath, `--- RECHNIX SESSION LOG [${new Date().toISOString()}] ---\n`);
+
+  const originalLog = console.log;
+  const originalError = console.error;
+
+  const writeLog = (type, ...args) => {
+    const msg = `[${new Date().toISOString()}] [${type}] ${args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ')}\n`;
+    fs.appendFileSync(logFilePath, msg);
+  };
+
+  console.log = (...args) => {
+    originalLog(...args);
+    if (logFilePath) writeLog('INFO', ...args);
+  };
+
+  console.error = (...args) => {
+    originalError(...args);
+    if (logFilePath) writeLog('ERROR', ...args);
+  };
+}
+
 
 function createWindow() {
   console.log("Creating window...");
@@ -60,6 +88,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  initLogging();
   console.log("App ready");
   setupMenu();
   createWindow();
@@ -286,6 +315,14 @@ ipcMain.handle('read-attachment', async (_, relativePath) => {
   }
 });
 
+ipcMain.handle('log-message', (_, { level, message, details }) => {
+  if (level === 'error') {
+    console.error(`[FRONTEND ERROR] ${message}`, details || '');
+  } else {
+    console.log(`[FRONTEND INFO] ${message}`, details || '');
+  }
+});
+
 // Alias for deleteFile and delete-file
 const deleteFileHandler = async (_, relativePath) => {
   try {
@@ -491,7 +528,7 @@ async function createBackup() {
         // But for backward compatibility with existing backups?
         // Let's check extension.
         const ext = path.extname(fullPath).toLowerCase();
-        const isBinary = ['.jpg', '.jpeg', '.png', '.pdf', '.zip'].includes(ext);
+        const isBinary = ['.jpg', '.jpeg', '.png', '.pdf', '.zip', '.xml'].includes(ext);
 
         if (isBinary) {
           const buffer = await fsPromises.readFile(fullPath);

@@ -21,4 +21,5 @@ contextBridge.exposeInMainWorld('api', {
   openExternal: (path) => ipcRenderer.invoke("open-external", path),
   createBackup: () => ipcRenderer.invoke('create-backup'),
   restoreBackup: () => ipcRenderer.invoke('restore-backup'),
+  logMessage: (level, message, details) => ipcRenderer.invoke('log-message', { level, message, details }),
 });

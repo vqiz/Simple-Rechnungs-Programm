@@ -5,10 +5,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { FileDown, UploadCloud, PlusCircle, Search, RefreshCw, MoreVertical, Paperclip, Edit2, Trash2, Info } from "lucide-react"
 
 const mockExpenses = [
-    { id: 1, date: "15.03.2024", title: "Adobe Creative Cloud", category: "Software & Lizenzen", provider: "Adobe Systems", amount: "59.49", isRecurring: true, hasAttachment: true },
+    { id: 1, date: "Seit 01.01.2024", title: "Adobe Creative Cloud", category: "Software & Lizenzen", provider: "Adobe Systems", amount: "178.47", isRecurring: true, hasAttachment: true, isGrouped: true, count: 3 },
     { id: 2, date: "12.03.2024", title: "Tankfüllung Firmenwagen", category: "Fahrtkosten", provider: "Shell", amount: "84.20", isRecurring: false, hasAttachment: true },
     { id: 3, date: "05.03.2024", title: "Druckerpapier & Toner", category: "Büromaterial", provider: "Staples", amount: "142.50", isRecurring: false, hasAttachment: false },
-    { id: 4, date: "01.03.2024", title: "Büromiete März", category: "Miete", provider: "Immobilien GmbH", amount: "850.00", isRecurring: true, hasAttachment: true },
+    { id: 4, date: "01.01.2024 - 01.03.2024", title: "Büromiete", category: "Miete", provider: "Immobilien GmbH", amount: "2550.00", isRecurring: true, hasAttachment: true, isGrouped: true, count: 3 },
     { id: 5, date: "28.02.2024", title: "Geschäftsessen Kunde XYZ", category: "Bewirtung", provider: "Restaurant L'Osteria", amount: "112.80", isRecurring: false, hasAttachment: true },
 ]
 
@@ -84,8 +84,13 @@ export default function MockAusgaben() {
                     <TableBody>
                         {mockExpenses.map((expense) => (
                             <TableRow key={expense.id} className="hover:bg-muted/50 transition-colors cursor-default">
-                                <TableCell className="text-muted-foreground">{expense.date}</TableCell>
-                                <TableCell className="font-medium">{expense.title}</TableCell>
+                                <TableCell className="text-muted-foreground whitespace-nowrap">{expense.date}</TableCell>
+                                <TableCell className="font-medium">
+                                    {expense.title}
+                                    {expense.isGrouped && expense.count > 1 && (
+                                        <span className="ml-2 text-xs font-normal text-muted-foreground">({expense.count} Raten)</span>
+                                    )}
+                                </TableCell>
                                 <TableCell>
                                     <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-muted/20">
                                         {expense.category}

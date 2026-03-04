@@ -208,9 +208,24 @@ export default function Statistiken() {
                         const base64Data = dataUrl.split(',')[1];
                         const mimeMatch = dataUrl.match(/data:([a-zA-Z0-9/+.-]+);/);
                         const ext = mimeMatch && mimeMap[mimeMatch[1]] ? mimeMap[mimeMatch[1]] : '.bin';
-                        const attName = att.name ? att.name.replace(/[/\\?%*:|"<>]/g, '-') : `Beleg_${k + 1}${ext}`;
+
+                        // Prefix with date to prevent overwriting for recurring expenses with same file names (e.g. multiple "Rechnung.pdf")
+                        const expenseDateStr = new Date(exp.date).toISOString().split('T')[0]; // YYYY-MM-DD
+
+                        let finalAttName = `${expenseDateStr}_Beleg_${k + 1}${ext}`;
+                        if (att.name) {
+                            const safeName = att.name.replace(/[/\\?%*:|"<>]/g, '-');
+                            // Inject the index before the extension to guarantee uniqueness
+                            const splitIndex = safeName.lastIndexOf('.');
+                            if (splitIndex > 0) {
+                                finalAttName = `${expenseDateStr}_${safeName.substring(0, splitIndex)}_${k + 1}${safeName.substring(splitIndex)}`;
+                            } else {
+                                finalAttName = `${expenseDateStr}_${safeName}_${k + 1}${ext}`;
+                            }
+                        }
+
                         // Structure: Ausgaben/Details/[Kategorie]/[Ausgabe Name]/Beleg
-                        zip.folder("Ausgaben").folder("Details").folder(safeCategory).folder(safeTitle).file(attName, base64Data, { base64: true });
+                        zip.folder("Ausgaben").folder("Details").folder(safeCategory).folder(safeTitle).file(finalAttName, base64Data, { base64: true });
                     } catch (e) {
                         console.error("Failed to add attachment", att.path, e);
                     }
@@ -237,7 +252,103 @@ export default function Statistiken() {
                 }
             }
 
-            // ── 5. Save Dialog ──
+            // ── 4b. Kundenstammblatt PDF per Customer Folder ──
+            setExportProgress("Generiere Kundenstammblätter...");
+            const processedCustomers = new Set();
+            for (const kundenId of Object.keys(kundenCache)) {
+                const kunde = kundenCache[kundenId];
+                const safeKundenName = (kunde.name || "Unbekannt").replace(/[/\\?%*:|"<>]/g, '-');
+                if (processedCustomers.has(safeKundenName)) continue;
+                processedCustomers.add(safeKundenName);
+
+                const rowStyle = "padding:6px 10px; border-bottom:1px solid #e8e8e8;";
+                const labelStyle = `${rowStyle} font-weight:600; color:#444; width:40%;`;
+                const valueStyle = `${rowStyle} color:#111;`;
+
+                let kundenHtml = `
+                    <h2 style="margin-bottom:4px; font-size:16px;">Kundenstammblatt</h2>
+                    <p style="color:#555; margin-bottom:16px; font-size:11px;">Erstellt am ${new Date().toLocaleDateString('de-DE')}</p>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <tbody>
+                            <tr><td style="${labelStyle}">Name</td><td style="${valueStyle}">${kunde.name || '—'}</td></tr>
+                            <tr><td style="${labelStyle}">Typ</td><td style="${valueStyle}">${kunde.istfirma ? 'Unternehmen' : 'Privatperson'}</td></tr>
+                            <tr><td style="${labelStyle}">Straße / Nr.</td><td style="${valueStyle}">${kunde.strasse || '—'} ${kunde.hausnummer || ''}</td></tr>
+                            <tr><td style="${labelStyle}">PLZ / Ort</td><td style="${valueStyle}">${kunde.plz || '—'} ${kunde.stadt || ''}</td></tr>
+                            <tr><td style="${labelStyle}">Land</td><td style="${valueStyle}">${kunde.laenderCode || '—'}</td></tr>
+                            <tr><td style="${labelStyle}">Bundesland</td><td style="${valueStyle}">${kunde.bundesland || '—'}</td></tr>
+                            <tr><td style="${labelStyle}">E-Mail</td><td style="${valueStyle}">${kunde.email || '—'}</td></tr>
+                            <tr><td style="${labelStyle}">Telefon</td><td style="${valueStyle}">${kunde.tel || '—'}</td></tr>
+                            <tr><td style="${labelStyle}">Ansprechpartner</td><td style="${valueStyle}">${kunde.ansprechpartner || '—'}</td></tr>
+                            <tr><td style="${labelStyle}">USt-ID</td><td style="${valueStyle}">${kunde.umstid || '—'}</td></tr>
+                            <tr><td style="${labelStyle}">Leitweg-ID</td><td style="${valueStyle}">${kunde.leitwegid || '—'}</td></tr>
+                        </tbody>
+                    </table>`;
+
+                try {
+                    const kundenPdfBuffer = await generateTablePdf(kundenHtml, `Kundenstammblatt_${safeKundenName}.pdf`);
+                    zip.folder("Rechnungen").folder(safeKundenName).file(`Kundenstammblatt_${safeKundenName}.pdf`, kundenPdfBuffer);
+                } catch (e) {
+                    console.error("Failed to generate Kundenstammblatt for", safeKundenName, e);
+                }
+            }
+
+            // ── 5. Mahnungen ──
+            setExportProgress("Lade Mahnungen...");
+            try {
+                const { handleLoadFile: loadFile } = await import('../../Scripts/Filehandler');
+                const mahnDbStr = await loadFile("fast_accsess/mahnungen.db");
+                let mahnList = [];
+                if (mahnDbStr && mahnDbStr !== "{}") {
+                    const mahnDb = JSON.parse(mahnDbStr);
+                    mahnList = mahnDb.list || [];
+                }
+
+                if (mahnList.length > 0) {
+                    mahnList.sort((a, b) => b.date - a.date);
+                    const totalMahn = mahnList.reduce((acc, m) => acc + parseFloat(m.amount || 0), 0);
+
+                    let mahnHtml = `
+                        <h2 style="margin-bottom:4px; font-size:16px;">Mahnungsübersicht</h2>
+                        <p style="color:#555; margin-bottom:16px; font-size:11px;">Erstellt am ${new Date().toLocaleDateString('de-DE')} — ${mahnList.length} Mahnung(en)</p>
+                        <table style="width:100%; border-collapse:collapse;">
+                            <thead><tr>
+                                <th style="${thStyle}">Datum</th>
+                                <th style="${thStyle}">Rechnung</th>
+                                <th style="${thStyle}">Kunde</th>
+                                <th style="${thStyle}">Stufe</th>
+                                <th style="${thStyle} text-align:right;">Betrag (€)</th>
+                            </tr></thead>
+                            <tbody>`;
+
+                    mahnList.forEach((m, idx) => {
+                        const stufeLabel = m.level === 1 ? 'Erinnerung' : `${m.level}. Mahnung`;
+                        mahnHtml += `<tr style="background:${idx % 2 === 0 ? '#fff' : '#fafafa'};">
+                            <td style="${tdStyle}">${new Date(m.date).toLocaleDateString('de-DE')}</td>
+                            <td style="${tdStyle}">${m.rechnungId || '—'}</td>
+                            <td style="${tdStyle}">${m.kundenName || '—'}</td>
+                            <td style="${tdStyle}">${stufeLabel}</td>
+                            <td style="${tdStyle} text-align:right;">${Number(m.amount || 0).toFixed(2)}</td>
+                        </tr>`;
+                    });
+
+                    mahnHtml += `
+                            </tbody>
+                            <tfoot>
+                                <tr style="background:#f8f8fc;">
+                                    <td colspan="4" style="padding:10px; font-weight:700;">Gesamt Forderungen</td>
+                                    <td style="padding:10px; text-align:right; font-weight:700; color:#dc2626;">${totalMahn.toFixed(2)} €</td>
+                                </tr>
+                            </tfoot>
+                        </table>`;
+
+                    const mahnBuffer = await generateTablePdf(mahnHtml, 'Mahnungen_Übersicht.pdf');
+                    zip.folder("Mahnungen").file(`Mahnungen_Übersicht.pdf`, mahnBuffer);
+                }
+            } catch (e) {
+                console.error("Failed to export Mahnungen", e);
+            }
+
+            // ── 6. Save Dialog ──
             setExportProgress("Wähle Speicherort...");
             const { filePath } = await window.api.showSaveDialog({
                 title: 'Export Speichern',
@@ -287,14 +398,13 @@ export default function Statistiken() {
     const currentMonthStats = (isCurrentYear && chartData && chartData[currentMonthIndex]) ? chartData[currentMonthIndex] : null;
 
     return (
-        <div className="h-full overflow-y-auto bg-background">
-
-            <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <div className="flex-1 w-full h-full overflow-y-auto bg-background p-8">
+            <div className="space-y-6">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Finanzübersicht</h1>
-                        <p className="text-muted-foreground mt-1">Analysieren Sie Ihre Einnahmen und Ausgaben für {year}</p>
+                        <h2 className="text-[24px] font-semibold tracking-tight text-foreground">Statistiken</h2>
+                        <p className="text-sm text-muted-foreground">Analysieren Sie Ihre Einnahmen und Ausgaben für {year}</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <Select
@@ -343,17 +453,17 @@ export default function Statistiken() {
                 </div>
 
                 {/* Main Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className={`grid gap-4 md:grid-cols-2 ${summary.isKleinunternehmer ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`}>
                     <Card className="border-l-4 border-l-green-500">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Gesamte Einnahmen</CardTitle>
+                            <CardTitle className="text-sm font-medium">{summary.isKleinunternehmer ? 'Gesamte Einnahmen' : 'Gesamte Einnahmen inkl. Steuer'}</CardTitle>
                             <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center">
                                 <TrendingUp className="h-4 w-4 text-green-600" />
                             </div>
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-green-600">{summary.totalIncome?.toFixed(2)} €</div>
-                            <p className="text-xs text-muted-foreground mt-1">Bruttoeinkommen {year}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{summary.isKleinunternehmer ? 'Nettoeinkommen' : 'Bruttoeinkommen'} {year}</p>
                         </CardContent>
                     </Card>
 
@@ -385,18 +495,20 @@ export default function Statistiken() {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-l-4 border-l-purple-500">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">USt. Eingenommen</CardTitle>
-                            <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                                <FileText className="h-4 w-4 text-purple-600" />
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-purple-600">{summary.totalTaxCollected?.toFixed(2)} €</div>
-                            <p className="text-xs text-muted-foreground mt-1">Umsatzsteuer {year}</p>
-                        </CardContent>
-                    </Card>
+                    {!summary.isKleinunternehmer && (
+                        <Card className="border-l-4 border-l-purple-500">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-sm font-medium">USt. Eingenommen</CardTitle>
+                                <div className="h-8 w-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                                    <FileText className="h-4 w-4 text-purple-600" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold text-purple-600">{summary.totalTaxCollected?.toFixed(2)} €</div>
+                                <p className="text-xs text-muted-foreground mt-1">Umsatzsteuer {year}</p>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
 
                 {/* Payment Status */}
@@ -410,6 +522,7 @@ export default function Statistiken() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{summary.paidAmount?.toFixed(2)} €</div>
+                            {!summary.isKleinunternehmer && <p className="text-[10px] text-muted-foreground">inkl. Steuer</p>}
                             <p className="text-xs text-muted-foreground mt-1">{summary.paidCount || 0} Rechnungen</p>
                         </CardContent>
                     </Card>
@@ -423,6 +536,7 @@ export default function Statistiken() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{summary.openAmount?.toFixed(2)} €</div>
+                            {!summary.isKleinunternehmer && <p className="text-[10px] text-muted-foreground">inkl. Steuer</p>}
                             <p className="text-xs text-muted-foreground mt-1">{summary.openCount || 0} Rechnungen</p>
                         </CardContent>
                     </Card>
@@ -436,6 +550,7 @@ export default function Statistiken() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold text-red-600">{summary.overdueAmount?.toFixed(2)} €</div>
+                            {!summary.isKleinunternehmer && <p className="text-[10px] text-muted-foreground">inkl. Steuer</p>}
                             <p className="text-xs text-muted-foreground mt-1">{summary.overdueCount || 0} Rechnungen</p>
                         </CardContent>
                     </Card>
@@ -455,7 +570,7 @@ export default function Statistiken() {
                                     <BarChart data={chartData}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                                         <XAxis
-                                            dataKey="month"
+                                            dataKey="name"
                                             stroke="#6b7280"
                                             fontSize={12}
                                             tickLine={false}

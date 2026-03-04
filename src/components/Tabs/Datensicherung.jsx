@@ -11,11 +11,10 @@ export default function Datensicherung() {
     const handleCreateBackup = async () => {
         setIsExporting(true);
         try {
-            // Call the previously native function via IPC
+
             const result = await window.api.createBackup();
 
-            // The native dialog handles showing "success" and "error" boxes itself
-            // We just wait for it to finish and reset the loading state.
+
             if (result && result.success) {
                 console.log("Backup successful", result.path);
             }
@@ -29,13 +28,13 @@ export default function Datensicherung() {
     const handleRestoreBackup = async () => {
         setIsImporting(true);
         try {
-            // Call the previously native function via IPC
+
             const result = await window.api.restoreBackup();
 
-            // The native dialog handles showing "success" and "error" boxes itself
+
             if (result && result.success) {
                 console.log("Restore successful");
-                // The native prompt asks the user to restart Rechnix
+
             }
         } catch (error) {
             console.error("Restore failed", error);

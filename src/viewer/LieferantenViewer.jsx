@@ -1,6 +1,6 @@
 import { Avatar, Box, Button, Chip, Dropdown, Input, ListItem, Menu, MenuButton, MenuItem, Table, Typography, Divider, IconButton, Tooltip, Stack } from '@mui/joy'
 import React, { useEffect, useState } from 'react'
-import Headline from '../components/Headline' // Deprecated/BackNav
+import Headline from '../components/Headline'
 import { useNavigate, useParams } from 'react-router-dom'
 import { handleLoadFile, handleSaveFile } from '../Scripts/Filehandler';
 import ArrowCircleLeftOutlinedIcon from '@mui/icons-material/ArrowCircleLeftOutlined';
@@ -35,7 +35,7 @@ function LieferantenViewer() {
         try {
             const string = await handleLoadFile("lieferanten/" + id);
             const json = JSON.parse(string);
-            // Ensure rechnungen is an array
+
             if (!json.rechnungen) json.rechnungen = [];
             setData(json);
         } catch (e) {
@@ -48,7 +48,7 @@ function LieferantenViewer() {
     }, [id]);
 
     const addNewFile = async () => {
-        await handleLoadFile("lieferantenrechnungen/dump.rechnix"); // Ensure dir exists
+        await handleLoadFile("lieferantenrechnungen/dump.rechnix");
         let code = generateCode();
         const folderdata = await window.api.listfiles("lieferantenrechnungen/")
         while (folderdata.includes(code + "")) {

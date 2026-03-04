@@ -4,10 +4,10 @@ import { handleLoadFile } from '../Scripts/Filehandler';
 import { create } from 'xmlbuilder2';
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
-const PAGE_PADDING_MM = 15; // padding on all sides
-const TABLE_ROW_HEIGHT_MM = 10; // estimated row height
-const HEADER_HEIGHT_MM = 45; // estimated header height
-const FOOTER_HEIGHT_MM = 35; // estimated footer height
+const PAGE_PADDING_MM = 15;
+const TABLE_ROW_HEIGHT_MM = 10;
+const HEADER_HEIGHT_MM = 45;
+const FOOTER_HEIGHT_MM = 35;
 const ROWS_PER_PAGE = 6;
 function FileXRechnungViewer({ d }) {
     const [invoiceRoot, setInvoiceRoot] = useState();
@@ -148,7 +148,7 @@ function FileXRechnungViewer({ d }) {
         );
     }
 
-    // Footer component
+
     function Footer() {
         return (
             <Box sx={{ width: "100%", mt: 5, mb: 2 }}>
@@ -185,10 +185,9 @@ function FileXRechnungViewer({ d }) {
                     padding: `${PAGE_PADDING_MM}mm`,
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "flex-start", // changed from "space-between"
+                    justifyContent: "flex-start",
                     boxSizing: "border-box",
                     overflow: "visible",
-                    // removed fixed height / minHeight
                 }}
             >
                 <Head />

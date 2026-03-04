@@ -169,9 +169,9 @@ function Home() {
           {//<ListItem>
             //<Box onClick={() => setvalue(5)}>
             //<Typography
-            // level='body-xs'
-            // startDecorator={<SettingsOutlinedIcon />}
-            // sx={{ "&:hover": { color: "primary.plainColor" }, cursor: "pointer", color: value == 7 ? "primary.plainColor" : "" }}
+
+
+
             //>
             //</Box>  Einstellungen
             //</ListItem> </Typography>

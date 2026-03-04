@@ -37,3 +37,5 @@ kathegories/kathegories.rechnix
 *.exe
 *.dmg
 /dist
+*.jar
+/selling/backend/.gradle

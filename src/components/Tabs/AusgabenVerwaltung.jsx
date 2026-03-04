@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Dropdown, Menu, MenuButton, MenuItem, ListItemDecorator } from '@mui/joy';
 import { getAusgaben, deleteAusgabe, importFromERechnung } from '../../Scripts/AusgabenHandler';
 import { exportToCSV } from '../../Scripts/ExportHandler';
@@ -6,27 +7,28 @@ import AusgabenEditor from '../Ausgaben/AusgabenEditor';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { Modal, ModalDialog } from '@mui/joy';
 
-// Shadcn UI & Icons
+
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { FileDown, UploadCloud, PlusCircle, Search, RefreshCw, MoreVertical, Edit2, Trash2, Paperclip } from "lucide-react";
+import { FileDown, UploadCloud, PlusCircle, Search, RefreshCw, MoreVertical, Edit2, Trash2, Paperclip, Eye } from "lucide-react";
 
 export default function AusgabenVerwaltung() {
+    const navigate = useNavigate();
     const [expenses, setExpenses] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
-    // Attachment Viewer State
+
     const [viewerOpen, setViewerOpen] = useState(false);
     const [viewerContent, setViewerContent] = useState(null);
-    const [viewerType, setViewerType] = useState('image'); // image, pdf, xml
+    const [viewerType, setViewerType] = useState('image');
     const [viewerTitle, setViewerTitle] = useState('');
 
     const fetchData = async () => {
         const data = await getAusgaben();
-        // Sort by date descending
+
         const sorted = (data.list || []).sort((a, b) => b.date - a.date);
         setExpenses(sorted);
     };
@@ -36,10 +38,6 @@ export default function AusgabenVerwaltung() {
     }, []);
 
     const handleDelete = async (id) => {
-        // Confirmation is now handled slightly differently or we can keep window.confirm for now
-        //Ideally we use a custom modal, but for speed window.confirm is fine if not requested otherwise.
-        // Let's stick to consistent UI if possible, but I don't have a generic confirm modal ready here comfortably without context.
-        // I will use window.confirm for now as per original code, but wrapped in a better UX if possible later.
         if (window.confirm("Möchten Sie diese Ausgabe wirklich löschen?")) {
             await deleteAusgabe(id);
             fetchData();
@@ -57,7 +55,7 @@ export default function AusgabenVerwaltung() {
     };
 
     const handleExport = () => {
-        // Prepare data for export (flatten/format dates)
+
         const exportData = expenses.map(e => ({
             Titel: e.title,
             Betrag: e.amount,
@@ -98,7 +96,7 @@ export default function AusgabenVerwaltung() {
     const handleViewAttachment = async (path, title) => {
         if (!path) return;
 
-        // If XML (E-Rechnung), show in internal viewer
+
         if (path.toLowerCase().endsWith('.xml')) {
             try {
                 const content = await window.api.readAttachment(path);
@@ -107,7 +105,7 @@ export default function AusgabenVerwaltung() {
                     return;
                 }
                 setViewerTitle(title);
-                // Decode base64 content for XML viewer
+
                 setViewerContent(atob(content.split(',')[1]));
                 setViewerType('xml');
                 setViewerOpen(true);
@@ -116,7 +114,7 @@ export default function AusgabenVerwaltung() {
                 alert("Konnte E-Rechnung nicht öffnen.");
             }
         } else {
-            // Otherwise open in system default app
+
             try {
                 const result = await window.api.openExternal(path);
                 if (!result.success) {
@@ -134,6 +132,77 @@ export default function AusgabenVerwaltung() {
         e.provider?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         e.category?.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+
+    const groupedExpenses = React.useMemo(() => {
+        const groups = {};
+        const standalone = [];
+
+        filteredExpenses.forEach(expense => {
+            if (expense.isRecurring) {
+
+                const key = expense.masterId || expense.recurringId || `legacy_${expense.title}`;
+
+                if (!groups[key]) {
+                    groups[key] = {
+                        isGrouped: true,
+                        id: key,
+                        title: expense.title,
+                        category: expense.category,
+                        provider: expense.provider,
+                        isRecurring: true,
+
+                        totalAmount: 0,
+                        count: 0,
+                        dates: [],
+                        allAttachments: [],
+                        originalExpenses: []
+                    };
+                }
+
+                const g = groups[key];
+                g.totalAmount += parseFloat(expense.amount || 0);
+                g.count += 1;
+                g.dates.push(expense.date);
+                g.originalExpenses.push(expense);
+
+
+                if (expense.attachments && expense.attachments.length > 0) {
+                    expense.attachments.forEach(att => g.allAttachments.push({ ...att, expenseDate: expense.date }));
+                } else if (expense.attachmentPath) {
+                    g.allAttachments.push({ path: expense.attachmentPath, name: expense.title, expenseDate: expense.date });
+                }
+            } else {
+                standalone.push(expense);
+            }
+        });
+
+
+        const groupedArray = Object.values(groups).map(g => {
+            g.dates.sort((a, b) => a - b);
+            const oldestDate = new Date(g.dates[0]).toLocaleDateString("de-DE", { month: '2-digit', year: 'numeric' });
+            const newestDate = new Date(g.dates[g.dates.length - 1]).toLocaleDateString("de-DE", { month: '2-digit', year: 'numeric' });
+
+
+            g.displayDate = g.dates.length > 1 ? `${oldestDate} - ${newestDate}` : `Seit ${oldestDate}`;
+
+
+            g.allAttachments.sort((a, b) => (b.expenseDate || 0) - (a.expenseDate || 0));
+
+
+            g.sortDate = g.dates[g.dates.length - 1];
+            return g;
+        });
+
+
+        standalone.forEach(s => {
+            s.sortDate = s.date;
+            s.displayDate = new Date(s.date).toLocaleDateString("de-DE");
+        });
+
+
+        return [...groupedArray, ...standalone].sort((a, b) => b.sortDate - a.sortDate);
+    }, [filteredExpenses]);
 
     return (
         <div className="flex-1 space-y-6 p-8 pt-6 h-full overflow-y-auto w-full bg-background">
@@ -189,17 +258,24 @@ export default function AusgabenVerwaltung() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredExpenses.map((expense) => (
+                        {groupedExpenses.map((expense) => (
                             <TableRow key={expense.id} className="hover:bg-muted/50 transition-colors cursor-default">
-                                <TableCell className="text-muted-foreground">{new Date(expense.date).toLocaleDateString("de-DE")}</TableCell>
-                                <TableCell className="font-medium">{expense.title}</TableCell>
+                                <TableCell className="text-muted-foreground whitespace-nowrap">{expense.displayDate}</TableCell>
+                                <TableCell className="font-medium">
+                                    {expense.title}
+                                    {expense.isGrouped && expense.count > 1 && (
+                                        <span className="ml-2 text-xs font-normal text-muted-foreground">({expense.count} Raten)</span>
+                                    )}
+                                </TableCell>
                                 <TableCell>
                                     <span className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground ring-1 ring-inset ring-muted/20">
                                         {expense.category || "Keine Kategorie"}
                                     </span>
                                 </TableCell>
                                 <TableCell>{expense.provider}</TableCell>
-                                <TableCell className="text-right font-mono text-red-500 font-medium">-{parseFloat(expense.amount).toFixed(2)} €</TableCell>
+                                <TableCell className="text-right font-mono text-red-500 font-medium">
+                                    -{expense.isGrouped ? expense.totalAmount.toFixed(2) : parseFloat(expense.amount).toFixed(2)} €
+                                </TableCell>
                                 <TableCell className="text-center">
                                     {expense.isRecurring && (
                                         <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
@@ -213,26 +289,50 @@ export default function AusgabenVerwaltung() {
                                             <MenuButton slots={{ root: 'button' }} slotProps={{ root: { className: 'inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 w-8 text-muted-foreground' } }}>
                                                 <MoreVertical className="h-4 w-4" />
                                             </MenuButton>
-                                            <Menu placement="bottom-end" size="sm">
-                                                {/* Legacy attachment format */}
-                                                {expense.attachmentPath && !expense.attachments && (
-                                                    <MenuItem onClick={() => handleViewAttachment(expense.attachmentPath, expense.title)}>
-                                                        <ListItemDecorator><Paperclip className="h-4 w-4" /></ListItemDecorator> Anhang anzeigen
+                                            <Menu placement="bottom-end" size="sm" sx={{ maxHeight: 300, overflowY: 'auto' }}>
+
+                                                {/* Standalone attachments only (not grouped abos — those are in the detail viewer) */}
+                                                {!expense.isGrouped && (
+                                                    <>
+                                                        {/* Standalone Legacy Attachment */}
+                                                        {expense.attachmentPath && !expense.attachments && (
+                                                            <MenuItem onClick={() => handleViewAttachment(expense.attachmentPath, expense.title)}>
+                                                                <ListItemDecorator><Paperclip className="h-4 w-4" /></ListItemDecorator> Anhang anzeigen
+                                                            </MenuItem>
+                                                        )}
+                                                        {/* Standalone Array Format */}
+                                                        {expense.attachments && expense.attachments.map((att, index) => (
+                                                            <MenuItem key={index} onClick={() => handleViewAttachment(att.path, att.name || expense.title)}>
+                                                                <ListItemDecorator><Paperclip className="h-4 w-4" /></ListItemDecorator> {att.name || "Anhang"}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </>
+                                                )}
+
+                                                {/* Details Viewer Button */}
+                                                <MenuItem onClick={() => navigate(expense.isGrouped || expense.isVirtual ? `/ausgaben-viewer/${expense.id}` : `/ausgaben-viewer/${expense.id}`)}>
+                                                    <ListItemDecorator><Eye className="h-4 w-4 text-primary" /></ListItemDecorator>
+                                                    <span className="text-primary font-medium">Details öffnen</span>
+                                                </MenuItem>
+
+                                                {/* Actions */}
+                                                {!expense.isGrouped && (
+                                                    <MenuItem onClick={() => handleEdit(expense)}>
+                                                        <ListItemDecorator><Edit2 className="h-4 w-4" /></ListItemDecorator> Bearbeiten
                                                     </MenuItem>
                                                 )}
 
-                                                {/* New array format */}
-                                                {expense.attachments && expense.attachments.map((att, index) => (
-                                                    <MenuItem key={index} onClick={() => handleViewAttachment(att.path, att.name || expense.title)}>
-                                                        <ListItemDecorator><Paperclip className="h-4 w-4" /></ListItemDecorator> {att.name || "Anhang"}
-                                                    </MenuItem>
-                                                ))}
-
-                                                <MenuItem onClick={() => handleEdit(expense)}>
-                                                    <ListItemDecorator><Edit2 className="h-4 w-4" /></ListItemDecorator> Bearbeiten
-                                                </MenuItem>
-                                                <MenuItem color="danger" onClick={() => handleDelete(expense.id)}>
-                                                    <ListItemDecorator><Trash2 className="h-4 w-4 text-red-500" /></ListItemDecorator> <span className="text-red-500">Löschen</span>
+                                                <MenuItem color="danger" onClick={() => {
+                                                    if (expense.isGrouped) {
+                                                        if (window.confirm(`Möchten Sie dieses Abo und alle zugehörigen ${expense.count} Buchungen wirklich komplett löschen?`)) {
+                                                            deleteAusgabe(expense.id).then(() => fetchData());
+                                                        }
+                                                    } else {
+                                                        handleDelete(expense.id);
+                                                    }
+                                                }}>
+                                                    <ListItemDecorator><Trash2 className="h-4 w-4 text-red-500" /></ListItemDecorator>
+                                                    <span className="text-red-500">{expense.isGrouped ? 'Komplettes Abo löschen' : 'Löschen'}</span>
                                                 </MenuItem>
                                             </Menu>
                                         </Dropdown>

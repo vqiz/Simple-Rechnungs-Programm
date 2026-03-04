@@ -103,11 +103,11 @@ const Sidebar = () => {
                     </div>
                     <div className="flex-1">
                         <p className="text-sm font-medium">Benutzer</p>
-                        <p className="text-xs text-muted-foreground">Pro Plan</p>
+                        <p className="text-xs text-muted-foreground">Basic License</p>
                     </div>
                 </div>
                 <div className="mt-4 text-[10px] text-center text-muted-foreground/50">
-                    v1.0.0 • Stable
+                    Beta Version
                 </div>
             </div>
         </div>

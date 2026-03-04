@@ -37,21 +37,21 @@ function KundenEditor({ id, close }) {
     }, [id]);
 
     const save = async () => {
-        // Ensure the formData has a valid ID and convert it to a string
+
         let currentId = String(formData.id || id);
         const updatedData = { ...formData, id: currentId };
 
-        // Save full customer data to file
+
         await handleSaveFile("kunden/" + currentId + ".person", JSON.stringify(updatedData));
 
-        // Load and update the fast access database
+
         const string = await handleLoadFile("fast_accsess/kunden.db");
         const json = JSON.parse(string);
 
-        // Remove any old entry with the same ID
+
         json.list = json.list.filter((i) => i.id !== currentId);
 
-        // Create updated summary item
+
         const item = {
             name: updatedData.name,
             id: updatedData.id,
@@ -59,7 +59,7 @@ function KundenEditor({ id, close }) {
             email: updatedData.email,
         };
 
-        // Add updated item and save back
+
         json.list.push(item);
 
         await handleSaveFile("fast_accsess/kunden.db", JSON.stringify(json));

@@ -11,9 +11,9 @@ function InfoCard({ headline, children }) {
       sx={{
         display: 'flex',
         flexDirection: 'row',
-        alignItems: 'start', // Align start for multi-line text
+        alignItems: 'start',
         padding: '16px',
-        bgcolor: 'var(--md-sys-color-secondary)', // Light blue bg
+        bgcolor: 'var(--md-sys-color-secondary)',
         border: 'none',
         borderRadius: '12px',
         gap: '16px',
@@ -26,7 +26,7 @@ function InfoCard({ headline, children }) {
           justifyContent: 'center',
           alignItems: 'center',
           color: 'var(--md-sys-color-on-secondary)',
-          mt: '2px' // Optical alignment with title
+          mt: '2px'
         }}
       >
         <InfoOutlinedIcon />

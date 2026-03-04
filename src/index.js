@@ -5,7 +5,7 @@ import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
 import './styles/swiss.css';
 import './index.css';
 
-// Rechnix Global Purple Theme for MUI Joy UI (Masks & Inputs)
+
 const theme = extendTheme({
   colorSchemes: {
     light: {
@@ -16,7 +16,7 @@ const theme = extendTheme({
           200: '#cfacef',
           300: '#b483e5',
           400: '#9b5ce0',
-          500: '#791ae5', // Main Rechnix Purple
+          500: '#791ae5',
           600: '#6415bf',
           700: '#52119d',
           800: '#400c7a',
@@ -32,7 +32,7 @@ const theme = extendTheme({
           200: '#cfacef',
           300: '#9549f0',
           400: '#8c33eb',
-          500: '#a35cf5', // Lighter purple for dark mode (hsl 262 90 65)
+          500: '#a35cf5',
           600: '#791ae5',
           700: '#6415bf',
           800: '#52119d',

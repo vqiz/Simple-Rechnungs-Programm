@@ -1,5 +1,4 @@
 import { create } from "xmlbuilder2";
-
 export async function createERechnung(rechnung, data, kunde, unternehmen) {
     const doc = create({ version: "1.0", encoding: "UTF-8" })
         .ele("Invoice", {
@@ -13,9 +12,7 @@ export async function createERechnung(rechnung, data, kunde, unternehmen) {
         .ele("cbc:ProfileID").txt("urn:fdc:peppol.eu:2017:poacc:billing:01:1.0").up()
         .ele("cbc:ID").txt(rechnung).up()
         .ele("cbc:IssueDate").txt(getInvoiceDate(rechnung)).up()
-        //änderung!
         .ele("cbc:DueDate").txt(getInvoiceDatePlusTwoWeeks(rechnung)).up()
-        //folgtOriginal
         .ele("cbc:InvoiceTypeCode").txt("380").up()
         .ele("cbc:DocumentCurrencyCode").txt("EUR").up()
         .ele("cbc:BuyerReference").txt(kunde.id).up()
@@ -44,15 +41,10 @@ export async function createERechnung(rechnung, data, kunde, unternehmen) {
         .up()
         .up()
         .up()
-
-
-
-        //keufer
         .ele("cac:AccountingCustomerParty")
         .ele("cac:Party")
         .ele("cac:PartyName")
         .ele("cbc:Name").txt(kunde.name).up()
-
         .up()
         .ele("cac:PostalAddress")
         .ele("cbc:StreetName").txt(kunde.street + " " + kunde.number).up()
@@ -79,7 +71,6 @@ export async function createERechnung(rechnung, data, kunde, unternehmen) {
         .ele("cbc:PaymentID").txt(rechnung).up()
         .ele("cac:PayeeFinancialAccount")
         .ele("cbc:ID").txt(unternehmen.bankverbindung).up()
-        //Änderung
         .ele("cbc:Name").txt(unternehmen.kontoinhaber).up()
         .ele("cac:FinancialInstitutionBranch")
         .ele("cbc:ID").txt(unternehmen.bic).up()
@@ -88,7 +79,6 @@ export async function createERechnung(rechnung, data, kunde, unternehmen) {
         .up()
     const taxTotalNode = doc.ele("cac:TaxTotal")
         .ele("cbc:TaxAmount", { currencyID: "EUR" }).txt(getTaxAmount(data)).up();
-
     if (unternehmen.mwst) {
         getSteuersätze(data).map((item) => {
             taxTotalNode
@@ -119,14 +109,12 @@ export async function createERechnung(rechnung, data, kunde, unternehmen) {
             .up()
     }
     taxTotalNode.up()
-
     doc.ele("cac:LegalMonetaryTotal")
         .ele("cbc:LineExtensionAmount", { currencyID: "EUR" }).txt(getNetto(data)).up()
         .ele("cbc:TaxExclusiveAmount", { currencyID: "EUR" }).txt(getNetto(data)).up()
         .ele("cbc:TaxInclusiveAmount", { currencyID: "EUR" }).txt(unternehmen.mwst ? getbrutto(data) : getNetto(data)).up()
         .ele("cbc:PayableAmount", { currencyID: "EUR" }).txt(unternehmen.mwst ? getbrutto(data) : getNetto(data)).up()
         .up()
-
     Object.entries(data.positionen).forEach(([key, value], index) => {
         const name = key.split("_")[1];
         const amout = value;
@@ -151,15 +139,10 @@ export async function createERechnung(rechnung, data, kunde, unternehmen) {
             .ele("cbc:BaseQuantity", { unitCode: !name.toLowerCase().includes("stunde") ? "C62" : "HUR" }).txt("1").up()
             .up()
             .up()
-
     })
-
     doc.up()
-
     const xmlContent = doc.end({ prettyPrint: true });
-
     try {
-        // Ask user where to save the file
         const result = await window.api.showSaveDialog({
             defaultPath: rechnung + ".xml",
             filters: [
@@ -167,18 +150,14 @@ export async function createERechnung(rechnung, data, kunde, unternehmen) {
                 { name: 'All Files', extensions: ['*'] }
             ]
         });
-
         if (result.canceled || !result.filePath) {
             console.log("E-Rechnung export cancelled by user");
             return;
         }
-
-        // Save to selected path
         await window.api.saveFileToPath({
             content: xmlContent,
             filePath: result.filePath
         });
-
         console.log("E-Rechnung XML exported successfully to:", result.filePath);
         alert("E-Rechnung XML wurde erfolgreich exportiert!");
     } catch (error) {
@@ -186,7 +165,6 @@ export async function createERechnung(rechnung, data, kunde, unternehmen) {
         alert("Fehler beim Exportieren der E-Rechnung: " + error.message);
     }
 }
-
 function getTaxamountbySatz(data, satz) {
     let i = 0;
     Object.entries(data.positionen).forEach(([key, value], index) => {
@@ -212,11 +190,8 @@ function getTaxableAmountbySteuersatz(data, satz) {
         }
     })
     return Number(i).toFixed(2);
-
 }
-
 function getSteuersätze(data) {
-
     let i = []
     data.items.list.map((item) => {
         item.content.map((content) => {
@@ -227,14 +202,6 @@ function getSteuersätze(data) {
     })
     return i;
 }
-
-
-
-
-
-
-
-
 export function getbrutto(data) {
     try {
         let i = 0;
@@ -243,15 +210,12 @@ export function getbrutto(data) {
             const amout = value;
             const kath = data.items.list.find((i) => i.name === key.split("_")[0]);
             const price = kath.content.find((i) => i.name === name).price;
-
             i = i + (amout * price + (price * amout * (kath.content.find((i) => i.name === name).steuer / 100)));
-
         })
         return Number(i).toFixed(2);
     } catch {
         return 0;
     }
-
 }
 export function getNetto(data) {
     try {
@@ -261,17 +225,13 @@ export function getNetto(data) {
             const amout = value;
             const kath = data.items.list.find((i) => i.name === key.split("_")[0]);
             const price = kath.content.find((i) => i.name === name).price;
-
             i = i + amout * price;
-
         })
         return Number(i).toFixed(2);
     } catch {
         return 0;
     }
-
 }
-
 function getTaxSumAmount(data) {
     let i = 0;
     Object.entries(data.positionen).forEach(([key, value], index) => {
@@ -285,8 +245,6 @@ function getTaxSumAmount(data) {
     })
     return Number(i).toFixed(2);
 }
-
-
 export function getTaxAmount(data) {
     let i = 0;
     Object.entries(data.positionen).forEach(([key, value], index) => {
@@ -298,78 +256,53 @@ export function getTaxAmount(data) {
     })
     return Number(i).toFixed(2);
 }
-
 export function getInvoiceDate(rechnung) {
     const parts = rechnung.split("-");
     if (parts.length >= 4) {
         const jahr = parts[0].substring(1);
         const monat = parts[1];
         const tag = parts[2];
-
         return `${jahr}-${monat}-${tag}`;
     }
     return rechnung;
 }
 function getInvoiceDatePlusTwoWeeks(rechnung) {
     const originalDateStr = getInvoiceDate(rechnung);
-    const [year, month, day] = originalDateStr.split("-").map(Number); // <- hier ändern!
-
+    const [year, month, day] = originalDateStr.split("-").map(Number); 
     const date = new Date(year, month - 1, day);
     date.setDate(date.getDate() + 14);
-
     const dayStr = String(date.getDate()).padStart(2, "0");
     const monthStr = String(date.getMonth() + 1).padStart(2, "0");
     const yearStr = date.getFullYear();
-
     return `${yearStr}-${monthStr}-${dayStr}`;
 }
-
-/**
- * Parse an e-Rechnung (XRechnung/ZUGFeRD) XML file and extract expense data
- * @param {string} xmlContent - The XML content as a string
- * @returns {object} Parsed expense data
- */
 export function parseERechnung(xmlContent) {
     try {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlContent, "text/xml");
-
-        // Check for parsing errors
         const parseError = xmlDoc.querySelector("parsererror");
         if (parseError) {
             throw new Error("XML parsing error");
         }
-
-        // Helper function to get text content safely
         const getText = (selector, ns = "") => {
             const prefix = ns ? `${ns}\\:` : "";
             const elem = xmlDoc.querySelector(`${prefix}${selector}`) ||
                 xmlDoc.querySelector(selector);
             return elem?.textContent?.trim() || "";
         };
-
-        // Extract invoice basic info
         const invoiceNumber = getText("ID", "cbc") || getText("InvoiceNumber");
         const issueDate = getText("IssueDate", "cbc") || getText("InvoiceDate");
         const dueDate = getText("DueDate", "cbc") || getText("PaymentDueDate");
-
-        // Extract supplier info (AccountingSupplierParty)
         const supplierName = getText("AccountingSupplierParty PartyName Name", "cbc") ||
             getText("AccountingSupplierParty RegistrationName", "cbc") ||
             getText("SellerName");
-
-        // Extract amounts
         const totalAmount = getText("LegalMonetaryTotal PayableAmount", "cbc") ||
             getText("PayableAmount", "cbc") ||
             getText("GrandTotalAmount");
-
         const nettoAmount = getText("LegalMonetaryTotal TaxExclusiveAmount", "cbc") ||
             getText("TaxExclusiveAmount", "cbc");
-
         const taxAmount = getText("TaxTotal TaxAmount", "cbc") ||
             getText("TaxAmount", "cbc");
-
-        // Extract line items for description
         const lineItems = [];
         const lines = xmlDoc.querySelectorAll("InvoiceLine, cac\\:InvoiceLine");
         lines.forEach(line => {
@@ -377,7 +310,6 @@ export function parseERechnung(xmlContent) {
                 line.querySelector("Name")?.textContent?.trim();
             const quantity = line.querySelector("InvoicedQuantity, cbc\\:InvoicedQuantity")?.textContent?.trim();
             const price = line.querySelector("Price PriceAmount, cbc\\:PriceAmount")?.textContent?.trim();
-
             if (itemName) {
                 lineItems.push({
                     name: itemName,
@@ -386,13 +318,9 @@ export function parseERechnung(xmlContent) {
                 });
             }
         });
-
-        // Create description from line items
         const description = lineItems.length > 0
             ? lineItems.map(item => `${item.name} (${item.quantity}x)`).join(", ")
             : `Rechnung ${invoiceNumber}`;
-
-        // Extract payment method
         const paymentMeansCode = getText("PaymentMeans PaymentMeansCode", "cbc");
         const paymentMethodMap = {
             "30": "bank_transfer",
@@ -402,7 +330,6 @@ export function parseERechnung(xmlContent) {
             "1": "cash"
         };
         const paymentMethod = paymentMethodMap[paymentMeansCode] || "other";
-
         return {
             success: true,
             data: {

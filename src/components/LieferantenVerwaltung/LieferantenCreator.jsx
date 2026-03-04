@@ -19,8 +19,8 @@ function LieferantenCreator({ close }) {
     });
 
     const submit = async () => {
-        if (!formData.name) return; // Basic validation
-        await handleLoadFile("lieferanten/test.data"); // Ensure dir exists (legacy check?)
+        if (!formData.name) return;
+        await handleLoadFile("lieferanten/test.data");
         await handleSaveFile("lieferanten/" + formData.name, JSON.stringify(formData));
         close(formData.name);
     }

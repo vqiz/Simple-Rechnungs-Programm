@@ -1,11 +1,9 @@
 import { encrypt, Key } from "./Cryptor";
 import { handleLoadFile, handleSaveFile } from "./Filehandler";
-
 export const rebuildKundenDB = async () => {
     try {
         const folderdata = await window.api.listfiles("kunden/");
         const list = [];
-
         for (const file of folderdata) {
             if (file.endsWith(".person")) {
                 try {
@@ -22,7 +20,6 @@ export const rebuildKundenDB = async () => {
                 }
             }
         }
-
         const dbContent = { list: list };
         await handleSaveFile("fast_accsess/kunden.db", JSON.stringify(dbContent));
         return list;
@@ -31,7 +28,6 @@ export const rebuildKundenDB = async () => {
         return [];
     }
 }
-
 export const kundeErstellen = async (name, istfirma, street, number, plz, ort, landcode, email, telefon, ansprechpartner, leitwegid) => {
     const folderdata = await window.api.listfiles("kunden/");
     let id = generateCode();
@@ -54,7 +50,6 @@ export const kundeErstellen = async (name, istfirma, street, number, plz, ort, l
         "rechnungen": [],
         "id": id,
     }
-
     await handleSaveFile("kunden/" + id + ".person", JSON.stringify(json));
     const readedjson = await handleLoadFile("fast_accsess/kunden.db");
     let data;
@@ -67,7 +62,6 @@ export const kundeErstellen = async (name, istfirma, street, number, plz, ort, l
     data.list.push(element);
     await handleSaveFile("fast_accsess/kunden.db", JSON.stringify(data));
     return id;
-
 }
 export function generateCode() {
     return Math.floor(Math.random() * 1e6)
